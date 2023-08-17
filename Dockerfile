@@ -6,11 +6,11 @@ COPY package*.json ./
 
 RUN npm install glob rimraf
 
-RUN npm install --only=development
+RUN apt-get update -y && apt-get install -y openssl
+
+RUN npm install
 
 COPY . .
-
-RUN npm run db:dev
 
 RUN npm run build
 

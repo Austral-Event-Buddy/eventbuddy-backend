@@ -21,7 +21,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: development
-    command: npm run start:debug
+    command: npm run dev
     container_name: server
     restart: always
     tty: true
