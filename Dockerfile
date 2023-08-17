@@ -10,6 +10,8 @@ RUN npm install --only=development
 
 COPY . .
 
+RUN npm run db:dev
+
 RUN npm run build
 
 FROM node:18-slim as production
