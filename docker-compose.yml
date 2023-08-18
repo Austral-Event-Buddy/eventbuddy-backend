@@ -20,8 +20,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: development
-    command: npm run dev
+      target: prod
     container_name: server
     restart: always
     tty: true
@@ -32,9 +31,8 @@ services:
       - .env
     ports:
       - '8080:8080'
-    volumes: # if there's any new files containing sources, add them as volumes
-      - ./src:/app/src
-      - ./prisma:/app/prisma
+    volumes:
+      - ./:/app/
     depends_on:
       database:
         condition: service_healthy

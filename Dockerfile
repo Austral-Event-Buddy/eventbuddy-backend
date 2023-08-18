@@ -1,32 +1,55 @@
-FROM node:18-slim AS development
+FROM node:18-slim AS deps
 
-WORKDIR /usr/src/app
+RUN apt-get update -y && apt-get install -y openssl libc6
+
+WORKDIR /app
 
 COPY package*.json ./
-
-RUN npm install glob rimraf
-
-RUN apt-get update -y && apt-get install -y openssl
 
 RUN npm install
 
-COPY . .
+COPY prisma/schema.prisma ./prisma/schema.prisma
+RUN npm run db:generate
+
+FROM node:18-slim as build
+
+WORKDIR /app
+
+COPY package.json ./
+COPY tsconfig.json ./
+COPY --from=deps /app/node_modules ./node_modules
+COPY src ./src
 
 RUN npm run build
 
-FROM node:18-slim as production
+FROM node:18-slim as prod
 
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
+RUN apt-get update -y && apt-get install -y openssl libc6
 
-WORKDIR /usr/src/app
+ENV NODE_ENV production
+
+WORKDIR /app
 
 COPY package*.json ./
+COPY .env ./
+COPY prisma ./prisma
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
 
-RUN npm install --only=production
+EXPOSE 8080
 
-COPY . .
+ENV PORT 8080
 
-COPY --from=development /usr/src/app/dist ./dist
+CMD ["sh", "-c", "npm run prod"]
 
-CMD ["node", "dist/main"]
+FROM node:18-slim as dev
+
+RUN apt-get update -y && apt-get install -y openssl libc6
+
+ENV NODE_ENV development
+
+WORKDIR /app
+
+COPY package.json ./
+
+CMD ["sh", "-c", "npm run dev"]
