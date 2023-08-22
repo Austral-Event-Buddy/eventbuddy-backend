@@ -1,8 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import {Constants} from './utils';
+import {Logger} from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
+  await app.listen(Constants.PORT);
 }
-bootstrap();
+bootstrap().then(() => Logger.log(`NestJS server listening at port ${Constants.PORT}`, 'Bootstrap'));
