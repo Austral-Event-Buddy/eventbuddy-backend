@@ -1,3 +1,3 @@
 export class Constants{
-    static PORT: number = 8080;
+    static PORT: number = 3332;
 }
