@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { Constants } from '../utils';
+import { Constants } from '../../utils';
 
 @Module({
   imports: [
