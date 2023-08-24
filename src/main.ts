@@ -5,6 +5,7 @@ import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix("api")
   await app.listen(Constants.PORT);
 }
 bootstrap().then(() =>
