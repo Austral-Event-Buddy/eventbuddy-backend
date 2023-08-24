@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { Constants } from '../../utils';
+import {AuthService} from "./auth.service";
+import {AuthController} from "./auth.controller";
 
 @Module({
   imports: [
@@ -12,6 +14,6 @@ import { Constants } from '../../utils';
   ],
   providers: [AuthService],
   controllers: [AuthController],
-  exports: [PrismaModule],
+  exports: [],
 })
 export class AuthModule {}
