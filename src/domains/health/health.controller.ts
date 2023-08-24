@@ -1,10 +1,9 @@
-import {Controller, Get} from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
 @Controller('health')
 export class HealthController {
-
-    @Get()
-    getHealth(): void {
-        return ;
-    }
+  @Get()
+  getHealth(): void {
+    return;
+  }
 }

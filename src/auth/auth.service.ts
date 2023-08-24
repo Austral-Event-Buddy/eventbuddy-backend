@@ -39,6 +39,6 @@ export class AuthService {
 		const match = bcrypt.compare(dto.password, user.password);
 		if (!match) throw new ForbiddenException('Credentials incorrect');
 		return `credentials correct ${user.name}`;
-		});
-	}
+		};
+
 }

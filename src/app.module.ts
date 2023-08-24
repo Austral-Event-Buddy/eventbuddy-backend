@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import {HealthModule} from "./domains/health/health.module";
+import { HealthModule } from './domains/health/health.module';
 import { EventModule } from './domains/event/event.module';
-import {AuthModule} from "./auth/auth.module";
-import {ConfigModule} from "@nestjs/config";
-import {PrismaModule} from "./prisma/prisma.module";
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -15,7 +15,7 @@ import {PrismaModule} from "./prisma/prisma.module";
     PrismaModule,
     HealthModule,
     AuthModule,
-    EventModule
+    EventModule,
   ],
   controllers: [AppController],
   providers: [AppService],
