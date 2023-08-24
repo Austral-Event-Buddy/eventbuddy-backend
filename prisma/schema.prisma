@@ -17,4 +17,35 @@ model User {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  events    Event[]  @relation("Events")
+  guests    Guest[]  @relation("Guests")
+}
+
+model Event {
+  id                   Int      @id @default(autoincrement())
+  name                 String
+  description          String
+  creatorId            Int
+  creator              User     @relation("Events", fields: [creatorId], references: [id])
+  coordinates          Float[]
+  confirmationDeadline DateTime
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  guests               Guest[]  @relation
+}
+
+model Guest {
+  id                 Int                @id @default(autoincrement())
+  userId             Int
+  eventId            Int
+  user               User               @relation("Guests", fields: [userId], references: [id])
+  event              Event              @relation(fields: [eventId], references: [id])
+  confirmationStatus confirmationStatus
+}
+
+enum confirmationStatus {
+  PENDING
+  ATTENDING
+  NOT_ATTENDING
+  HOST
 }
