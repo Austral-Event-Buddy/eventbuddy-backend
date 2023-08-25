@@ -8,7 +8,7 @@ import { Constants } from '../../utils';
       global: true,
       secret: Constants.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
-    })
+    }),
   ],
   providers: [],
   controllers: [],
