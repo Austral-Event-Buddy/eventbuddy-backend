@@ -16,7 +16,7 @@ export class AuthRepository{
 		return user;
 	}
 	async findUserByUsername(username:string) : Promise<User> {
-		const user = await this.prisma.user.findUnique({
+        const user = await this.prisma.user.findUnique({
 			where: {
 				username,
 			},
