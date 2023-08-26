@@ -25,7 +25,7 @@ export class AuthRepository{
 		return user;
 	}
 	async createUser(dto: RegisterInput, hash: string){
-		const user = await this.prisma.user.create({
+		return this.prisma.user.create({
 			data: {
 				email: dto.email,
 				password: hash,
@@ -33,8 +33,5 @@ export class AuthRepository{
 				name: dto.name,
 			},
 		});
-		delete user.password;
-		return user;
-
 	}
 }
