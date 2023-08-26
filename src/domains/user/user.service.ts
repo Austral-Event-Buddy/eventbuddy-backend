@@ -7,10 +7,10 @@ import {GetMeDto} from "./dto";
 export class UserService {
     constructor(private userRepository: UserRepository) {
     }
-    getMe(request: Request){
+    async getMe(request: Request) {
         const token = request['user'];
         const userId = token.id;
-        const user = this.userRepository.findUserById(userId);
+        const user = await this.userRepository.findUserById(userId);
         return new GetMeDto(user.name, userId);
     }
 }

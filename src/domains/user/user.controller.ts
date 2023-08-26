@@ -11,7 +11,7 @@ export class UserController{
     }
     // @UseGuards(AuthGuard)
     @Get('me')
-    getMe(@Req() request: Request): GetMeDto{
+    getMe(@Req() request: Request) {
         return this.userService.getMe(request);
     }
 }
