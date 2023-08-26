@@ -1,43 +1,37 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import {ForbiddenException, Injectable} from '@nestjs/common';
+import {PrismaService} from '../../prisma/prisma.service';
+import {PrismaClientKnownRequestError} from '@prisma/client/runtime/library';
+import {LoginInput, RegisterInput} from "./input";
+import {AuthRepository} from "./auth.repository";
+
 const bcrypt = require('bcrypt');
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import {LoginInput} from "./input";
 
 @Injectable()
 export class AuthService {
-	constructor(private prisma: PrismaService) {}
+	constructor(private prisma: PrismaService, private repo: AuthRepository) {}
 
-	// async register(dto:){
-	// 	bcrypt.hash(dto.password, 8, async (error, hash) => {
-	// 		if(error) throw error;
-	// 		try {
-	// 			const user = this.prisma.user.create({
-	// 				data: {
-	// 					email: dto.email,
-	// 					password: hash,
-	// 					name: dto.name,
-	// 				},
-	// 			});
-	// 		} catch (error) {
-	// 			if (error instanceof PrismaClientKnownRequestError) {
-	// 				if (error.code === 'P2002') {
-	// 					throw new ForbiddenException('Credentials taken');
-	// 				}
-	// 			}
-	// 			throw error;
-	// 		}
-	// 	});
-	// }
-	// async login(dto: LoginInput) {
-	// 	const user = await this.prisma.user.findUnique({
-	// 		where: {
-	// 			email: dto.email,
-	// 		},
-	// 	});
-	// 	if (!user) throw new ForbiddenException('Credentials incorrect');
-	// 	const match = bcrypt.compare(dto.password, user.password);
-	// 	if (!match) throw new ForbiddenException('Credentials incorrect');
-	// 	return `credentials correct ${user.name}`;
-	// }
+	async register(dto: RegisterInput){
+		try {
+			if(!dto.name) dto.name = '';
+			const hash = await bcrypt.hash(dto.password, 8);
+			return this.repo.createUser(dto, hash);
+		} catch (error) {
+			if (error instanceof PrismaClientKnownRequestError) {
+				if (error.code === 'P2002') {
+					throw new ForbiddenException('Credentials taken');
+				}
+			}
+			throw error;
+		}
+	}
+	async login(dto: LoginInput) {
+		let user;
+		if(dto.username) user = await this.repo.findUserByUsername(dto.username);
+		else if (dto.email) user = await this.repo.findUserByEmail(dto.email);
+		else throw new ForbiddenException('Incomplete credentials');
+
+		const match = bcrypt.compare(dto.password, user.password);
+		if (!match) throw new ForbiddenException('Credentials incorrect');
+		return `credentials correct ${user.name}`;
+	}
 }
