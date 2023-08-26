@@ -9,7 +9,7 @@ export class UserController{
 
     constructor(private userService: UserService) {
     }
-    @UseGuards(AuthGuard)
+    // @UseGuards(AuthGuard)
     @Get('me')
     getMe(@Req() request: Request): GetMeDto{
         return this.userService.getMe(request);

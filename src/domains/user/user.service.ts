@@ -8,7 +8,9 @@ export class UserService {
     constructor(private userRepository: UserRepository) {
     }
     getMe(request: Request){
-        const user = request['user'];
-        return new GetMeDto(user.name, user.id);
+        const token = request['user'];
+        const userId = token.id;
+        const user = this.userRepository.findUserById(userId);
+        return new GetMeDto(user.name, userId);
     }
 }

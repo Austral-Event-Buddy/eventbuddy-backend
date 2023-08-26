@@ -2,4 +2,9 @@ import {Injectable} from "@nestjs/common";
 
 
 @Injectable()
-export class UserRepository {}
+export class UserRepository {
+
+    findUserById(userId: number):  {
+
+    }
+}

@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Constants } from '../../utils';
+import { Request } from 'express';
 
 export class AuthGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
@@ -12,8 +13,10 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.getTokenFromHeader(request);
 
+
     if (!token) {
       // If there is no token, throw exception
+        console.log("No token")
       throw new UnauthorizedException();
     }
 
@@ -24,15 +27,16 @@ export class AuthGuard implements CanActivate {
       });
     } catch {
       // If token is invalid, throw exception
-      throw new UnauthorizedException();
+        console.log("Token invalid")
+
+        throw new UnauthorizedException();
     }
 
     return true;
   }
 
   private getTokenFromHeader(request: Request): string | undefined {
-    const [type, token] =
-      request.headers.get('authorization')?.split(' ') ?? [];
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }
 }
