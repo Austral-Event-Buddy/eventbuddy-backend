@@ -1,20 +1,22 @@
 import {ForbiddenException, Injectable} from '@nestjs/common';
-import {PrismaService} from '../../prisma/prisma.service';
 import {PrismaClientKnownRequestError} from '@prisma/client/runtime/library';
 import {LoginInput, RegisterInput} from "./input";
 import {AuthRepository} from "./auth.repository";
+import {JwtService} from "@nestjs/jwt";
 
 const bcrypt = require('bcrypt');
 
 @Injectable()
 export class AuthService {
-	constructor(private prisma: PrismaService, private repo: AuthRepository) {}
+	constructor(private repo: AuthRepository, private jwt: JwtService) {
+	}
 
-	async register(dto: RegisterInput){
+	async register(dto: RegisterInput) {
 		try {
-			if(!dto.name) dto.name = '';
+			if (!dto.name) dto.name = '';
 			const hash = await bcrypt.hash(dto.password, 8);
-			return this.repo.createUser(dto, hash);
+			const user = await this.repo.createUser(dto, hash);
+			return this.signToken(user.id);
 		} catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
 				if (error.code === 'P2002') {
@@ -24,14 +26,25 @@ export class AuthService {
 			throw error;
 		}
 	}
+
 	async login(dto: LoginInput) {
 		let user;
-		if(dto.username) user = await this.repo.findUserByUsername(dto.username);
+		if (dto.username) user = await this.repo.findUserByUsername(dto.username);
 		else if (dto.email) user = await this.repo.findUserByEmail(dto.email);
 		else throw new ForbiddenException('Incomplete credentials');
 
 		const match = bcrypt.compare(dto.password, user.password);
 		if (!match) throw new ForbiddenException('Credentials incorrect');
-		return `credentials correct ${user.name}`;
+		return this.signToken(user.id);
+	}
+
+	async signToken(userId: number): Promise<{ access_token: string }> {
+		const data = {
+			id: userId,
+		};
+		const token = await this.jwt.signAsync(data, {});
+		return {
+			access_token: token,
+		};
 	}
 }
