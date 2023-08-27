@@ -1,14 +1,18 @@
-import {IsEmail, IsNotEmpty, IsString} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class RegisterInput {
-	@IsEmail()
-	email: string
-	@IsString()
-	@IsNotEmpty()
-	password: string
-	@IsString()
-	@IsNotEmpty()
-	username: string
-	@IsString()
-	name: string
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+
+  @IsString()
+  @IsOptional()
+  name: string;
 }
