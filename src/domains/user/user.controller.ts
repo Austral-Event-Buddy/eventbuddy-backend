@@ -1,8 +1,6 @@
 import {Controller, Get, Req, UseGuards} from "@nestjs/common";
 import {UserService} from "./user.service";
 import {AuthGuard} from "../auth/auth.guard";
-import {GetMeDto} from "./dto";
-
 
 @Controller('user')
 export class UserController{
@@ -11,7 +9,7 @@ export class UserController{
     }
     // @UseGuards(AuthGuard)
     @Get('me')
-    getMe(@Req() request: Request) {
+    getMe(@Req() request: any) {
         return this.userService.getMe(request);
     }
 }
