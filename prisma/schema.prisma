@@ -32,6 +32,7 @@ model Event {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
   guests               Guest[]  @relation
+  date                 DateTime
 }
 
 model Guest {
