@@ -1,11 +1,15 @@
-import {IsEmail, IsNotEmpty, IsString} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class LoginInput {
-	@IsEmail()
-	email: string
-	@IsString()
-	@IsNotEmpty()
-	password: string
-	@IsString()
-	username: string
+  @IsEmail()
+  @IsOptional()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+
+  @IsString()
+  @IsOptional()
+  username: string;
 }
