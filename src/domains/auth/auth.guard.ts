@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Constants } from '../../utils';
+import { Request } from 'express';
 
 export class AuthGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
@@ -31,8 +32,7 @@ export class AuthGuard implements CanActivate {
   }
 
   private getTokenFromHeader(request: Request): string | undefined {
-    const [type, token] =
-      request.headers.get('authorization')?.split(' ') ?? [];
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }
 }
