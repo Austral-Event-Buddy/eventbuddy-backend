@@ -39,8 +39,6 @@ export class EventRepository {
                 }
 
             }
-
-
         });
     }
     async getEventsByNameOrDescriptionAndUserId(input: string, userId: number){
@@ -51,7 +49,6 @@ export class EventRepository {
                     {description:{contains:input}},
                     {creatorId:userId},
                     {guests:{some:{userId:userId}}}
-
                 ]
             },
             select:{

@@ -1,31 +1,20 @@
-import {Controller, Get, Query} from '@nestjs/common';
+import {Body, Controller, Get, Request, UseGuards} from '@nestjs/common';
 import {EventService} from './event.service';
+import {AuthGuard} from "../auth/auth.guard";
+import {getEventsBySearchInput} from "./input";
+import {Request as ExpressRequest} from "express";
 
 @Controller('event')
+@UseGuards(AuthGuard)
 export class EventController {
     constructor(private eventService: EventService) {
     }
 
     @Get('getEvents')
-    getEvents(@Query('userId')userId: number) {
-        const numUserId = Number(userId)
-        if (Number.isInteger(numUserId)) {
-            return this.eventService.getEventsByUserId(numUserId)
-        }
-        else {
-            throw new Error("Invalid user id")
-        }
-
-
+    getEvents(@Request() req: ExpressRequest) {
     }
+
     @Get('getEvents/search')
-    getEventsByNameOrDescriptionAndUserId(@Query('input')input: string, @Query('userId')userId: number){
-        const numUserId = Number(userId)
-        if (Number.isInteger(numUserId)) {
-            return this.eventService.getEventsByNameOrDescriptionAndUserId(input, numUserId)
-        }
-        else {
-            throw new Error("Invalid user id")
-        }
+    getEventsByNameOrDescriptionAndUserId(@Body() req: getEventsBySearchInput) {
     }
 }
