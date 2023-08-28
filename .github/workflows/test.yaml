@@ -12,6 +12,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
       #Prevent npm from fetching packages using ssh.
       - name: Reconfigure git to use HTTP authentication
         run: >
