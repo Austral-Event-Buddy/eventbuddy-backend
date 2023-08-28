@@ -7,7 +7,7 @@ import {JwtService} from "@nestjs/jwt";
 
 @Injectable()
 export class UserService {
-    constructor(private userRepository: UserRepository, private jwtService: JwtService) {
+    constructor(private userRepository: UserRepository) {
     }
     async getMe(userId: number) {
         const user = await this.userRepository.findUserById(userId);
