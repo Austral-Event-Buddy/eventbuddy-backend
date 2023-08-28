@@ -42,13 +42,22 @@ export class EventRepository {
         });
     }
     async getEventsByNameOrDescriptionAndUserId(input: string, userId: number){
+        const keywords = input.split(' ');
+
+        const keywordConditions = keywords.map(keyword => ({
+            OR: [
+                { name: { contains: keyword } },
+                { description: { contains: keyword } }
+            ]
+        }));
         return this.prisma.event.findMany({
             where:{
                 OR:[
-                    {name:{contains:input}},
-                    {description:{contains:input}},
-                    {creatorId:userId},
-                    {guests:{some:{userId:userId}}}
+                    ...keywordConditions
+                ],
+                AND:[
+                    { OR: [{ creatorId: userId }, { guests: { some: { userId: userId } } }] }
+
                 ]
             },
             select:{
