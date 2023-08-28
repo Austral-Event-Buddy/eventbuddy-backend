@@ -9,16 +9,8 @@ import {JwtService} from "@nestjs/jwt";
 export class UserService {
     constructor(private userRepository: UserRepository, private jwtService: JwtService) {
     }
-    async getMe(request: any) {
-        const userId= this.getUserId(request);
+    async getMe(userId: number) {
         const user = await this.userRepository.findUserById(userId);
         return new GetMeDto(user.name, userId);
-    }
-
-    private getUserId(request: any){
-        const authHeader = request.headers.authorization;
-        const token = authHeader.replace('Bearer ', '');
-        const decodedToken = this.jwtService.verify(token);
-        return decodedToken.id
     }
 }
