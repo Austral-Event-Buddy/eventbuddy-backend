@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EventRepository } from './event.repository';
-import {getEventsBySearchInput} from "./input";
+import {getEventsBySearchInput, inviteGuestInput} from "./input";
 
 @Injectable()
 export class EventService {
@@ -10,5 +10,10 @@ export class EventService {
     }
     async getEventsByNameOrDescriptionAndUserId(input: getEventsBySearchInput, userId: number){
       return this.repository.getEventsByNameOrDescriptionAndUserId(input.search, userId);
+    }
+
+    //Check if userId is the owner of event (?)
+    async inviteGuest(input: inviteGuestInput, userId: number) {
+        return await this.repository.inviteGuest(input.eventId, input.guestId, userId);
     }
 }

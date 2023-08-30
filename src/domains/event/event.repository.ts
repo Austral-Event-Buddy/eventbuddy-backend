@@ -1,6 +1,6 @@
 import {PrismaService} from '../../prisma/prisma.service';
 import {Injectable} from '@nestjs/common';
-import {PrismaClient} from "@prisma/client";
+import {confirmationStatus, PrismaClient} from "@prisma/client";
 
 @Injectable()
 export class EventRepository {
@@ -88,6 +88,15 @@ export class EventRepository {
     }
 
 
+    async inviteGuest(eventId: number, guestId: number, userId: number) {
+        return this.prisma.guest.create({
+            data: {
+                userId: guestId,
+                eventId: eventId,
+                confirmationStatus: "PENDING",
+            },
+        } );
+    }
 
 
 }
