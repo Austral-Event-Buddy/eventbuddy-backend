@@ -7,9 +7,10 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 import { LoginInput, RegisterInput } from './input';
 import { AuthRepository } from './auth.repository';
+import {IAuthService} from "./auth.service.interface";
 
 @Injectable()
-export class AuthService {
+export class AuthService implements IAuthService {
   constructor(
     private repository: AuthRepository,
     private jwt: JwtService,
