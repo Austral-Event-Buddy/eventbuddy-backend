@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EventRepository } from './event.repository';
 import {answerInviteInput, getEventsBySearchInput, inviteGuestInput} from "./input";
-import {confirmationStatus} from "@prisma/client";
 
 @Injectable()
 export class EventService {

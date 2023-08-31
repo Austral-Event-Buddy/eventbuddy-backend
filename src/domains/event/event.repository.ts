@@ -1,6 +1,6 @@
 import {PrismaService} from '../../prisma/prisma.service';
 import {Injectable} from '@nestjs/common';
-import {confirmationStatus, PrismaClient} from "@prisma/client";
+import {confirmationStatus} from "@prisma/client";
 
 @Injectable()
 export class EventRepository {
