@@ -1,10 +1,7 @@
 import {IsNotEmpty, IsNumber} from "class-validator";
 
-export class inviteGuestInput{
+export class getGuestsByEventInput {
     @IsNotEmpty()
     @IsNumber()
     eventId: number;
-    @IsNotEmpty()
-    @IsNumber()
-    userId: number;
 }

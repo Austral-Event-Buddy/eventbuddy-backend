@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import {ForbiddenException, Injectable} from '@nestjs/common';
 import { EventRepository } from './event.repository';
 import {answerInviteInput, getEventsBySearchInput, inviteGuestInput} from "./input";
+import {PrismaClientKnownRequestError} from "@prisma/client/runtime/library";
 
 @Injectable()
 export class EventService {
@@ -12,18 +13,43 @@ export class EventService {
       return this.repository.getEventsByNameOrDescriptionAndUserId(input.search, userId);
     }
 
-    //Check if userId is the owner of event (?)
+    //Check if userId is host of the event (?)
     async inviteGuest(input: inviteGuestInput, userId: number) {
-        return await this.repository.inviteGuest(input.eventId, input.guestId, userId);
+      const eventId = input.eventId;
+      const invitedId = input.userId;
+      const hostGuest = this.repository.getHostGuest(eventId, userId);
+      if(hostGuest){
+          try{
+              return await this.repository.inviteGuest(eventId, invitedId);
+          }
+          catch (error) {
+              if (error instanceof PrismaClientKnownRequestError) {
+                  if (error.code === 'P2002') {
+                      throw new ForbiddenException('The user is already invited to this event');
+                  }
+              }
+          }
+      }else{
+        throw new ForbiddenException('You are not a host of this event');
     }
+  }
 
-    //Check if userId is the same as the guest userId (?)
 
     async answerInvite(input: answerInviteInput, userId: number) {
-        return await this.repository.answerInvite(input.guestId, input.answer, userId);
+        const guestId = input.guestId;
+        const guest = this.repository.getGuest(guestId);
+        if(guest['userId'] == userId){
+            return await this.repository.answerInvite(guestId, input.answer);
+        }else{
+            throw new ForbiddenException('This invite is not yours');
+        }
+  }
+
+    async getInvitesByUser(userId: number) {
+        return this.repository.getInvitesByUser(userId);
     }
 
-    async getInvites(userId: number) {
-        return this.repository.getInvites(userId);
+    getGuestsByEvent(eventId: number) {
+        return this.repository.getGuestsByEvent(eventId);
     }
 }

@@ -88,10 +88,10 @@ export class EventRepository {
     }
 
 
-    async inviteGuest(eventId: number, guestId: number, userId: number) {
+    async inviteGuest(eventId: number, invitedId: number) {
         return this.prisma.guest.create({
             data: {
-                userId: guestId,
+                userId: invitedId,
                 eventId: eventId,
                 confirmationStatus: "PENDING",
             },
@@ -99,7 +99,7 @@ export class EventRepository {
     }
 
 
-    async answerInvite(guestId: number, answer: confirmationStatus, userId: number) {
+    async answerInvite(guestId: number, answer: confirmationStatus) {
         return this.prisma.guest.update({
             where: {
                 id: guestId,
@@ -110,10 +110,36 @@ export class EventRepository {
         });
     }
 
-    async getInvites(userId: number) {
+    //Should only return with status pending (?)
+    async getInvitesByUser(userId: number) {
         return this.prisma.guest.findMany({
             where: {
                 userId: userId,
+            },
+        });
+    }
+
+    getGuest(guestId: number) {
+        return this.prisma.guest.findUnique({
+            where:{
+                id: guestId,
+            },
+        });
+    }
+
+    getGuestsByEvent(eventId: number) {
+        return this.prisma.guest.findMany({
+            where:{
+                eventId: eventId,
+            },
+        });
+    }
+
+    getHostGuest(eventId: number, userId: number) {
+        return this.prisma.guest.findUnique({
+            where:{
+                userId_eventId: {userId, eventId},
+                confirmationStatus: "HOST",
             },
         });
     }

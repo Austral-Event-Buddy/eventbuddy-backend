@@ -1,6 +1,6 @@
-import {Body, Controller, Get, Param, Post, Put, Request, UseGuards} from '@nestjs/common';
+import {Body, Controller, Get, Post, Put, Request, UseGuards} from '@nestjs/common';
 import {EventService} from './event.service';
-import {answerInviteInput, getEventsBySearchInput, inviteGuestInput} from "./input";
+import {answerInviteInput, getEventsBySearchInput, getGuestsByEventInput, inviteGuestInput} from "./input";
 import {Request as ExpressRequest} from "express";
 import {JwtAuthGuard} from "../auth/auth.guard";
 
@@ -30,9 +30,13 @@ export class EventController {
         return this.eventService.answerInvite(input, req.user['id']);
     }
 
-    @Get('getInvites/:userId')
-    getInvites(@Param('userId') userId: number){
-        return this.eventService.getInvites(userId);
+    @Get('getInvitesByUser')
+    getInvitesByUser(@Request() req:ExpressRequest){
+        return this.eventService.getInvitesByUser(req.user['id']);
     }
 
+    @Get('getGuestsByEvent')
+    getGuestsByEvent(input: getGuestsByEventInput){
+        return this.eventService.getGuestsByEvent(input.eventId);
+    }
 }
