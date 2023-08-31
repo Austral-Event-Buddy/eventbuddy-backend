@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { PrismaService } from '../../prisma/prisma.service';
-import { RegisterInput } from './input';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { RegisterInput } from '../input';
 import { IAuthRepository } from "./auth.repository.interface";
 
 @Injectable()

@@ -1,4 +1,4 @@
-import { LoginInput, RegisterInput } from './input';
+import { LoginInput, RegisterInput } from '../input';
 
 export abstract class IAuthService {
 

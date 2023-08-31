@@ -5,14 +5,14 @@ import * as bcrypt from 'bcrypt';
 import { User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
-import { LoginInput, RegisterInput } from './input';
-import { AuthRepository } from './auth.repository';
-import {IAuthService} from "./auth.service.interface";
+import { LoginInput, RegisterInput } from '../input';
+import { IAuthService } from "./auth.service.interface";
+import {IAuthRepository} from "../repository/auth.repository.interface";
 
 @Injectable()
 export class AuthService implements IAuthService {
   constructor(
-    private repository: AuthRepository,
+    private repository: IAuthRepository,
     private jwt: JwtService,
   ) {}
 

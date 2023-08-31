@@ -5,8 +5,8 @@ import {EventRepository} from './event.repository';
 import {JwtStrategy} from "../auth/auth.guard";
 import {JwtModule, JwtService} from "@nestjs/jwt";
 import {ConfigService} from "@nestjs/config";
-import {AuthService} from "../auth/auth.service";
-import {AuthRepository} from "../auth/auth.repository";
+import {AuthService} from "../auth/service/auth.service";
+import {AuthRepository} from "../auth/repository/auth.repository";
 
 @Module({
 

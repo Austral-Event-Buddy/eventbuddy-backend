@@ -1,5 +1,5 @@
 import { User } from '@prisma/client';
-import { RegisterInput } from './input';
+import { RegisterInput } from '../input';
 export abstract class IAuthRepository {
 
 	abstract findUserById(userId: number): Promise<User>;
@@ -8,5 +8,5 @@ export abstract class IAuthRepository {
 
 	abstract findUserByUsername(username: string): Promise<User>;
 
-	abstract createUser(dto: RegisterInput);
+	abstract createUser(dto: RegisterInput): Promise<User>;
 }
