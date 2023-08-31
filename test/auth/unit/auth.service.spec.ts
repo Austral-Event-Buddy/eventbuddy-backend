@@ -46,34 +46,4 @@ describe('AuthService Unit Test', () => {
 			expect(result).toEqual(user);
 		});
 	});
-
-	describe('findAll', () => {
-		it('if findAll() has no brands, should return empty array', async () => {
-			jest.spyOn(brandRepository, 'findAll').mockImplementation(() => Promise.resolve([]));
-			expect(await brandService.findAll()).toEqual([]);
-		});
-
-		it('if findAll() has results should return an array of brands', async () => {
-			const brands: Brand[] = [{ id: '1', name: 'Brand 1' }];
-			jest.spyOn(brandRepository, 'findAll').mockImplementation(() => Promise.resolve(brands));
-			expect(await brandService.findAll()).toBe(brands);
-		});
-	});
-
-	describe('findByIdWithProducts', () => {
-		it('if findByIdWithProducts() has no brand, should throw not found error', async () => {
-			jest.spyOn(brandRepository, 'findByIdWithProducts').mockImplementation(() => Promise.resolve(null));
-			try {
-				await brandService.findByIdWithProducts('1');
-			} catch (error) {
-				expect(error).toBeInstanceOf(NotFoundError);
-			}
-		});
-
-		it('if findByIdWithProducts() has results should return a brand', async () => {
-			const brand: Brand = { id: '1', name: 'Brand 1', products: [] };
-			jest.spyOn(brandRepository, 'findByIdWithProducts').mockImplementation(() => Promise.resolve(brand));
-			expect(await brandService.findByIdWithProducts('1')).toBe(brand);
-		});
-	});
 });
