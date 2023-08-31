@@ -99,4 +99,22 @@ export class EventRepository {
     }
 
 
+    async answerInvite(guestId: number, answer: confirmationStatus, userId: number) {
+        return this.prisma.guest.update({
+            where: {
+                id: guestId,
+            },
+            data: {
+                confirmationStatus: answer,
+            },
+        });
+    }
+
+    async getInvites(userId: number) {
+        return this.prisma.guest.findMany({
+            where: {
+                userId: userId,
+            },
+        });
+    }
 }
