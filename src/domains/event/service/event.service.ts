@@ -9,7 +9,7 @@ import { getEventsBySearchInput, NewEventInput } from '../input';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { IEventService } from './event.service.interface';
 import { updateEventInput } from '../input/updateEvent.input';
-import { confirmationStatus } from '@prisma/client';
+import { Event } from '@prisma/client';
 
 @Injectable()
 export class EventService implements IEventService {
@@ -17,29 +17,10 @@ export class EventService implements IEventService {
 
   async getEventsByUserId(userId: number) {
     const events = await this.repository.getEventsByUserId(userId);
-    if (events !== null) {
-      const eventInfoPromises = events.map(async (event) => {
-        const confirmationStatus = await this.repository.findConfirmationStatus(
-          userId,
-          event.id,
-        );
-        const guestCount = await this.repository.countGuestsByEventId(event.id);
-        return {
-          name: event.name,
-          description: event.description,
-          coordinates: event.coordinates,
-          date: event.date,
-          confirmationDeadline: event.confirmationDeadline,
-          confirmationStatus: confirmationStatus,
-          guestCount: guestCount,
-        };
-      });
-
-      const eventInfo = await Promise.all(eventInfoPromises);
-      return eventInfo;
-    } else {
+    if (!events) {
       throw new NotFoundException('No events found');
     }
+    return this.toEventInfoOutput(events, userId);
   }
 
   async getEventsByNameOrDescriptionAndUserId(
@@ -50,27 +31,10 @@ export class EventService implements IEventService {
       userId,
       input.search,
     );
-    if (events !== null) {
-      const eventInfoPromises = events.map(async (event) => {
-        const confirmationStatus = await this.repository.findConfirmationStatus(
-          userId,
-          event.id,
-        );
-        const guestCount = await this.repository.countGuestsByEventId(event.id);
-        return {
-          name: event.name,
-          description: event.description,
-          coordinates: event.coordinates,
-          date: event.date,
-          confirmationDeadline: event.confirmationDeadline,
-          confirmationStatus: confirmationStatus,
-          guestCount: guestCount,
-        };
-      });
-
-      const eventInfo = await Promise.all(eventInfoPromises);
-      return eventInfo;
-    } else throw new NotFoundException('No events found');
+    if (!events) {
+      throw new NotFoundException('No events found');
+    }
+    return this.toEventInfoOutput(events, userId);
   }
 
   async createEvent(userId: number, input: NewEventInput) {
@@ -113,5 +77,27 @@ export class EventService implements IEventService {
         throw error;
       }
     }
+  }
+
+  private async toEventInfoOutput(events: Event, userId: number) {
+    const eventInfoPromises = events.map(async (event: Event) => {
+      const confirmationStatus = await this.repository.findConfirmationStatus(
+        userId,
+        event.id,
+      );
+      const guestCount = await this.repository.countGuestsByEventId(event.id);
+      return {
+        name: event.name,
+        description: event.description,
+        coordinates: event.coordinates,
+        date: event.date,
+        confirmationDeadline: event.confirmationDeadline,
+        confirmationStatus: confirmationStatus,
+        guestCount: guestCount,
+      };
+    });
+
+    const eventInfo = await Promise.all(eventInfoPromises);
+    return eventInfo;
   }
 }
