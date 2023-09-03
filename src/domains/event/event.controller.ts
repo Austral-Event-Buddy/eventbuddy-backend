@@ -36,7 +36,7 @@ export class EventController {
     }
 
     @Get('getGuestsByEvent')
-    getGuestsByEvent(input: getGuestsByEventInput){
+    getGuestsByEvent(@Body() input: getGuestsByEventInput){
         return this.eventService.getGuestsByEvent(input.eventId);
     }
 }

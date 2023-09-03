@@ -17,8 +17,9 @@ export class EventService {
     async inviteGuest(input: inviteGuestInput, userId: number) {
       const eventId = input.eventId;
       const invitedId = input.userId;
-      const hostGuest = this.repository.getHostGuest(eventId, userId);
-      if(hostGuest){
+      const hostGuest = await this.repository.getHostGuest(eventId, userId);
+      const creator = await this.repository.getEvent(eventId).creator();
+      if(hostGuest != null || creator['id'] === userId){
           try{
               return await this.repository.inviteGuest(eventId, invitedId);
           }
@@ -30,14 +31,14 @@ export class EventService {
               }
           }
       }else{
-        throw new ForbiddenException('You are not a host of this event');
+        throw new ForbiddenException('You are not a host of this event'); //Didnt work
     }
   }
 
 
     async answerInvite(input: answerInviteInput, userId: number) {
         const guestId = input.guestId;
-        const guest = this.repository.getGuest(guestId);
+        const guest = await this.repository.getGuest(guestId);
         if(guest['userId'] == userId){
             return await this.repository.answerInvite(guestId, input.answer);
         }else{

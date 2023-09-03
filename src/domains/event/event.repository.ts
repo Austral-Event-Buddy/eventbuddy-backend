@@ -87,6 +87,13 @@ export class EventRepository {
 
     }
 
+    getEvent(eventId: number){
+        return this.prisma.event.findUnique({
+            where:{
+                id: eventId,
+            },
+        });
+    }
 
     async inviteGuest(eventId: number, invitedId: number) {
         return this.prisma.guest.create({
