@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { EventRepository } from '../repository/event.repository';
 import { getEventsBySearchInput, NewEventInput } from '../input';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { IEventService } from './event.service.interface';
 import { updateEventInput } from '../input/updateEvent.input';
 import { Event } from '@prisma/client';
@@ -42,62 +41,47 @@ export class EventService implements IEventService {
   }
 
   async checkGuestStatusOnEvent(userId: number, eventId: number) {
-    const event = this.repository.getHostGuest(userId, eventId);
+    const event = await this.repository.getHostGuest(userId, eventId);
     if (event === null) {
-      throw new UnauthorizedException('User is not hosting this event');
+      throw new ForbiddenException('User is not hosting this event');
     } else return true;
   }
 
   async updateEvent(eventId: number, input: updateEventInput) {
-    const event = this.repository.updateEvent(eventId, input);
+    const event = await this.repository.updateEvent(eventId, input);
     if (event === null) {
       throw new NotFoundException('Event not found');
-    } else return event;
+    }
+    return event;
   }
 
   async deleteEvent(userId: number, eventId: number) {
-    const event = this.repository.checkIfUserIsCreator(userId, eventId);
+    const event = await this.repository.checkIfUserIsCreator(userId, eventId);
     if (event === null) {
       throw new UnauthorizedException('User is not authorized to delete event');
-    } else {
-      try {
-        const deletedEvent =
-          await this.repository.deleteEventAndGuests(eventId);
-        if (deletedEvent !== null) {
-          return true;
-        } else throw new NotFoundException('Event not found');
-      } catch (error) {
-        if (error instanceof PrismaClientKnownRequestError) {
-          if (error.code === 'P2016') {
-            throw new ForbiddenException(
-              'User is not the creator of this event',
-            );
-          }
-        }
-        throw error;
-      }
     }
+    await this.repository.deleteEventAndGuests(eventId);
+    return true;
   }
 
   private async toEventInfoOutput(events: Event, userId: number) {
-    const eventInfoPromises = events.map(async (event: Event) => {
-      const confirmationStatus = await this.repository.findConfirmationStatus(
-        userId,
-        event.id,
-      );
-      const guestCount = await this.repository.countGuestsByEventId(event.id);
-      return {
-        name: event.name,
-        description: event.description,
-        coordinates: event.coordinates,
-        date: event.date,
-        confirmationDeadline: event.confirmationDeadline,
-        confirmationStatus: confirmationStatus,
-        guestCount: guestCount,
-      };
-    });
-
-    const eventInfo = await Promise.all(eventInfoPromises);
-    return eventInfo;
+    return Promise.all(
+      events.map(async (event: Event) => {
+        const confirmationStatus = await this.repository.findConfirmationStatus(
+          userId,
+          event.id,
+        );
+        const guestCount = await this.repository.countGuestsByEventId(event.id);
+        return {
+          name: event.name,
+          description: event.description,
+          coordinates: event.coordinates,
+          date: event.date,
+          confirmationDeadline: event.confirmationDeadline,
+          confirmationStatus: confirmationStatus,
+          guestCount: guestCount,
+        };
+      }),
+    );
   }
 }
