@@ -1,6 +1,5 @@
-import { getEventsBySearchInput, NewEventInput } from '../input';
+import { NewEventInput } from '../input';
 import { updateEventInput } from '../input/updateEvent.input';
-import { Event } from '@prisma/client';
 
 export interface IEventService {
   createEvent(
