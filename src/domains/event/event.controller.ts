@@ -9,7 +9,7 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { EventService } from './service';
+import { IEventService } from './service';
 import { getEventsBySearchInput, NewEventInput } from './input';
 import { Request as ExpressRequest } from 'express';
 import { JwtAuthGuard } from '../auth/auth.guard';
@@ -18,7 +18,7 @@ import { updateEventInput } from './input';
 @UseGuards(JwtAuthGuard)
 @Controller('event')
 export class EventController {
-  constructor(private eventService: EventService) {}
+  constructor(private eventService: IEventService) {}
 
   @Get()
   getEvents(@Request() req: ExpressRequest) {

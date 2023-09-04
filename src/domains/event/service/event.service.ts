@@ -8,7 +8,7 @@ import { getEventsBySearchInput, NewEventInput } from '../input';
 import { IEventService } from './event.service.interface';
 import { updateEventInput } from '../input';
 import { Event } from '@prisma/client';
-import {IEventRepository} from "../repository";
+import { IEventRepository } from "../repository";
 
 @Injectable()
 export class EventService implements IEventService {

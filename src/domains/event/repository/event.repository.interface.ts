@@ -11,7 +11,7 @@ export abstract class IEventRepository {
   abstract getEventsByNameOrDescriptionAndUserId(
     userId: number,
     search: string,
-  ): Promise<{id: number, name: string, description: string, creatorId: number, coordinates: number[], confirmationDeadline: Date, createdAt: Date, updatedAt: Date, date: Date}[]>;
+  ): Promise<Event[]>;
 
   abstract countGuestsByEventId(id: number) : Promise<number>;
 

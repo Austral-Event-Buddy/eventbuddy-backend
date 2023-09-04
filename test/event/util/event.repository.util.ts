@@ -66,23 +66,17 @@ export class EventRepositoryUtil implements IEventRepository{
 		return Promise.resolve(counter);
 	}
 
-	async getEventsByNameOrDescriptionAndUserId(userId: number, search: string): Promise<{
-		id: number;
-		name: string;
-		description: string;
-		creatorId: number;
-		coordinates: number[];
-		confirmationDeadline: Date;
-		createdAt: Date;
-		updatedAt: Date;
-		date: Date
-	}[]> {
+	async getEventsByNameOrDescriptionAndUserId(userId: number, search: string): Promise<Event[]> {
 		const userEvents : Event[] = await this.getEventsByUserId(userId);
 		const result = [];
 		for (let i = 0; i < userEvents.length; i++) {
 			if(userEvents[i].name.includes(search) || userEvents[i].description.includes(search)) result.push(userEvents[i]);
 		}
 		return Promise.resolve(result);
+	}
+
+	updateEvent(eventId: number, input: NewEventInput): Promise<Event> {
+		return Promise.resolve(undefined);
 	}
 
 	checkIfUserIsCreator(userId: number, eventId: number): Promise<{
@@ -97,10 +91,6 @@ export class EventRepositoryUtil implements IEventRepository{
 	}
 
 	getHostGuest(userId: number, eventId: number): Promise<Guest> {
-		return Promise.resolve(undefined);
-	}
-
-	updateEvent(eventId: number, input: NewEventInput): Promise<Event> {
 		return Promise.resolve(undefined);
 	}
 

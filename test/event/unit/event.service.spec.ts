@@ -2,7 +2,7 @@ import { EventService, IEventService } from "../../../src/domains/event/service"
 import { IEventRepository } from "../../../src/domains/event/repository";
 import { Test, TestingModule } from "@nestjs/testing";
 import { EventRepositoryUtil } from "../util/event.repository.util";
-import { getEventsBySearchInput, NewEventInput } from "../../../src/domains/event/input";
+import {getEventsBySearchInput, NewEventInput} from "../../../src/domains/event/input";
 import { Event } from "@prisma/client";
 
 describe('EventService Unit Test', () => {
@@ -87,6 +87,18 @@ describe('EventService Unit Test', () => {
 	})
 
 	describe('Update event', () => {
+		// it('Update name', async () => {
+		// 	const event = await eventService.createEvent(userId, input);
+		// 	const updateInput : updateEventInput = {
+		// 		name : 'new test name',
+		// 		description: undefined,
+		// 		coordinates: undefined,
+		// 		confirmationDeadline: undefined,
+		// 		date: undefined,
+		// 	};
+		// 	const result = eventService.updateEvent(event.id, updateInput);
+		//
+		// })
 		it.todo('Update event');
 	})
 	describe('Delete event', () => {
