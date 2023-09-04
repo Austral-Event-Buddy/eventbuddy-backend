@@ -7,7 +7,7 @@ import {
 import { EventRepository } from '../repository/event.repository';
 import { getEventsBySearchInput, NewEventInput } from '../input';
 import { IEventService } from './event.service.interface';
-import { updateEventInput } from '../input/updateEvent.input';
+import { updateEventInput } from '../input';
 import { Event } from '@prisma/client';
 
 @Injectable()
@@ -64,7 +64,7 @@ export class EventService implements IEventService {
     return true;
   }
 
-  private async toEventInfoOutput(events: Event, userId: number) {
+  private async toEventInfoOutput(events: Event[], userId: number) {
     return Promise.all(
       events.map(async (event: Event) => {
         const confirmationStatus = await this.repository.findConfirmationStatus(
