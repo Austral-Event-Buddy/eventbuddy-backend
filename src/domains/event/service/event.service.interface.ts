@@ -1,38 +1,62 @@
-import { NewEventInput } from '../input';
-import { updateEventInput } from '../input/updateEvent.input';
+import {getEventsBySearchInput, NewEventInput} from '../input';
+import {updateEventInput} from '../input/updateEvent.input';
+import {Event} from "@prisma/client";
 
 export abstract class IEventService {
-  abstract createEvent(
-    userId: number,
-    input: NewEventInput,
-  ): Promise<{
-    id: number;
-    name: string;
-    description: string;
-    creatorId: number;
-    coordinates: number[];
-    confirmationDeadline: Date;
-    createdAt: Date;
-    updatedAt: Date;
-    date: Date;
-  }>;
+    abstract getEventsByUserId(userId: number): Promise<{
+        name: string,
+        description: string,
+        coordinates: number[],
+        date: Date,
+        confirmationDeadline: Date,
+        confirmationStatus: { confirmationStatus: string },
+        guestCount: number
+    }[]>;
+    abstract getEventsByNameOrDescriptionAndUserId(
+        userId: number,
+        input: getEventsBySearchInput,
+    ):Promise<{
+        name: string,
+        description: string,
+        coordinates: number[],
+        date: Date,
+        confirmationDeadline: Date,
+        confirmationStatus: { confirmationStatus: string },
+        guestCount: number
+    }[]>;
 
-  abstract checkGuestStatusOnEvent(userId: number, eventId: number): Promise<boolean>;
+    abstract createEvent(
+        userId: number,
+        input: NewEventInput,
+    ): Promise<{
+        id: number;
+        name: string;
+        description: string;
+        creatorId: number;
+        coordinates: number[];
+        confirmationDeadline: Date;
+        createdAt: Date;
+        updatedAt: Date;
+        date: Date;
+    }>;
 
-  abstract updateEvent(
-    eventId: number,
-    input: updateEventInput,
-  ): Promise<{
-    id: number;
-    name: string;
-    description: string;
-    creatorId: number;
-    coordinates: number[];
-    confirmationDeadline: Date;
-    createdAt: Date;
-    updatedAt: Date;
-    date: Date;
-  }>;
+    abstract checkGuestStatusOnEvent(userId: number, eventId: number): Promise<boolean>;
 
-  abstract deleteEvent(userId: number, eventId: number): Promise<boolean>;
+    abstract updateEvent(
+        eventId: number,
+        input: updateEventInput,
+    ): Promise<{
+        id: number;
+        name: string;
+        description: string;
+        creatorId: number;
+        coordinates: number[];
+        confirmationDeadline: Date;
+        createdAt: Date;
+        updatedAt: Date;
+        date: Date;
+    }>;
+
+    abstract deleteEvent(userId: number, eventId: number): Promise<boolean>;
+    // abstract toEventInfoOutput(events: Event[], userId: number): Promise<{name: string, description: string, coordinates: number[], date: Date, confirmationDeadline: Date, confirmationStatus: {confirmationStatus: string}, guestCount: number}[]>;
 }

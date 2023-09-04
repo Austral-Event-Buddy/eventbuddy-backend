@@ -6,29 +6,11 @@ export abstract class IEventRepository {
   abstract getHostGuest(userId: number, eventId: number): Promise<Guest>;
   abstract updateEvent(eventId: number, input: NewEventInput): Promise<Event>;
   // deleteEvent( eventId: number): Promise<Event>;
-  abstract getEventsByUserId(userId: number): Promise<
-    {
-      id: number;
-      name: string;
-      description: string;
-      coordinates: number[];
-      confirmationDeadline: Date;
-      date: Date;
-    }[]
-  >;
+  abstract getEventsByUserId(userId: number): Promise<{id: number, name: string, description: string, creatorId: number, coordinates: number[], confirmationDeadline: Date, createdAt: Date, updatedAt: Date, date: Date}[]>;
   abstract getEventsByNameOrDescriptionAndUserId(
     userId: number,
     search: string,
-  ): Promise<
-    {
-      id: number;
-      name: string;
-      description: string;
-      coordinates: number[];
-      confirmationDeadline: Date;
-      date: Date;
-    }[]
-  >;
+  ): Promise<{id: number, name: string, description: string, creatorId: number, coordinates: number[], confirmationDeadline: Date, createdAt: Date, updatedAt: Date, date: Date}[]>;
 
   abstract countGuestsByEventId(id: number) : Promise<number>;
 

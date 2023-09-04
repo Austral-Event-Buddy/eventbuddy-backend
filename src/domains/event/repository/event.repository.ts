@@ -13,52 +13,11 @@ export class EventRepository implements IEventRepository {
       where: {
           OR: [{creatorId: userId}, {guests: {some: {userId: userId}}}],
       }
-      // },
-      // select: {
-      //   id: true,
-      //   name: true,
-      //   description: true,
-      //   coordinates: true,
-      //   date: true,
-      //   confirmationDeadline: true,
-      // },
+
     });
   }
 
-  // async getEventsByUserId(userId: number) {
-  //     return this.prisma.event.findMany({
-  //         where: {
-  //             OR: [
-  //                 {creatorId: userId},
-  //                 {guests: {some: {userId: userId}}}
-  //             ]
-  //         },
-  //         select: {
-  //             name: true,
-  //             description: true,
-  //             coordinates: true,
-  //             date: true,
-  //             guests: {
-  //                 where: {
-  //                     userId: userId
-  //                 },
-  //                 select: {
-  //                     confirmationStatus: true
-  //                 }
-  //             },
-  //             _count: {
-  //                 select: {
-  //                     guests: {
-  //                         where: {
-  //                             confirmationStatus: {in: ["ATTENDING", "HOST"]}
-  //                         }
-  //                     }
-  //                 }
-  //             }
-  //
-  //         }
-  //     });
-  // }
+
   async countGuestsByEventId(eventId: number) {
     return this.prisma.guest.count({
       where: {
@@ -164,13 +123,7 @@ export class EventRepository implements IEventRepository {
       },
     });
   }
-  async deleteGuestsFromADeletedEvent(eventId: number) {
-    return this.prisma.guest.deleteMany({
-      where: {
-        eventId: eventId,
-      },
-    });
-  }
+
   async deleteEventAndGuests(eventId: number) {
     try {
       return await this.prisma.$transaction([
@@ -188,18 +141,5 @@ export class EventRepository implements IEventRepository {
     } catch (error) {
       throw new Error(`Error when deleting event: ${error}`);
     }
-  }
-
-  async deleteEvent(eventId: number) {
-    await this.prisma.guest.deleteMany({
-      where: {
-        eventId: eventId,
-      },
-    });
-    return this.prisma.event.delete({
-      where: {
-        id: eventId,
-      },
-    });
   }
 }
