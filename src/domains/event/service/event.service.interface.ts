@@ -1,8 +1,8 @@
 import { NewEventInput } from '../input';
 import { updateEventInput } from '../input/updateEvent.input';
 
-export interface IEventService {
-  createEvent(
+export abstract class IEventService {
+  abstract createEvent(
     userId: number,
     input: NewEventInput,
   ): Promise<{
@@ -17,9 +17,9 @@ export interface IEventService {
     date: Date;
   }>;
 
-  checkGuestStatusOnEvent(userId: number, eventId: number): Promise<boolean>;
+  abstract checkGuestStatusOnEvent(userId: number, eventId: number): Promise<boolean>;
 
-  updateEvent(
+  abstract updateEvent(
     eventId: number,
     input: updateEventInput,
   ): Promise<{
@@ -34,5 +34,5 @@ export interface IEventService {
     date: Date;
   }>;
 
-  deleteEvent(userId: number, eventId: number): Promise<boolean>;
+  abstract deleteEvent(userId: number, eventId: number): Promise<boolean>;
 }

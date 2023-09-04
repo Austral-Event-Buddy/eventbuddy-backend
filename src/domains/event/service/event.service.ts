@@ -9,10 +9,11 @@ import { getEventsBySearchInput, NewEventInput } from '../input';
 import { IEventService } from './event.service.interface';
 import { updateEventInput } from '../input';
 import { Event } from '@prisma/client';
+import {IEventRepository} from "../repository";
 
 @Injectable()
 export class EventService implements IEventService {
-  constructor(private repository: EventRepository) {}
+  constructor(private repository: IEventRepository) {}
 
   async getEventsByUserId(userId: number) {
     const events = await this.repository.getEventsByUserId(userId);
