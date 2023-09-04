@@ -9,4 +9,4 @@
 
 Run the following command to start the app in a docker container:
 
-```docker compose --env-file .env up```
+`docker compose --env-file .env up`
