@@ -76,21 +76,44 @@ export class EventRepositoryUtil implements IEventRepository{
 	}
 
 	updateEvent(eventId: number, input: NewEventInput): Promise<Event> {
+		for (const event of this.events) {
+			if (event.id === eventId){
+				if(input.name) event.name = input.name;
+				if(input.description) event.description = input.description;
+				if(input.coordinates) event.coordinates = input.coordinates;
+				if(input.date) event.date = input.date;
+				if(input.confirmationDeadline) event.confirmationDeadline = input.confirmationDeadline;
+				return Promise.resolve(event);
+			}
+		}
 		return Promise.resolve(undefined);
 	}
 
 	checkIfUserIsCreator(userId: number, eventId: number): Promise<{
 		creatorId: number
 	}> {
-		return Promise.resolve({creatorId: 0});
+		for (const event of this.events)
+			if (event.id === eventId && event.creatorId === userId) return Promise.resolve({creatorId: event.creatorId});
+		return Promise.resolve({creatorId: null});
 	}
 
 
 
 	deleteEventAndGuests(eventId: number): any {
+		const guestsResult = [];
+		for (const guest of this.guests)
+			if (guest.eventId !== eventId) guestsResult.push(guest);
+		this.guests = guestsResult;
+		const eventsResult = [];
+		for (const event of this.events)
+			if (event.id !== eventId) eventsResult.push(event);
+		this.events = eventsResult;
 	}
 
 	getHostGuest(userId: number, eventId: number): Promise<Guest> {
+		for (const guest of this.guests) {
+			if (guest.eventId === eventId && guest.userId === userId && guest.confirmationStatus === 'HOST') return Promise.resolve(guest);
+		}
 		return Promise.resolve(undefined);
 	}
 

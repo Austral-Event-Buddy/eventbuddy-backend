@@ -2,8 +2,8 @@ import { EventService, IEventService } from "../../../src/domains/event/service"
 import { IEventRepository } from "../../../src/domains/event/repository";
 import { Test, TestingModule } from "@nestjs/testing";
 import { EventRepositoryUtil } from "../util/event.repository.util";
-import {getEventsBySearchInput, NewEventInput} from "../../../src/domains/event/input";
-import { Event } from "@prisma/client";
+import {getEventsBySearchInput, NewEventInput, updateEventInput} from "../../../src/domains/event/input";
+import {Event} from "@prisma/client";
 
 describe('EventService Unit Test', () => {
 	let eventService: IEventService;
@@ -87,21 +87,36 @@ describe('EventService Unit Test', () => {
 	})
 
 	describe('Update event', () => {
-		// it('Update name', async () => {
-		// 	const event = await eventService.createEvent(userId, input);
-		// 	const updateInput : updateEventInput = {
-		// 		name : 'new test name',
-		// 		description: undefined,
-		// 		coordinates: undefined,
-		// 		confirmationDeadline: undefined,
-		// 		date: undefined,
-		// 	};
-		// 	const result = eventService.updateEvent(event.id, updateInput);
-		//
-		// })
-		it.todo('Update event');
+		it('Update name', async () => {
+			const event = await eventService.createEvent(userId, input);
+			const updateInput : updateEventInput = {
+				name : 'new test name',
+				description: undefined,
+				coordinates: undefined,
+				confirmationDeadline: undefined,
+				date: undefined,
+			};
+			const result = await eventService.updateEvent(event.id, updateInput);
+			event.name = input.name;
+			expect(result).toEqual(event);
+		})
 	})
-	describe('Delete event', () => {
-		it.todo('Delete event');
+
+	it('Delete event', async () => {
+		const event = await eventService.createEvent(userId, input);
+		await eventService.deleteEvent(userId, event.id);
+		const result = await eventService.getEventsByUserId(userId);
+		expect(result).toEqual([]);
+	})
+
+	describe('Check Host Guest', async () => {
+		it('correct host guest', async () => {
+			const event = await eventService.createEvent(userId, input);
+			const result = await eventService.checkGuestStatusOnEvent(userId, event.id);
+			expect(result).toEqual(true);
+		})
+		it('should throw error, incorrect host guest', () => {
+			it.todo('');
+		});
 	})
 });

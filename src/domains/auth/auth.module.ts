@@ -5,8 +5,8 @@ import { AuthRepository } from './repository/auth.repository';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './auth.guard';
-import {IAuthService} from "./service/auth.service.interface";
-import {IAuthRepository} from "./repository/auth.repository.interface";
+import { IAuthService } from "./service/auth.service.interface";
+import { IAuthRepository } from "./repository/auth.repository.interface";
 
 const authServiceProvider = {
   provide: IAuthService,
