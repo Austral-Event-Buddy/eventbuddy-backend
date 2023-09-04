@@ -11,16 +11,17 @@ export class EventRepository implements IEventRepository {
   async getEventsByUserId(userId: number) {
     return this.prisma.event.findMany({
       where: {
-        OR: [{ creatorId: userId }, { guests: { some: { userId: userId } } }],
-      },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        coordinates: true,
-        date: true,
-        confirmationDeadline: true,
-      },
+          OR: [{creatorId: userId}, {guests: {some: {userId: userId}}}],
+      }
+      // },
+      // select: {
+      //   id: true,
+      //   name: true,
+      //   description: true,
+      //   coordinates: true,
+      //   date: true,
+      //   confirmationDeadline: true,
+      // },
     });
   }
 
@@ -98,15 +99,15 @@ export class EventRepository implements IEventRepository {
             ],
           },
         ],
-      },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        coordinates: true,
-        date: true,
-        confirmationDeadline: true,
-      },
+      }
+      // select: {
+      //   id: true,
+      //   name: true,
+      //   description: true,
+      //   coordinates: true,
+      //   date: true,
+      //   confirmationDeadline: true,
+      // },
     });
   }
 

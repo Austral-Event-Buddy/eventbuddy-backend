@@ -9,23 +9,23 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { EventService } from './service/event.service';
+import { EventService } from './service';
 import { getEventsBySearchInput, NewEventInput } from './input';
 import { Request as ExpressRequest } from 'express';
 import { JwtAuthGuard } from '../auth/auth.guard';
-import { updateEventInput } from './input/updateEvent.input';
+import { updateEventInput } from './input';
 
 @UseGuards(JwtAuthGuard)
 @Controller('event')
 export class EventController {
   constructor(private eventService: EventService) {}
 
-  @Get('getEvents')
+  @Get()
   getEvents(@Request() req: ExpressRequest) {
     return this.eventService.getEventsByUserId(req.user['id']);
   }
 
-  @Get('getEvents/search')
+  @Get('search')
   getEventsByNameOrDescriptionAndUserId(
     @Request() req: ExpressRequest,
     @Body() input: getEventsBySearchInput,
