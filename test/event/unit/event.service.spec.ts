@@ -29,7 +29,7 @@ describe('EventService Unit Test', () => {
 		eventService = app.get<IEventService>(IEventService);
 		eventRepository = app.get<IEventRepository>(IEventRepository);
 	});
-	it('Create event', () => {
+	it('Create event', async () => {
 		const userId = 1;
 		const input : NewEventInput = {
 			name: 'test',
@@ -49,7 +49,7 @@ describe('EventService Unit Test', () => {
 			updatedAt: undefined,
 			date: input.date,
 		};
-		const result = eventRepository.createEvent(userId, input);
+		const result = await eventService.createEvent(userId, input);
 		expect(result).toEqual(event);
 	})
 

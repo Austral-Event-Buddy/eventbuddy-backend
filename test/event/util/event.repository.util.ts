@@ -33,12 +33,34 @@ export class EventRepositoryUtil implements IEventRepository{
 		return Promise.resolve(event);
 	}
 
+	checkIfUserIsCreator(userId: number, eventId: number): Promise<{
+		creatorId: number
+	}> {
+		return Promise.resolve({creatorId: 0});
+	}
+
+	countGuestsByEventId(id: number): Promise<number> {
+		return Promise.resolve(0);
+	}
+
+	deleteEventAndGuests(eventId: number): any {
+	}
+
+	findConfirmationStatus(userId: number, id: number): Promise<{
+		confirmationStatus: string
+	}> {
+		return Promise.resolve({confirmationStatus: ""});
+	}
+
 	getEventsByNameOrDescriptionAndUserId(userId: number, search: string): Promise<{
 		id: number;
 		name: string;
 		description: string;
+		creatorId: number;
 		coordinates: number[];
 		confirmationDeadline: Date;
+		createdAt: Date;
+		updatedAt: Date;
 		date: Date
 	}[]> {
 		return Promise.resolve([]);
@@ -48,8 +70,11 @@ export class EventRepositoryUtil implements IEventRepository{
 		id: number;
 		name: string;
 		description: string;
+		creatorId: number;
 		coordinates: number[];
 		confirmationDeadline: Date;
+		createdAt: Date;
+		updatedAt: Date;
 		date: Date
 	}[]> {
 		return Promise.resolve([]);
@@ -61,21 +86,6 @@ export class EventRepositoryUtil implements IEventRepository{
 
 	updateEvent(eventId: number, input: NewEventInput): Promise<Event> {
 		return Promise.resolve(undefined);
-	}
-
-	checkIfUserIsCreator(userId: number, eventId: number): Promise<{ creatorId: number }> {
-		return Promise.resolve({creatorId: 0});
-	}
-
-	countGuestsByEventId(id: number): Promise<number> {
-		return Promise.resolve(0);
-	}
-
-	deleteEventAndGuests(eventId: number): any {
-	}
-
-	findConfirmationStatus(userId: number, id: number): Promise<{ confirmationStatus: string }> {
-		return Promise.resolve({confirmationStatus: ""});
 	}
 
 }

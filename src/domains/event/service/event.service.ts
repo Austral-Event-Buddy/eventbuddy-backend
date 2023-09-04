@@ -4,7 +4,6 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { EventRepository } from '../repository/event.repository';
 import { getEventsBySearchInput, NewEventInput } from '../input';
 import { IEventService } from './event.service.interface';
 import { updateEventInput } from '../input';

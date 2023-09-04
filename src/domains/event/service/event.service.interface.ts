@@ -1,5 +1,5 @@
 import {getEventsBySearchInput, NewEventInput} from '../input';
-import {updateEventInput} from '../input/updateEvent.input';
+import {updateEventInput} from '../input';
 import {Event} from "@prisma/client";
 
 export abstract class IEventService {
@@ -28,17 +28,7 @@ export abstract class IEventService {
     abstract createEvent(
         userId: number,
         input: NewEventInput,
-    ): Promise<{
-        id: number;
-        name: string;
-        description: string;
-        creatorId: number;
-        coordinates: number[];
-        confirmationDeadline: Date;
-        createdAt: Date;
-        updatedAt: Date;
-        date: Date;
-    }>;
+    ): Promise<Event>;
 
     abstract checkGuestStatusOnEvent(userId: number, eventId: number): Promise<boolean>;
 
