@@ -2,7 +2,7 @@ import { EventService, IEventService } from "../../../src/domains/event/service"
 import { IEventRepository } from "../../../src/domains/event/repository";
 import { Test, TestingModule } from "@nestjs/testing";
 import { EventRepositoryUtil } from "../util/event.repository.util";
-import { NewEventInput } from "../../../src/domains/event/input";
+import { getEventsBySearchInput, NewEventInput } from "../../../src/domains/event/input";
 import { Event } from "@prisma/client";
 
 describe('EventService Unit Test', () => {
@@ -29,15 +29,16 @@ describe('EventService Unit Test', () => {
 		eventService = app.get<IEventService>(IEventService);
 		eventRepository = app.get<IEventRepository>(IEventRepository);
 	});
+	const userId = 1;
+	const input : NewEventInput = {
+		name: 'test',
+		description: 'test',
+		coordinates: [1, 2],
+		confirmationDeadline: undefined,
+		date: undefined,
+	};
+
 	it('Create event', async () => {
-		const userId = 1;
-		const input : NewEventInput = {
-			name: 'test',
-			description: 'test',
-			coordinates: [1, 2],
-			confirmationDeadline: undefined,
-			date: undefined,
-		};
 		const event : Event = {
 			id: 1,
 			name: input.name,
@@ -54,10 +55,35 @@ describe('EventService Unit Test', () => {
 	})
 
 	describe('Get events', () => {
-		it.todo('should get events by user id');
-	})
-	describe('Search event by name or description', () => {
-		it.todo('should throw event info where the string matches name or description');
+		it('By user id', async () => {
+			const event = {
+				name: input.name,
+				description: input.description,
+				coordinates: input.coordinates,
+				date: input.date,
+				confirmationDeadline: input.confirmationDeadline,
+				confirmationStatus: {confirmationStatus: 'HOST'},
+				guestCount: 1,
+			};
+			await eventService.createEvent(userId, input);
+			const result = await eventService.getEventsByUserId(userId);
+			expect(result).toEqual([event]);
+		})
+		it('By name or description', async () => {
+			const event = {
+				name: input.name,
+				description: input.description,
+				coordinates: input.coordinates,
+				date: input.date,
+				confirmationDeadline: input.confirmationDeadline,
+				confirmationStatus: {confirmationStatus: 'HOST'},
+				guestCount: 1,
+			};
+			await eventService.createEvent(userId, input);
+			const searchInput : getEventsBySearchInput = { search: 't', }
+			const result = await eventService.getEventsByNameOrDescriptionAndUserId(userId, searchInput);
+			expect(result).toEqual([event]);
+		})
 	})
 
 	describe('Update event', () => {

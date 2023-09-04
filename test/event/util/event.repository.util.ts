@@ -33,51 +33,67 @@ export class EventRepositoryUtil implements IEventRepository{
 		return Promise.resolve(event);
 	}
 
+	getEventsByUserId(userId: number): Promise<Event[]> {
+		const eventsIds :number[] = [];
+		for(let i=0; i<this.guests.length; i++){
+			if (this.guests[i].userId === userId) eventsIds.push(this.guests[i].eventId);
+		}
+		const result = [];
+		for(let i=0; i<eventsIds.length; i++){
+			for (let j = 0; j < this.events.length; j++) {
+				if (this.events[j].id === eventsIds[i]) result.push(this.events[j]);
+			}
+		}
+		return Promise.resolve(result);
+	}
+
+	findConfirmationStatus(userId: number, id: number): Promise<{confirmationStatus: string}> {
+		for(let i=0; i<this.guests.length; i++){
+			if (this.guests[i].userId === userId && this.guests[i].eventId === id){
+				return Promise.resolve({confirmationStatus: this.guests[i].confirmationStatus})
+			}
+		}
+		return undefined;
+	}
+
+	countGuestsByEventId(id: number): Promise<number> {
+		let counter = 0;
+		for(let i=0; i<this.guests.length; i++){
+			if (this.guests[i].eventId === id &&
+				(this.guests[i].confirmationStatus === 'ATTENDING' ||
+					this.guests[i].confirmationStatus === 'HOST')) counter++;
+		}
+		return Promise.resolve(counter);
+	}
+
+	async getEventsByNameOrDescriptionAndUserId(userId: number, search: string): Promise<{
+		id: number;
+		name: string;
+		description: string;
+		creatorId: number;
+		coordinates: number[];
+		confirmationDeadline: Date;
+		createdAt: Date;
+		updatedAt: Date;
+		date: Date
+	}[]> {
+		const userEvents : Event[] = await this.getEventsByUserId(userId);
+		const result = [];
+		for (let i = 0; i < userEvents.length; i++) {
+			if(userEvents[i].name.includes(search) || userEvents[i].description.includes(search)) result.push(userEvents[i]);
+		}
+		return Promise.resolve(result);
+	}
+
 	checkIfUserIsCreator(userId: number, eventId: number): Promise<{
 		creatorId: number
 	}> {
 		return Promise.resolve({creatorId: 0});
 	}
 
-	countGuestsByEventId(id: number): Promise<number> {
-		return Promise.resolve(0);
-	}
+
 
 	deleteEventAndGuests(eventId: number): any {
-	}
-
-	findConfirmationStatus(userId: number, id: number): Promise<{
-		confirmationStatus: string
-	}> {
-		return Promise.resolve({confirmationStatus: ""});
-	}
-
-	getEventsByNameOrDescriptionAndUserId(userId: number, search: string): Promise<{
-		id: number;
-		name: string;
-		description: string;
-		creatorId: number;
-		coordinates: number[];
-		confirmationDeadline: Date;
-		createdAt: Date;
-		updatedAt: Date;
-		date: Date
-	}[]> {
-		return Promise.resolve([]);
-	}
-
-	getEventsByUserId(userId: number): Promise<{
-		id: number;
-		name: string;
-		description: string;
-		creatorId: number;
-		coordinates: number[];
-		confirmationDeadline: Date;
-		createdAt: Date;
-		updatedAt: Date;
-		date: Date
-	}[]> {
-		return Promise.resolve([]);
 	}
 
 	getHostGuest(userId: number, eventId: number): Promise<Guest> {

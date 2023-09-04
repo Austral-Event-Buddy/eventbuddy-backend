@@ -2,9 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService, IAuthRepository, IAuthService } from "../../../src/domains/auth";
 import { LoginInput, RegisterInput } from "../../../src/domains/auth/input";
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { ConfigService } from "@nestjs/config";
 import { UtilAuthRepository } from "../util/auth.repository.util";
-import { createJwtProvider } from "@nestjs/jwt/dist/jwt.providers";
 import {User} from "@prisma/client";
 
 describe('AuthService Unit Test', () => {
@@ -45,7 +43,7 @@ describe('AuthService Unit Test', () => {
 			username: 'test',
 			name: 'test',
 		};
-		const token = await authService.register(input);
+		await authService.register(input);
 	});
 
 	describe('register', () => {
