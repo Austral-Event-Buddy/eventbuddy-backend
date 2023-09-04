@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import {IAuthRepository} from "../../../src/domains/auth";
-import {RegisterInput} from "../../../src/domains/auth/input";
-import {User} from "@prisma/client";
+import { IAuthRepository } from '../../../src/domains/auth';
+import { RegisterInput } from '../../../src/domains/auth/input';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UtilAuthRepository implements IAuthRepository {
