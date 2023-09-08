@@ -1,52 +1,62 @@
-import {getEventsBySearchInput, NewEventInput} from '../input';
-import {updateEventInput} from '../input';
-import {Event} from "@prisma/client";
+import {
+  answerInviteInput,
+  getEventsBySearchInput,
+  inviteGuestInput,
+  NewEventInput,
+} from '../input';
+import { updateEventInput } from '../input/updateEvent.input';
+import { $Enums, Prisma, Event } from '@prisma/client';
+import { eventInfoOutputDto } from '../dto/eventInfoOutput.dto';
 
 export abstract class IEventService {
-    abstract getEventsByUserId(userId: number): Promise<{
-        name: string,
-        description: string,
-        coordinates: number[],
-        date: Date,
-        confirmationDeadline: Date,
-        confirmationStatus: { confirmationStatus: string },
-        guestCount: number
-    }[]>;
-    abstract getEventsByNameOrDescriptionAndUserId(
-        userId: number,
-        input: getEventsBySearchInput,
-    ):Promise<{
-        name: string,
-        description: string,
-        coordinates: number[],
-        date: Date,
-        confirmationDeadline: Date,
-        confirmationStatus: { confirmationStatus: string },
-        guestCount: number
-    }[]>;
+  abstract createEvent(userId: number, input: NewEventInput): Promise<Event>;
+  abstract getEventsByUserId(userId: number): Promise<eventInfoOutputDto[]>;
+  abstract getEventsByNameOrDescriptionAndUserId(
+    userId: number,
+    input: getEventsBySearchInput,
+  ): Promise<eventInfoOutputDto[]>;
 
-    abstract createEvent(
-        userId: number,
-        input: NewEventInput,
-    ): Promise<Event>;
+  abstract checkGuestStatusOnEvent(userId: number, eventId: number): Promise<boolean>;
 
-    abstract checkGuestStatusOnEvent(userId: number, eventId: number): Promise<boolean>;
+  abstract updateEvent(eventId: number, input: updateEventInput): Promise<Event>;
 
-    abstract updateEvent(
-        eventId: number,
-        input: updateEventInput,
-    ): Promise<{
-        id: number;
-        name: string;
-        description: string;
-        creatorId: number;
-        coordinates: number[];
-        confirmationDeadline: Date;
-        createdAt: Date;
-        updatedAt: Date;
-        date: Date;
-    }>;
+  abstract deleteEvent(userId: number, eventId: number): Promise<boolean>;
 
-    abstract deleteEvent(userId: number, eventId: number): Promise<boolean>;
-    // abstract toEventInfoOutput(events: Event[], userId: number): Promise<{name: string, description: string, coordinates: number[], date: Date, confirmationDeadline: Date, confirmationStatus: {confirmationStatus: string}, guestCount: number}[]>;
+  abstract inviteGuest(
+    input: inviteGuestInput,
+    userId: number,
+  ): Promise<{
+    id: number;
+    userId: number;
+    eventId: number;
+    confirmationStatus: $Enums.confirmationStatus;
+  }>;
+
+  abstract answerInvite(
+    input: answerInviteInput,
+    userId: number,
+  ): Promise<{
+    id: number;
+    userId: number;
+    eventId: number;
+    confirmationStatus: $Enums.confirmationStatus;
+  }>;
+
+  abstract getInvitesByUser(userId: number): Promise<
+    {
+      id: number;
+      userId: number;
+      eventId: number;
+      confirmationStatus: $Enums.confirmationStatus;
+    }[]
+  >;
+
+  abstract getGuestsByEvent(eventId: number): Prisma.PrismaPromise<
+    {
+      id: number;
+      userId: number;
+      eventId: number;
+      confirmationStatus: $Enums.confirmationStatus;
+    }[]
+  >;
 }
