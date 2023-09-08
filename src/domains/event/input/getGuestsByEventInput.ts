@@ -1,7 +1,7 @@
-import {IsNotEmpty, IsNumber} from "class-validator";
+import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class getGuestsByEventInput {
-    @IsNotEmpty()
-    @IsNumber()
-    eventId: number;
+  @IsNotEmpty()
+  @IsNumber()
+  eventId: number;
 }

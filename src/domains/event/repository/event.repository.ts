@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { NewEventInput } from '../input';
 import { updateEventInput } from '../input/updateEvent.input';
 import { IEventRepository } from './event.repository.interface';
-import {confirmationStatus} from "@prisma/client";
+import { confirmationStatus } from '@prisma/client';
 
 @Injectable()
 export class EventRepository implements IEventRepository {
@@ -12,8 +12,8 @@ export class EventRepository implements IEventRepository {
   async getEventsByUserId(userId: number) {
     return this.prisma.event.findMany({
       where: {
-          OR: [{creatorId: userId}, {guests: {some: {userId: userId}}}],
-      }
+        OR: [{ creatorId: userId }, { guests: { some: { userId: userId } } }],
+      },
       // },
       // select: {
       //   id: true,
@@ -69,15 +69,20 @@ export class EventRepository implements IEventRepository {
     });
   }
 
-  async findConfirmationStatus(userId: number, eventId: number): Promise<confirmationStatus> {
-    return (await this.prisma.guest.findUnique({
-      where: {
-        userId_eventId: { userId, eventId },
-      },
-      select: {
-        confirmationStatus: true,
-      },
-    })).confirmationStatus;
+  async findConfirmationStatus(
+    userId: number,
+    eventId: number,
+  ): Promise<confirmationStatus> {
+    return (
+      await this.prisma.guest.findUnique({
+        where: {
+          userId_eventId: { userId, eventId },
+        },
+        select: {
+          confirmationStatus: true,
+        },
+      })
+    ).confirmationStatus;
   }
 
   async getEventsByNameOrDescriptionAndUserId(userId: number, input: string) {
@@ -100,7 +105,7 @@ export class EventRepository implements IEventRepository {
             ],
           },
         ],
-      }
+      },
       // select: {
       //   id: true,
       //   name: true,
@@ -204,58 +209,57 @@ export class EventRepository implements IEventRepository {
     });
   }
 
-    getEvent(eventId: number){
-        return this.prisma.event.findUnique({
-            where:{
-                id: eventId,
-            },
-        });
-    }
+  getEvent(eventId: number) {
+    return this.prisma.event.findUnique({
+      where: {
+        id: eventId,
+      },
+    });
+  }
 
-    async inviteGuest(eventId: number, invitedId: number) {
-        return this.prisma.guest.create({
-            data: {
-                userId: invitedId,
-                eventId: eventId,
-                confirmationStatus: "PENDING",
-            },
-        } );
-    }
+  async inviteGuest(eventId: number, invitedId: number) {
+    return this.prisma.guest.create({
+      data: {
+        userId: invitedId,
+        eventId: eventId,
+        confirmationStatus: 'PENDING',
+      },
+    });
+  }
 
+  async answerInvite(guestId: number, answer: confirmationStatus) {
+    return this.prisma.guest.update({
+      where: {
+        id: guestId,
+      },
+      data: {
+        confirmationStatus: answer,
+      },
+    });
+  }
 
-    async answerInvite(guestId: number, answer: confirmationStatus) {
-        return this.prisma.guest.update({
-            where: {
-                id: guestId,
-            },
-            data: {
-                confirmationStatus: answer,
-            },
-        });
-    }
+  //Should only return with status pending (?)
+  async getInvitesByUser(userId: number) {
+    return this.prisma.guest.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+  }
 
-    //Should only return with status pending (?)
-    async getInvitesByUser(userId: number) {
-        return this.prisma.guest.findMany({
-            where: {
-                userId: userId,
-            },
-        });
-    }
+  getGuest(guestId: number) {
+    return this.prisma.guest.findUnique({
+      where: {
+        id: guestId,
+      },
+    });
+  }
 
-    getGuest(guestId: number) {
-        return this.prisma.guest.findUnique({
-            where:{
-                id: guestId,
-            },
-        });
-    }
-
-    getGuestsByEvent(eventId: number) {
-        return this.prisma.guest.findMany({
-            where:{
-                eventId: eventId,
-            },
-        });
-    }
+  getGuestsByEvent(eventId: number) {
+    return this.prisma.guest.findMany({
+      where: {
+        eventId: eventId,
+      },
+    });
+  }
 }
