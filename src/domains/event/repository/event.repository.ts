@@ -69,15 +69,15 @@ export class EventRepository implements IEventRepository {
     });
   }
 
-  async findConfirmationStatus(userId: number, eventId: number) {
-    return this.prisma.guest.findUnique({
+  async findConfirmationStatus(userId: number, eventId: number): Promise<confirmationStatus> {
+    return (await this.prisma.guest.findUnique({
       where: {
         userId_eventId: { userId, eventId },
       },
       select: {
         confirmationStatus: true,
       },
-    });
+    })).confirmationStatus;
   }
 
   async getEventsByNameOrDescriptionAndUserId(userId: number, input: string) {

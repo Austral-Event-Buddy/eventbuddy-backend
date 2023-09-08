@@ -11,28 +11,14 @@ export interface IEventRepository {
 
     // deleteEvent( eventId: number): Promise<Event>;
     getEventsByUserId(userId: number): Promise<
-        {
-            id: number;
-            name: string;
-            description: string;
-            coordinates: number[];
-            confirmationDeadline: Date;
-            date: Date;
-        }[]
+        Event[]
     >;
 
     getEventsByNameOrDescriptionAndUserId(
         userId: number,
         search: string,
     ): Promise<
-        {
-            id: number;
-            name: string;
-            description: string;
-            coordinates: number[];
-            confirmationDeadline: Date;
-            date: Date;
-        }[]
+        Event[]
     >;
 
     getEvent(eventId: number): Prisma.Prisma__EventClient<{

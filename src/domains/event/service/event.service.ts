@@ -10,6 +10,7 @@ import {IEventService} from './event.service.interface';
 import {updateEventInput} from '../input';
 import {Event} from '@prisma/client';
 import {PrismaClientKnownRequestError} from "@prisma/client/runtime/library";
+import {eventInfoOutputDto} from "../dto/eventInfoOutput.dto";
 
 @Injectable()
 export class EventService implements IEventService {
@@ -66,25 +67,22 @@ export class EventService implements IEventService {
         return true;
     }
 
-    private async toEventInfoOutput(events: Event[], userId: number) {
-        return Promise.all(
-            events.map(async (event: Event) => {
-                const confirmationStatus = await this.repository.findConfirmationStatus(
-                    userId,
-                    event.id,
-                );
-                const guestCount = await this.repository.countGuestsByEventId(event.id);
-                return {
-                    name: event.name,
-                    description: event.description,
-                    coordinates: event.coordinates,
-                    date: event.date,
-                    confirmationDeadline: event.confirmationDeadline,
-                    confirmationStatus: confirmationStatus,
-                    guestCount: guestCount,
-                };
-            }),
-        );
+    private async toEventInfoOutput(events: Event[], userId: number): Promise<eventInfoOutputDto[]> {
+        let eventInfoOutput: eventInfoOutputDto[] = [];
+        for (const event of events){
+            const confirmationStatus = await this.repository.findConfirmationStatus(userId,event.id);
+            const guestCount = await this.repository.countGuestsByEventId(event.id);
+            eventInfoOutput.push({
+                name: event.name,
+                description: event.description,
+                coordinates: event.coordinates,
+                date: event.date,
+                confirmationDeadline: event.confirmationDeadline,
+                confirmationStatus: confirmationStatus,
+                guests: guestCount
+            })
+        }
+        return eventInfoOutput;
     }
 
     async inviteGuest(input: inviteGuestInput, userId: number){

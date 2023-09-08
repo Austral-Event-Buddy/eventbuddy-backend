@@ -1,39 +1,24 @@
-import {answerInviteInput, inviteGuestInput, NewEventInput} from '../input';
+import {answerInviteInput, getEventsBySearchInput, inviteGuestInput, NewEventInput} from '../input';
 import {updateEventInput} from '../input/updateEvent.input';
-import {$Enums, Prisma} from "@prisma/client";
+import {$Enums, Prisma, Event} from "@prisma/client";
+import {eventInfoOutputDto} from "../dto/eventInfoOutput.dto";
+
 
 export interface IEventService {
     createEvent(
         userId: number,
         input: NewEventInput,
-    ): Promise<{
-        id: number;
-        name: string;
-        description: string;
-        creatorId: number;
-        coordinates: number[];
-        confirmationDeadline: Date;
-        createdAt: Date;
-        updatedAt: Date;
-        date: Date;
-    }>;
+    ): Promise<Event
+    >;
+    getEventsByUserId(userId: number): Promise<eventInfoOutputDto[]>
+    getEventsByNameOrDescriptionAndUserId(userId:number, input: getEventsBySearchInput): Promise<eventInfoOutputDto[]>
 
     checkGuestStatusOnEvent(userId: number, eventId: number): Promise<boolean>;
 
     updateEvent(
         eventId: number,
         input: updateEventInput,
-    ): Promise<{
-        id: number;
-        name: string;
-        description: string;
-        creatorId: number;
-        coordinates: number[];
-        confirmationDeadline: Date;
-        createdAt: Date;
-        updatedAt: Date;
-        date: Date;
-    }>;
+    ): Promise<Event>;
 
     deleteEvent(userId: number, eventId: number): Promise<boolean>;
 
