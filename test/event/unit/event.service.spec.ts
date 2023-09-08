@@ -1,9 +1,10 @@
-import { EventService, IEventService } from "../../../src/domains/event/service";
-import { IEventRepository } from "../../../src/domains/event/repository";
-import { Test, TestingModule } from "@nestjs/testing";
-import { EventRepositoryUtil } from "../util/event.repository.util";
-import {getEventsBySearchInput, NewEventInput, updateEventInput} from "../../../src/domains/event/input";
-import {Event} from "@prisma/client";
+import { EventService, IEventService } from '../../../src/domains/event/service';
+import { IEventRepository } from '../../../src/domains/event/repository';
+import { Test, TestingModule } from '@nestjs/testing';
+import { EventRepositoryUtil } from '../util/event.repository.util';
+import { getEventsBySearchInput, NewEventInput, updateEventInput } from '../../../src/domains/event/input';
+import { Event } from '@prisma/client';
+import {NotFoundException} from "@nestjs/common";
 
 describe('EventService Unit Test', () => {
 	let eventService: IEventService;
@@ -53,7 +54,6 @@ describe('EventService Unit Test', () => {
 		const result = await eventService.createEvent(userId, input);
 		expect(result).toEqual(event);
 	})
-
 	describe('Get events', () => {
 		it('By user id', async () => {
 			const event = {
@@ -84,6 +84,11 @@ describe('EventService Unit Test', () => {
 			const result = await eventService.getEventsByNameOrDescriptionAndUserId(userId, searchInput);
 			expect(result).toEqual([event]);
 		})
+		it('with no events', async () => {
+			const searchInput : getEventsBySearchInput = { search: 't', }
+			const result = await eventService.getEventsByNameOrDescriptionAndUserId(userId, searchInput);
+			expect(result).toEqual([]);
+		})
 	})
 
 	describe('Update event', () => {
@@ -109,14 +114,14 @@ describe('EventService Unit Test', () => {
 		expect(result).toEqual([]);
 	})
 
-	describe('Check Host Guest', async () => {
+	describe('Check Host Guest', () => {
 		it('correct host guest', async () => {
 			const event = await eventService.createEvent(userId, input);
 			const result = await eventService.checkGuestStatusOnEvent(userId, event.id);
 			expect(result).toEqual(true);
 		})
-		it('should throw error, incorrect host guest', () => {
-			it.todo('');
-		});
+		// it('should throw error, incorrect host guest', () => {
+			it.todo('incorrect host guest');
+		// });
 	})
 });
