@@ -1,4 +1,4 @@
-import { getEventsBySearchInput, NewEventInput } from '../input';
+import { NewEventInput } from '../input';
 import {
   Guest,
   Event,
@@ -15,7 +15,7 @@ export abstract class IEventRepository {
 
   abstract updateEvent(eventId: number, input: NewEventInput): Promise<Event>;
 
-  // deleteEvent( eventId: number): Promise<Event>;
+  abstract deleteEventAndGuests( eventId: number): any;
   abstract getEventsByUserId(userId: number): Promise<Event[]>;
 
   abstract getEventsByNameOrDescriptionAndUserId(
@@ -87,4 +87,7 @@ export abstract class IEventRepository {
       confirmationStatus: $Enums.confirmationStatus;
     }[]
   >;
+  abstract findConfirmationStatus(userId: number, eventId: number): Promise<confirmationStatus>;
+  abstract countGuestsByEventId(eventId: number) : Promise<number>;
+  abstract checkIfUserIsCreator(userId: number, eventId: number): Promise<Event>;
 }

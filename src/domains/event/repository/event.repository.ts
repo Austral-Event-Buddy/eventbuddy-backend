@@ -1,7 +1,7 @@
 import { PrismaService } from '../../../prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { NewEventInput } from '../input';
-import { updateEventInput } from '../input/updateEvent.input';
+import { updateEventInput } from '../input';
 import { IEventRepository } from './event.repository.interface';
 import { confirmationStatus } from '@prisma/client';
 
@@ -164,9 +164,7 @@ export class EventRepository implements IEventRepository {
     return this.prisma.event.findUnique({
       where: {
         id: eventId,
-      },
-      select: {
-        creatorId: true,
+        creatorId: userId
       },
     });
   }
@@ -188,19 +186,6 @@ export class EventRepository implements IEventRepository {
     } catch (error) {
       throw new Error(`Error when deleting event: ${error}`);
     }
-  }
-
-  async deleteEvent(eventId: number) {
-    await this.prisma.guest.deleteMany({
-      where: {
-        eventId: eventId,
-      },
-    });
-    return this.prisma.event.delete({
-      where: {
-        id: eventId,
-      },
-    });
   }
 
   getEvent(eventId: number) {
