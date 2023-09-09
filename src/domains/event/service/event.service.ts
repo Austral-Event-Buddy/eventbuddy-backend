@@ -4,11 +4,18 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { getEventsBySearchInput, NewEventInput } from '../input';
+import {
+  answerInviteInput,
+  getEventsBySearchInput,
+  inviteGuestInput,
+  NewEventInput,
+} from '../input';
 import { IEventService } from './event.service.interface';
 import { updateEventInput } from '../input';
 import { Event } from '@prisma/client';
 import { IEventRepository } from "../repository";
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { eventInfoOutputDto } from '../dto/eventInfoOutput.dto';
 
 @Injectable()
 export class EventService implements IEventService {
@@ -64,24 +71,67 @@ export class EventService implements IEventService {
     return true;
   }
 
-  private async toEventInfoOutput(events: Event[], userId: number) {
-    return Promise.all(
-      events.map(async (event: Event) => {
-        const confirmationStatus = await this.repository.findConfirmationStatus(
-          userId,
-          event.id,
-        );
-        const guestCount = await this.repository.countGuestsByEventId(event.id);
-        return {
-          name: event.name,
-          description: event.description,
-          coordinates: event.coordinates,
-          date: event.date,
-          confirmationDeadline: event.confirmationDeadline,
-          confirmationStatus: confirmationStatus,
-          guestCount: guestCount,
-        };
-      }),
-    );
+  private async toEventInfoOutput(
+    events: Event[],
+    userId: number,
+  ): Promise<eventInfoOutputDto[]> {
+    let eventInfoOutput: eventInfoOutputDto[] = [];
+    for (const event of events) {
+      const confirmationStatus = await this.repository.findConfirmationStatus(
+        userId,
+        event.id,
+      );
+      const guestCount = await this.repository.countGuestsByEventId(event.id);
+      eventInfoOutput.push({
+        name: event.name,
+        description: event.description,
+        coordinates: event.coordinates,
+        date: event.date,
+        confirmationDeadline: event.confirmationDeadline,
+        confirmationStatus: confirmationStatus,
+        guests: guestCount,
+      });
+    }
+    return eventInfoOutput;
+  }
+
+  async inviteGuest(input: inviteGuestInput, userId: number) {
+    const eventId = input.eventId;
+    const invitedId = input.userId;
+    const hostGuest = await this.repository.getHostGuest(eventId, userId);
+    const creator = await this.repository.getEvent(eventId).creator();
+    if (hostGuest != null || creator['id'] === userId) {
+      try {
+        return await this.repository.inviteGuest(eventId, invitedId);
+      } catch (error) {
+        if (error instanceof PrismaClientKnownRequestError) {
+          if (error.code === 'P2002') {
+            throw new ForbiddenException(
+              'The user is already invited to this event',
+            );
+          }
+        }
+      }
+    } else {
+      throw new ForbiddenException('You are not a host of this event'); //Didnt work
+    }
+  }
+
+  async answerInvite(input: answerInviteInput, userId: number) {
+    const guestId = input.guestId;
+    const guest = await this.repository.getGuest(guestId);
+    if (guest['userId'] == userId) {
+      return await this.repository.answerInvite(guestId, input.answer);
+    } else {
+      throw new ForbiddenException('This invite is not yours');
+    }
+  }
+
+  async getInvitesByUser(userId: number) {
+    return this.repository.getInvitesByUser(userId);
+  }
+
+  getGuestsByEvent(eventId: number) {
+    return this.repository.getGuestsByEvent(eventId);
   }
 }
