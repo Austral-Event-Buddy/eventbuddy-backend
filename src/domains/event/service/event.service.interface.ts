@@ -4,8 +4,8 @@ import {
   inviteGuestInput,
   NewEventInput,
 } from '../input';
-import { updateEventInput } from '../input/updateEvent.input';
-import { $Enums, Prisma, Event } from '@prisma/client';
+import { updateEventInput } from '../input';
+import { $Enums, Event } from '@prisma/client';
 import { eventInfoOutputDto } from '../dto/eventInfoOutput.dto';
 
 export abstract class IEventService {
@@ -51,7 +51,7 @@ export abstract class IEventService {
     }[]
   >;
 
-  abstract getGuestsByEvent(eventId: number): Prisma.PrismaPromise<
+  abstract getGuestsByEvent(eventId: number): Promise<
     {
       id: number;
       userId: number;

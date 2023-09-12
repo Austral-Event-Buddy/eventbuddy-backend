@@ -2,11 +2,9 @@ import { NewEventInput } from '../input';
 import {
   Guest,
   Event,
-  Prisma,
   $Enums,
   confirmationStatus,
 } from '@prisma/client';
-import { DefaultArgs } from '@prisma/client/runtime/library';
 
 export abstract class IEventRepository {
   abstract createEvent(userId: number, input: NewEventInput): Promise<Event>;
@@ -23,7 +21,7 @@ export abstract class IEventRepository {
     search: string,
   ): Promise<Event[]>;
 
-  abstract getEvent(eventId: number): Prisma.Prisma__EventClient<
+  abstract getEvent(eventId: number): Promise<
     {
       id: number;
       name: string;
@@ -34,10 +32,7 @@ export abstract class IEventRepository {
       createdAt: Date;
       updatedAt: Date;
       date: Date;
-    },
-    null,
-    DefaultArgs
-  >;
+    }>;
 
   abstract inviteGuest(
     eventId: number,
@@ -68,25 +63,21 @@ export abstract class IEventRepository {
     }[]
   >;
 
-  abstract getGuest(guestId: number): Prisma.Prisma__GuestClient<
+  abstract getGuest(guestId: number): Promise<
     {
       id: number;
       userId: number;
       eventId: number;
       confirmationStatus: $Enums.confirmationStatus;
-    },
-    null,
-    DefaultArgs
-  >;
+    }>;
 
-  abstract getGuestsByEvent(eventId: number): Prisma.PrismaPromise<
+  abstract getGuestsByEvent(eventId: number): Promise<
     {
       id: number;
       userId: number;
       eventId: number;
       confirmationStatus: $Enums.confirmationStatus;
-    }[]
-  >;
+    }[]>;
   abstract findConfirmationStatus(userId: number, eventId: number): Promise<confirmationStatus>;
   abstract countGuestsByEventId(eventId: number) : Promise<number>;
   abstract checkIfUserIsCreator(userId: number, eventId: number): Promise<Event>;

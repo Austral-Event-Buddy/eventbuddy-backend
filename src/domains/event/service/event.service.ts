@@ -71,36 +71,12 @@ export class EventService implements IEventService {
     return true;
   }
 
-  private async toEventInfoOutput(
-    events: Event[],
-    userId: number,
-  ): Promise<eventInfoOutputDto[]> {
-    let eventInfoOutput: eventInfoOutputDto[] = [];
-    for (const event of events) {
-      const confirmationStatus = await this.repository.findConfirmationStatus(
-        userId,
-        event.id,
-      );
-      const guestCount = await this.repository.countGuestsByEventId(event.id);
-      eventInfoOutput.push({
-        name: event.name,
-        description: event.description,
-        coordinates: event.coordinates,
-        date: event.date,
-        confirmationDeadline: event.confirmationDeadline,
-        confirmationStatus: confirmationStatus,
-        guests: guestCount,
-      });
-    }
-    return eventInfoOutput;
-  }
-
   async inviteGuest(input: inviteGuestInput, userId: number) {
     const eventId = input.eventId;
     const invitedId = input.userId;
     const hostGuest = await this.repository.getHostGuest(eventId, userId);
-    const creator = await this.repository.getEvent(eventId).creator();
-    if (hostGuest != null || creator['id'] === userId) {
+    const event = await this.repository.getEvent(eventId);
+    if (hostGuest != null || event.creatorId === userId) {
       try {
         return await this.repository.inviteGuest(eventId, invitedId);
       } catch (error) {
@@ -133,5 +109,29 @@ export class EventService implements IEventService {
 
   getGuestsByEvent(eventId: number) {
     return this.repository.getGuestsByEvent(eventId);
+  }
+
+  private async toEventInfoOutput(
+      events: Event[],
+      userId: number,
+  ): Promise<eventInfoOutputDto[]> {
+    let eventInfoOutput: eventInfoOutputDto[] = [];
+    for (const event of events) {
+      const confirmationStatus = await this.repository.findConfirmationStatus(
+          userId,
+          event.id,
+      );
+      const guestCount = await this.repository.countGuestsByEventId(event.id);
+      eventInfoOutput.push({
+        name: event.name,
+        description: event.description,
+        coordinates: event.coordinates,
+        date: event.date,
+        confirmationDeadline: event.confirmationDeadline,
+        confirmationStatus: confirmationStatus,
+        guests: guestCount,
+      });
+    }
+    return eventInfoOutput;
   }
 }
