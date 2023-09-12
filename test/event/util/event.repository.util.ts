@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { IEventRepository } from "../../../src/domains/event/repository";
 import { NewEventInput } from "../../../src/domains/event/input";
-import { Guest, Event } from "@prisma/client";
+import {Guest, Event, confirmationStatus, $Enums} from "@prisma/client";
 
 @Injectable()
 export class EventRepositoryUtil implements IEventRepository{
@@ -47,10 +47,10 @@ export class EventRepositoryUtil implements IEventRepository{
 		return Promise.resolve(result);
 	}
 
-	findConfirmationStatus(userId: number, id: number): Promise<{confirmationStatus: string}> {
+	findConfirmationStatus(userId: number, eventId: number): Promise<confirmationStatus> {
 		for(let i=0; i<this.guests.length; i++){
-			if (this.guests[i].userId === userId && this.guests[i].eventId === id){
-				return Promise.resolve({confirmationStatus: this.guests[i].confirmationStatus})
+			if (this.guests[i].userId === userId && this.guests[i].eventId === eventId){
+				return Promise.resolve(this.guests[i].confirmationStatus)
 			}
 		}
 		return undefined;
@@ -89,12 +89,10 @@ export class EventRepositoryUtil implements IEventRepository{
 		return Promise.resolve(undefined);
 	}
 
-	checkIfUserIsCreator(userId: number, eventId: number): Promise<{
-		creatorId: number
-	}> {
+	checkIfUserIsCreator(userId: number, eventId: number): Promise<Event> {
 		for (const event of this.events)
-			if (event.id === eventId && event.creatorId === userId) return Promise.resolve({creatorId: event.creatorId});
-		return Promise.resolve({creatorId: null});
+			if (event.id === eventId && event.creatorId === userId) return Promise.resolve(event);
+		return Promise.resolve( null);
 	}
 
 
@@ -115,6 +113,100 @@ export class EventRepositoryUtil implements IEventRepository{
 			if (guest.eventId === eventId && guest.userId === userId && guest.confirmationStatus === 'HOST') return Promise.resolve(guest);
 		}
 		return Promise.resolve(undefined);
+	}
+
+	answerInvite(guestId: number, answer: confirmationStatus): Promise<{
+		id: number;
+		userId: number;
+		eventId: number;
+		confirmationStatus: $Enums.confirmationStatus
+	}> {
+		for (const guest of this.guests) {
+			if (guest.id === guestId) {
+				guest.confirmationStatus = answer;
+				return Promise.resolve({
+					id: guest.id,
+					userId: guest.userId,
+					eventId: guest.eventId,
+					confirmationStatus: guest.confirmationStatus
+				});
+			}
+		}
+	}
+
+	getEvent(eventId: number): Promise<{
+		id: number;
+		name: string;
+		description: string;
+		creatorId: number;
+		coordinates: number[];
+		confirmationDeadline: Date;
+		createdAt: Date;
+		updatedAt: Date;
+		date: Date
+	}> {
+		for (const event of this.events) {
+			if (event.id === eventId) return Promise.resolve(event);
+		}
+		return Promise.resolve(undefined);
+	}
+
+	getGuest(guestId: number): Promise<{
+		id: number;
+		userId: number;
+		eventId: number;
+		confirmationStatus: $Enums.confirmationStatus
+	}> {
+		for (const guest of this.guests) {
+			if (guest.id === guestId) return Promise.resolve({
+				id: guest.id,
+				userId: guest.userId,
+				eventId: guest.eventId,
+				confirmationStatus: guest.confirmationStatus,
+			});
+		}
+	}
+
+	getGuestsByEvent(eventId: number): Promise<{
+		id: number;
+		userId: number;
+		eventId: number;
+		confirmationStatus: $Enums.confirmationStatus
+	}[]> {
+		const result = [];
+		for (const guest of this.guests) {
+			if (guest.eventId === eventId) result.push(guest);
+		}
+		return Promise.resolve(result);
+	}
+
+	getInvitesByUser(userId: number): Promise<{
+		id: number;
+		userId: number;
+		eventId: number;
+		confirmationStatus: $Enums.confirmationStatus
+	}[]> {
+		const result = [];
+		for (const guest of this.guests) {
+			if (guest.userId === userId) result.push(guest);
+		}
+		return Promise.resolve(result);
+	}
+
+	inviteGuest(eventId: number, invitedId: number): Promise<{
+		id: number;
+		userId: number;
+		eventId: number;
+		confirmationStatus: $Enums.confirmationStatus
+	}> {
+		const guest : Guest = {
+			id: this.guestId++,
+			userId: invitedId,
+			eventId: eventId,
+			confirmationStatus: 'PENDING',
+		}
+		this.guests.push(guest);
+		return Promise.resolve(guest);
 	}
 
 }

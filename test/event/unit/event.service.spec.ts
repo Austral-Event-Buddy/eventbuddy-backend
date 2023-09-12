@@ -2,13 +2,16 @@ import { EventService, IEventService } from '../../../src/domains/event/service'
 import { IEventRepository } from '../../../src/domains/event/repository';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventRepositoryUtil } from '../util/event.repository.util';
-import { getEventsBySearchInput, NewEventInput, updateEventInput } from '../../../src/domains/event/input';
+import {
+	getEventsBySearchInput,
+	inviteGuestInput,
+	NewEventInput,
+	updateEventInput
+} from '../../../src/domains/event/input';
 import { Event } from '@prisma/client';
-import {NotFoundException} from "@nestjs/common";
 
 describe('EventService Unit Test', () => {
 	let eventService: IEventService;
-	let eventRepository: IEventRepository;
 
 	beforeEach(async () => {
 		const eventServiceProvider = {
@@ -28,15 +31,19 @@ describe('EventService Unit Test', () => {
 		})
 			.compile();
 		eventService = app.get<IEventService>(IEventService);
-		eventRepository = app.get<IEventRepository>(IEventRepository);
 	});
 	const userId = 1;
+	const guestId = 2;
 	const input : NewEventInput = {
 		name: 'test',
 		description: 'test',
 		coordinates: [1, 2],
 		confirmationDeadline: undefined,
 		date: undefined,
+	};
+	const inviteGuestInput : inviteGuestInput = {
+		eventId: 1,
+		userId: guestId
 	};
 
 	it('Create event', async () => {
@@ -120,8 +127,95 @@ describe('EventService Unit Test', () => {
 			const result = await eventService.checkGuestStatusOnEvent(userId, event.id);
 			expect(result).toEqual(true);
 		})
-		// it('should throw error, incorrect host guest', () => {
-			it.todo('incorrect host guest');
+		// it('should throw error, incorrect host guest', async () => {
+		// 	const event = await eventService.createEvent(userId, input);
+		// 	await eventService.inviteGuest(inviteGuestInput, userId);
+		// 	const result = await eventService.checkGuestStatusOnEvent(guestId, event.id);
+		// 	expect(result).toThrow('User is not hosting this event');
 		// });
+	})
+	describe('Invite Guest', () => {
+		it('Guest', async () => {
+			const event = await eventService.createEvent(userId, input);
+			const result = await eventService.inviteGuest(inviteGuestInput, userId);
+			expect(result).toEqual({
+				id: guestId,
+				userId: guestId,
+				eventId: event.id,
+				confirmationStatus: 'PENDING',
+			});
+		})
+		// it('invite host', async () => {
+		// 	const event = await eventService.createEvent(userId, input);
+		// 	inviteGuestInput.userId = userId
+		// 	const result = await eventService.inviteGuest(inviteGuestInput, userId);
+		// 	expect(result).toEqual('The user is already invited to this event');
+		// })
+	})
+
+	// describe('Answer Invite', () => {
+	// 	it('Guest answer HOST', async () => {
+	// 		const answerInviteInput = {
+	// 			guestId: guestId,
+	// 			answer: "ATTENDING",
+	// 		}
+	// 		const event = await eventService.createEvent(userId, input);
+	// 		await eventService.inviteGuest(inviteGuestInput, userId);
+	// 		const result = await eventService.answerInvite(answerInviteInput, guestId);
+	//
+	// 		expect(result).toEqual({
+	// 			id: guestId,
+	// 			userId: guestId,
+	// 			eventId: event.id,
+	// 			confirmationStatus: 'PENDING',
+	// 		});
+	// 	})
+	// })
+
+	describe('Get Invites By User', () => {
+		it("get host's invite", async () => {
+			const event = await eventService.createEvent(userId, input);
+			await eventService.inviteGuest(inviteGuestInput, userId);
+			const result = await eventService.getInvitesByUser(userId);
+
+			expect(result).toEqual([{
+				id: userId,
+				userId: userId,
+				eventId: event.id,
+				confirmationStatus: 'HOST',
+			}]);
+		})
+		it("get host's invite", async () => {
+			const event = await eventService.createEvent(userId, input);
+			await eventService.inviteGuest(inviteGuestInput, userId);
+			const result = await eventService.getInvitesByUser(guestId);
+
+			expect(result).toEqual([{
+				id: guestId,
+				userId: guestId,
+				eventId: event.id,
+				confirmationStatus: 'PENDING',
+			}]);
+		})
+	})
+
+	describe('Get Guests By Event', () => {
+		it("get host's invite", async () => {
+			const event = await eventService.createEvent(userId, input);
+			await eventService.inviteGuest(inviteGuestInput, userId);
+			const result = await eventService.getGuestsByEvent(event.id);
+
+			expect(result).toEqual([{
+				id: userId,
+				userId: userId,
+				eventId: event.id,
+				confirmationStatus: 'HOST',
+			}, {
+				id: guestId,
+				userId: guestId,
+				eventId: event.id,
+				confirmationStatus: 'PENDING',
+			}]);
+		})
 	})
 });
