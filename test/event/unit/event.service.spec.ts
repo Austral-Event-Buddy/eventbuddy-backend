@@ -69,8 +69,8 @@ describe('EventService Unit Test', () => {
 				coordinates: input.coordinates,
 				date: input.date,
 				confirmationDeadline: input.confirmationDeadline,
-				confirmationStatus: {confirmationStatus: 'HOST'},
-				guestCount: 1,
+				confirmationStatus: 'HOST',
+				guests: 1,
 			};
 			await eventService.createEvent(userId, input);
 			const result = await eventService.getEventsByUserId(userId);
@@ -83,8 +83,8 @@ describe('EventService Unit Test', () => {
 				coordinates: input.coordinates,
 				date: input.date,
 				confirmationDeadline: input.confirmationDeadline,
-				confirmationStatus: {confirmationStatus: 'HOST'},
-				guestCount: 1,
+				confirmationStatus: 'HOST',
+				guests: 1,
 			};
 			await eventService.createEvent(userId, input);
 			const searchInput : getEventsBySearchInput = { search: 't', }
