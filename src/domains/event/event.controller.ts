@@ -8,12 +8,19 @@ import {
   Request,
   UnauthorizedException,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { EventService } from './service';
-import { getEventsBySearchInput, NewEventInput } from './input';
 import { Request as ExpressRequest } from 'express';
 import { JwtAuthGuard } from '../auth/auth.guard';
-import { updateEventInput } from './input';
+import {
+  answerInviteInput,
+  getEventsBySearchInput,
+  getGuestsByEventInput,
+  inviteGuestInput,
+  NewEventInput,
+  updateEventInput,
+} from './input';
 
 @UseGuards(JwtAuthGuard)
 @Controller('event')
@@ -58,6 +65,18 @@ export class EventController {
       } else throw new UnauthorizedException('User is not hosting this event');
     }
   }
+  @Post('inviteGuest')
+  inviteGuest(@Body() input: inviteGuestInput, @Request() req: ExpressRequest) {
+    return this.eventService.inviteGuest(input, req.user['id']);
+  }
+
+  @Put('answerInvite')
+  answerInvite(
+    @Body() input: answerInviteInput,
+    @Request() req: ExpressRequest,
+  ) {
+    return this.eventService.answerInvite(input, req.user['id']);
+  }
 
   @Delete(':eventId')
   deleteEvent(
@@ -70,5 +89,14 @@ export class EventController {
     } else {
       return this.eventService.deleteEvent(req.user['id'], eventIdInt);
     }
+  }
+  @Get('getInvitesByUser')
+  getInvitesByUser(@Request() req: ExpressRequest) {
+    return this.eventService.getInvitesByUser(req.user['id']);
+  }
+
+  @Get('getGuestsByEvent')
+  getGuestsByEvent(@Body() input: getGuestsByEventInput) {
+    return this.eventService.getGuestsByEvent(input.eventId);
   }
 }
