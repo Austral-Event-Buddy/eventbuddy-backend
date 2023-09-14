@@ -4,25 +4,25 @@ import {
   inviteGuestInput,
   NewEventInput,
 } from '../input';
-import { updateEventInput } from '../input/updateEvent.input';
-import { $Enums, Prisma, Event } from '@prisma/client';
+import { updateEventInput } from '../input';
+import { $Enums, Event } from '@prisma/client';
 import { eventInfoOutputDto } from '../dto/eventInfoOutput.dto';
 
-export interface IEventService {
-  createEvent(userId: number, input: NewEventInput): Promise<Event>;
-  getEventsByUserId(userId: number): Promise<eventInfoOutputDto[]>;
-  getEventsByNameOrDescriptionAndUserId(
+export abstract class IEventService {
+  abstract createEvent(userId: number, input: NewEventInput): Promise<Event>;
+  abstract getEventsByUserId(userId: number): Promise<eventInfoOutputDto[]>;
+  abstract getEventsByNameOrDescriptionAndUserId(
     userId: number,
     input: getEventsBySearchInput,
   ): Promise<eventInfoOutputDto[]>;
 
-  checkGuestStatusOnEvent(userId: number, eventId: number): Promise<boolean>;
+  abstract checkGuestStatusOnEvent(userId: number, eventId: number): Promise<boolean>;
 
-  updateEvent(eventId: number, input: updateEventInput): Promise<Event>;
+  abstract updateEvent(eventId: number, input: updateEventInput): Promise<Event>;
 
-  deleteEvent(userId: number, eventId: number): Promise<boolean>;
+  abstract deleteEvent(userId: number, eventId: number): Promise<boolean>;
 
-  inviteGuest(
+  abstract inviteGuest(
     input: inviteGuestInput,
     userId: number,
   ): Promise<{
@@ -32,7 +32,7 @@ export interface IEventService {
     confirmationStatus: $Enums.confirmationStatus;
   }>;
 
-  answerInvite(
+  abstract answerInvite(
     input: answerInviteInput,
     userId: number,
   ): Promise<{
@@ -42,7 +42,7 @@ export interface IEventService {
     confirmationStatus: $Enums.confirmationStatus;
   }>;
 
-  getInvitesByUser(userId: number): Promise<
+  abstract getInvitesByUser(userId: number): Promise<
     {
       id: number;
       userId: number;
@@ -51,7 +51,7 @@ export interface IEventService {
     }[]
   >;
 
-  getGuestsByEvent(eventId: number): Prisma.PrismaPromise<
+  abstract getGuestsByEvent(eventId: number): Promise<
     {
       id: number;
       userId: number;

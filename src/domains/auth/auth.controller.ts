@@ -1,10 +1,10 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import { LoginInput, RegisterInput } from './input';
+import {IAuthService} from "./service/auth.service.interface";
 
 @Controller('auth')
 export class AuthController {
-  constructor(private service: AuthService) {}
+  constructor(private service: IAuthService) {}
 
   @Post('register')
   register(@Body() req: RegisterInput) {
