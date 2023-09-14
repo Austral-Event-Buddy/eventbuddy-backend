@@ -83,6 +83,7 @@ export class EventService implements IEventService {
       );
       const guestCount = await this.repository.countGuestsByEventId(event.id);
       eventInfoOutput.push({
+        id: event.id,
         name: event.name,
         description: event.description,
         coordinates: event.coordinates,
@@ -120,7 +121,8 @@ export class EventService implements IEventService {
   async answerInvite(input: answerInviteInput, userId: number) {
     const guestId = input.guestId;
     const guest = await this.repository.getGuest(guestId);
-    if (guest['userId'] == userId) {
+    console.log();
+        if (guest.userId == userId) {
       return await this.repository.answerInvite(guestId, input.answer);
     } else {
       throw new ForbiddenException('This invite is not yours');

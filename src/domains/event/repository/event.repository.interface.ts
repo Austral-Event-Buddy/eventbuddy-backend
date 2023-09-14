@@ -1,12 +1,6 @@
-import { getEventsBySearchInput, NewEventInput } from '../input';
-import {
-  Guest,
-  Event,
-  Prisma,
-  $Enums,
-  confirmationStatus,
-} from '@prisma/client';
-import { DefaultArgs } from '@prisma/client/runtime/library';
+import {getEventsBySearchInput, NewEventInput} from '../input';
+import {Guest, Event, Prisma, $Enums, confirmationStatus} from '@prisma/client';
+import {DefaultArgs} from "@prisma/client/runtime/library";
 
 export interface IEventRepository {
   createEvent(userId: number, input: NewEventInput): Promise<Event>;
@@ -23,68 +17,15 @@ export interface IEventRepository {
     search: string,
   ): Promise<Event[]>;
 
-  getEvent(eventId: number): Prisma.Prisma__EventClient<
-    {
-      id: number;
-      name: string;
-      description: string;
-      creatorId: number;
-      coordinates: number[];
-      confirmationDeadline: Date;
-      createdAt: Date;
-      updatedAt: Date;
-      date: Date;
-    },
-    null,
-    DefaultArgs
-  >;
+  getEvent(eventId: number): Promise<Event>;
 
-  inviteGuest(
-    eventId: number,
-    invitedId: number,
-  ): Promise<{
-    id: number;
-    userId: number;
-    eventId: number;
-    confirmationStatus: $Enums.confirmationStatus;
-  }>;
+    inviteGuest(eventId: number, invitedId: number): Promise<Guest>;
 
-  answerInvite(
-    guestId: number,
-    answer: confirmationStatus,
-  ): Promise<{
-    id: number;
-    userId: number;
-    eventId: number;
-    confirmationStatus: $Enums.confirmationStatus;
-  }>;
+    answerInvite(guestId: number, answer: confirmationStatus): Promise<Guest>;
 
-  getInvitesByUser(userId: number): Promise<
-    {
-      id: number;
-      userId: number;
-      eventId: number;
-      confirmationStatus: $Enums.confirmationStatus;
-    }[]
-  >;
+    getInvitesByUser(userId: number): Promise<Guest[]>;
 
-  getGuest(guestId: number): Prisma.Prisma__GuestClient<
-    {
-      id: number;
-      userId: number;
-      eventId: number;
-      confirmationStatus: $Enums.confirmationStatus;
-    },
-    null,
-    DefaultArgs
-  >;
+    getGuest(guestId: number): Promise<Guest>;
 
-  getGuestsByEvent(eventId: number): Prisma.PrismaPromise<
-    {
-      id: number;
-      userId: number;
-      eventId: number;
-      confirmationStatus: $Enums.confirmationStatus;
-    }[]
-  >;
+    getGuestsByEvent(eventId: number): Promise<Guest[]>;
 }

@@ -5,7 +5,7 @@ import {
   NewEventInput,
 } from '../input';
 import { updateEventInput } from '../input/updateEvent.input';
-import { $Enums, Prisma, Event } from '@prisma/client';
+import { $Enums, Event, Guest, Prisma } from '@prisma/client';
 import { eventInfoOutputDto } from '../dto/eventInfoOutput.dto';
 
 export interface IEventService {
@@ -22,41 +22,11 @@ export interface IEventService {
 
   deleteEvent(userId: number, eventId: number): Promise<boolean>;
 
-  inviteGuest(
-    input: inviteGuestInput,
-    userId: number,
-  ): Promise<{
-    id: number;
-    userId: number;
-    eventId: number;
-    confirmationStatus: $Enums.confirmationStatus;
-  }>;
+  inviteGuest(input: inviteGuestInput, userId: number): Promise<Guest>;
 
-  answerInvite(
-    input: answerInviteInput,
-    userId: number,
-  ): Promise<{
-    id: number;
-    userId: number;
-    eventId: number;
-    confirmationStatus: $Enums.confirmationStatus;
-  }>;
+    answerInvite(input: answerInviteInput, userId: number): Promise<Guest>;
 
-  getInvitesByUser(userId: number): Promise<
-    {
-      id: number;
-      userId: number;
-      eventId: number;
-      confirmationStatus: $Enums.confirmationStatus;
-    }[]
-  >;
+    getInvitesByUser(userId: number): Promise<Guest[]>;
 
-  getGuestsByEvent(eventId: number): Prisma.PrismaPromise<
-    {
-      id: number;
-      userId: number;
-      eventId: number;
-      confirmationStatus: $Enums.confirmationStatus;
-    }[]
-  >;
+    getGuestsByEvent(eventId: number): Prisma.PrismaPromise<Guest[]>;
 }

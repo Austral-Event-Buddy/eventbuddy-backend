@@ -7,6 +7,7 @@ import {
 } from '@prisma/client';
 
 export class eventInfoOutputDto {
+  id: number;
   name: string;
   description: string;
   coordinates: Number[];
