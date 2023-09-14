@@ -1,14 +1,14 @@
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Request,
-  UnauthorizedException,
-  UseGuards,
-  Put,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Post,
+    Request,
+    UnauthorizedException,
+    UseGuards,
+    Put, Query,
 } from '@nestjs/common';
 import { EventService } from './service';
 import { Request as ExpressRequest } from 'express';
@@ -35,11 +35,12 @@ export class EventController {
   @Get('search')
   getEventsByNameOrDescriptionAndUserId(
     @Request() req: ExpressRequest,
-    @Body() input: getEventsBySearchInput,
+    @Query() search: getEventsBySearchInput,
   ) {
+    console.log(search)
     return this.eventService.getEventsByNameOrDescriptionAndUserId(
       req.user['id'],
-      input,
+        search,
     );
   }
 
