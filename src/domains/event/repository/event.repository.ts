@@ -12,8 +12,8 @@ export class EventRepository implements IEventRepository {
   async getEventsByUserId(userId: number) {
     return this.prisma.event.findMany({
       where: {
-        OR: [{ creatorId: userId }, { guests: { some: { userId: userId } } }],
-      },
+          OR: [{creatorId: userId}, {guests: {some: {userId: userId}}}],
+      }
       // },
       // select: {
       //   id: true,
