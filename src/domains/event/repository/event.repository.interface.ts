@@ -1,7 +1,8 @@
-import { NewEventInput } from '../input';
+import { getEventsBySearchInput, NewEventInput } from '../input';
 import {
   Guest,
   Event,
+  Prisma,
   $Enums,
   confirmationStatus,
 } from '@prisma/client';
@@ -21,63 +22,18 @@ export abstract class IEventRepository {
     search: string,
   ): Promise<Event[]>;
 
-  abstract getEvent(eventId: number): Promise<
-    {
-      id: number;
-      name: string;
-      description: string;
-      creatorId: number;
-      coordinates: number[];
-      confirmationDeadline: Date;
-      createdAt: Date;
-      updatedAt: Date;
-      date: Date;
-    }>;
+  abstract getEvent(eventId: number): Promise<Event>;
 
-  abstract inviteGuest(
-    eventId: number,
-    invitedId: number,
-  ): Promise<{
-    id: number;
-    userId: number;
-    eventId: number;
-    confirmationStatus: $Enums.confirmationStatus;
-  }>;
+  abstract inviteGuest(eventId: number, invitedId: number): Promise<Guest>;
 
-  abstract answerInvite(
-    guestId: number,
-    answer: confirmationStatus,
-  ): Promise<{
-    id: number;
-    userId: number;
-    eventId: number;
-    confirmationStatus: $Enums.confirmationStatus;
-  }>;
+  abstract answerInvite(guestId: number, answer: confirmationStatus): Promise<Guest>;
 
-  abstract getInvitesByUser(userId: number): Promise<
-    {
-      id: number;
-      userId: number;
-      eventId: number;
-      confirmationStatus: $Enums.confirmationStatus;
-    }[]
-  >;
+  abstract getInvitesByUser(userId: number): Promise<Guest[]>;
 
-  abstract getGuest(guestId: number): Promise<
-    {
-      id: number;
-      userId: number;
-      eventId: number;
-      confirmationStatus: $Enums.confirmationStatus;
-    }>;
+  abstract getGuest(guestId: number): Promise<Guest>;
 
-  abstract getGuestsByEvent(eventId: number): Promise<
-    {
-      id: number;
-      userId: number;
-      eventId: number;
-      confirmationStatus: $Enums.confirmationStatus;
-    }[]>;
+  abstract getGuestsByEvent(eventId: number): Promise<Guest[]>;
+
   abstract findConfirmationStatus(userId: number, eventId: number): Promise<confirmationStatus>;
   abstract countGuestsByEventId(eventId: number) : Promise<number>;
   abstract checkIfUserIsCreator(userId: number, eventId: number): Promise<Event>;

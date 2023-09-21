@@ -70,6 +70,7 @@ describe('EventService Unit Test', () => {
 				date: input.date,
 				confirmationDeadline: input.confirmationDeadline,
 				confirmationStatus: 'HOST',
+                id: 1,
 				guests: 1,
 			};
 			await eventService.createEvent(userId, input);
@@ -84,6 +85,7 @@ describe('EventService Unit Test', () => {
 				date: input.date,
 				confirmationDeadline: input.confirmationDeadline,
 				confirmationStatus: 'HOST',
+                id: 1,
 				guests: 1,
 			};
 			await eventService.createEvent(userId, input);

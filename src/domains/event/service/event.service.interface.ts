@@ -5,7 +5,7 @@ import {
   NewEventInput,
 } from '../input';
 import { updateEventInput } from '../input';
-import { $Enums, Event } from '@prisma/client';
+import { Event, Guest } from '@prisma/client';
 import { eventInfoOutputDto } from '../dto/eventInfoOutput.dto';
 
 export abstract class IEventService {
@@ -22,41 +22,11 @@ export abstract class IEventService {
 
   abstract deleteEvent(userId: number, eventId: number): Promise<boolean>;
 
-  abstract inviteGuest(
-    input: inviteGuestInput,
-    userId: number,
-  ): Promise<{
-    id: number;
-    userId: number;
-    eventId: number;
-    confirmationStatus: $Enums.confirmationStatus;
-  }>;
+  abstract inviteGuest(input: inviteGuestInput, userId: number): Promise<Guest>;
 
-  abstract answerInvite(
-    input: answerInviteInput,
-    userId: number,
-  ): Promise<{
-    id: number;
-    userId: number;
-    eventId: number;
-    confirmationStatus: $Enums.confirmationStatus;
-  }>;
+  abstract answerInvite(input: answerInviteInput, userId: number): Promise<Guest>;
 
-  abstract getInvitesByUser(userId: number): Promise<
-    {
-      id: number;
-      userId: number;
-      eventId: number;
-      confirmationStatus: $Enums.confirmationStatus;
-    }[]
-  >;
+  abstract getInvitesByUser(userId: number): Promise<Guest[]>;
 
-  abstract getGuestsByEvent(eventId: number): Promise<
-    {
-      id: number;
-      userId: number;
-      eventId: number;
-      confirmationStatus: $Enums.confirmationStatus;
-    }[]
-  >;
+  abstract getGuestsByEvent(eventId: number): Promise<Guest[]>;
 }
