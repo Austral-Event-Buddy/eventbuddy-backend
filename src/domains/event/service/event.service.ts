@@ -1,8 +1,9 @@
 import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
+    BadRequestException,
+    ForbiddenException,
+    Injectable,
+    NotFoundException,
+    UnauthorizedException,
 } from '@nestjs/common';
 import {
   answerInviteInput,
@@ -16,10 +17,11 @@ import { Event } from '@prisma/client';
 import { IEventRepository } from "../repository";
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { eventInfoOutputDto } from '../dto/eventInfoOutput.dto';
+import {UserRepository} from "../../user/user.repository";
 
 @Injectable()
 export class EventService implements IEventService {
-  constructor(private repository: IEventRepository) {}
+  constructor(private repository: IEventRepository, private userRepository: UserRepository) {}
 
   async getEventsByUserId(userId: number) {
     const events = await this.repository.getEventsByUserId(userId);
@@ -76,6 +78,13 @@ export class EventService implements IEventService {
     const invitedId = input.userId;
     const hostGuest = await this.repository.getHostGuest(eventId, userId);
     const event = await this.repository.getEvent(eventId);
+    const user = await this.userRepository.findUserById(invitedId);
+    if(user == null){
+        throw new BadRequestException("User not found");
+    }
+    if(event == null){
+        throw new BadRequestException("Event not found");
+    }
     if (hostGuest != null || event.creatorId === userId) {
       try {
         return await this.repository.inviteGuest(eventId, invitedId);
