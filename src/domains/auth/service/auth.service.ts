@@ -8,6 +8,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { LoginInput, RegisterInput } from '../input';
 import { IAuthService } from "./auth.service.interface";
 import { IAuthRepository } from "../repository/auth.repository.interface";
+import { UserDto } from '../../user/dto/user.dto';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -49,7 +50,7 @@ export class AuthService implements IAuthService {
     return this.signToken(user.id);
   }
 
-  async findUserById(userId: number) {
+  async findUserById(userId: number): Promise<UserDto> {
     try {
       return this.repository.findUserById(userId);
     } catch (_) {
