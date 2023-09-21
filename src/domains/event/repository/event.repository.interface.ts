@@ -1,31 +1,40 @@
-import {getEventsBySearchInput, NewEventInput} from '../input';
-import {Guest, Event, Prisma, $Enums, confirmationStatus} from '@prisma/client';
-import {DefaultArgs} from "@prisma/client/runtime/library";
+import { getEventsBySearchInput, NewEventInput } from '../input';
+import {
+  Guest,
+  Event,
+  Prisma,
+  $Enums,
+  confirmationStatus,
+} from '@prisma/client';
 
-export interface IEventRepository {
-  createEvent(userId: number, input: NewEventInput): Promise<Event>;
+export abstract class IEventRepository {
+  abstract createEvent(userId: number, input: NewEventInput): Promise<Event>;
 
-  getHostGuest(userId: number, eventId: number): Promise<Guest>;
+  abstract getHostGuest(userId: number, eventId: number): Promise<Guest>;
 
-  updateEvent(eventId: number, input: NewEventInput): Promise<Event>;
+  abstract updateEvent(eventId: number, input: NewEventInput): Promise<Event>;
 
-  // deleteEvent( eventId: number): Promise<Event>;
-  getEventsByUserId(userId: number): Promise<Event[]>;
+  abstract deleteEventAndGuests( eventId: number): any;
+  abstract getEventsByUserId(userId: number): Promise<Event[]>;
 
-  getEventsByNameOrDescriptionAndUserId(
+  abstract getEventsByNameOrDescriptionAndUserId(
     userId: number,
     search: string,
   ): Promise<Event[]>;
 
-  getEvent(eventId: number): Promise<Event>;
+  abstract getEvent(eventId: number): Promise<Event>;
 
-    inviteGuest(eventId: number, invitedId: number): Promise<Guest>;
+  abstract inviteGuest(eventId: number, invitedId: number): Promise<Guest>;
 
-    answerInvite(guestId: number, answer: confirmationStatus): Promise<Guest>;
+  abstract answerInvite(guestId: number, answer: confirmationStatus): Promise<Guest>;
 
-    getInvitesByUser(userId: number): Promise<Guest[]>;
+  abstract getInvitesByUser(userId: number): Promise<Guest[]>;
 
-    getGuest(guestId: number): Promise<Guest>;
+  abstract getGuest(guestId: number): Promise<Guest>;
 
-    getGuestsByEvent(eventId: number): Promise<Guest[]>;
+  abstract getGuestsByEvent(eventId: number): Promise<Guest[]>;
+
+  abstract findConfirmationStatus(userId: number, eventId: number): Promise<confirmationStatus>;
+  abstract countGuestsByEventId(eventId: number) : Promise<number>;
+  abstract checkIfUserIsCreator(userId: number, eventId: number): Promise<Event>;
 }

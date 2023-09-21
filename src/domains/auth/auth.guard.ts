@@ -2,7 +2,7 @@ import { Global, Injectable } from '@nestjs/common';
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
-import { AuthService } from './auth.service';
+import {IAuthService} from "./service/auth.service.interface";
 
 @Global()
 @Injectable()
@@ -13,7 +13,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {}
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     config: ConfigService,
-    private readonly service: AuthService,
+    private readonly service: IAuthService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

@@ -10,7 +10,7 @@ import {
     UseGuards,
     Put, Query
 } from '@nestjs/common';
-import { EventService } from './service';
+import { IEventService } from './service';
 import { Request as ExpressRequest } from 'express';
 import { JwtAuthGuard } from '../auth/auth.guard';
 import {answerInviteInput, getEventsBySearchInput, getGuestsByEventInput, inviteGuestInput, NewEventInput, updateEventInput} from "./input";
@@ -18,7 +18,7 @@ import {answerInviteInput, getEventsBySearchInput, getGuestsByEventInput, invite
 @UseGuards(JwtAuthGuard)
 @Controller('event')
 export class EventController {
-  constructor(private eventService: EventService) {}
+  constructor(private eventService: IEventService) {}
 
   @Get()
   getEvents(@Request() req: ExpressRequest) {

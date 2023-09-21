@@ -1,23 +1,24 @@
 import { Module } from '@nestjs/common';
 import { EventController } from './event.controller';
-import { EventService } from './service/event.service';
+import {EventService, IEventService} from './service';
 import { EventRepository } from './repository/event.repository';
-import { JwtStrategy } from '../auth/auth.guard';
-import { JwtModule, JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { AuthService } from '../auth/auth.service';
-import { AuthRepository } from '../auth/auth.repository';
+import {IEventRepository} from "./repository";
+
+const eventServiceProvider = {
+  provide: IEventService,
+  useClass: EventService,
+};
+
+const eventRepositoryProvider = {
+  provide: IEventRepository,
+  useClass: EventRepository,
+};
 
 @Module({
   controllers: [EventController],
   providers: [
-    EventService,
-    EventRepository,
-    JwtStrategy,
-    ConfigService,
-    AuthService,
-    AuthRepository,
-    JwtService,
+    eventServiceProvider,
+    eventRepositoryProvider,
   ],
 })
 export class EventModule {}
