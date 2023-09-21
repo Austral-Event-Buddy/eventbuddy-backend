@@ -1,22 +1,24 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { RegisterInput } from '../input';
 import { IAuthRepository } from "./auth.repository.interface";
+import { UserDto } from '../../user/dto/user.dto';
 
 @Injectable()
 export class AuthRepository implements IAuthRepository {
   constructor(private prisma: PrismaService) {}
 
-  async findUserById(userId: number): Promise<User> {
-    return this.prisma.user.findUnique({
+  async findUserById(userId: number): Promise<UserDto> {
+    const user = await this.prisma.user.findUnique({
       where: {
         id: userId,
       },
     });
+    delete user.password;
+    return user;
   }
 
-  async findUserByEmail(email: string): Promise<User> {
+  async findUserByEmail(email: string): Promise<UserDto> {
     const user = await this.prisma.user.findUnique({
       where: {
         email,
@@ -26,7 +28,7 @@ export class AuthRepository implements IAuthRepository {
     return user;
   }
 
-  async findUserByUsername(username: string): Promise<User> {
+  async findUserByUsername(username: string): Promise<UserDto> {
     const user = await this.prisma.user.findUnique({
       where: {
         username,
@@ -36,7 +38,7 @@ export class AuthRepository implements IAuthRepository {
     return user;
   }
 
-  async createUser(dto: RegisterInput) {
+  async createUser(dto: RegisterInput): Promise<UserDto> {
     return this.prisma.user.create({
       data: {
         email: dto.email,

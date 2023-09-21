@@ -1,8 +1,9 @@
 export class UserDto{
   id:        number
-  email:     String
-  username:  String
-  name?:      String
+  email:     string
+  username:  string
+  password: string
+  name?:      string
   createdAt: Date
   updatedAt: Date
 
@@ -10,6 +11,7 @@ export class UserDto{
     this.id = userDto.id;
     this.email = userDto.email;
     this.username = userDto.username;
+    this.password = userDto.password;
     this.name = userDto.name? userDto.name : null;
     this.createdAt = userDto.createdAt;
     this.updatedAt = userDto.updatedAt;
