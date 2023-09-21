@@ -42,23 +42,6 @@ export class EventController {
     return this.eventService.createEvent(req.user['id'], input);
   }
 
-  @Post(':eventId')
-  updateEvent(
-    @Request() req: ExpressRequest,
-    @Param('eventId') eventId: string,
-    @Body() input: updateEventInput,
-  ) {
-    const eventIdInt = parseInt(eventId);
-    if (Number.isNaN(eventIdInt)) {
-      throw new TypeError('Event id must be a number');
-    } else {
-      if (
-        this.eventService.checkGuestStatusOnEvent(req.user['id'], eventIdInt)
-      ) {
-        return this.eventService.updateEvent(eventIdInt, input);
-      } else throw new UnauthorizedException('User is not hosting this event');
-    }
-  }
     @Post('invite/send')
     inviteGuest(@Body() input: inviteGuestInput, @Request() req: ExpressRequest){
         return this.eventService.inviteGuest(input, req.user['id']);
@@ -89,5 +72,23 @@ export class EventController {
     @Get('invites/by_event')
     getGuestsByEvent(@Body() input: getGuestsByEventInput){
         return this.eventService.getGuestsByEvent(input.eventId);
+    }
+
+    @Post(':eventId')
+    updateEvent(
+        @Request() req: ExpressRequest,
+        @Param('eventId') eventId: string,
+        @Body() input: updateEventInput,
+    ) {
+        const eventIdInt = parseInt(eventId);
+        if (Number.isNaN(eventIdInt)) {
+            throw new TypeError('Event id must be a number');
+        } else {
+            if (
+                this.eventService.checkGuestStatusOnEvent(req.user['id'], eventIdInt)
+            ) {
+                return this.eventService.updateEvent(eventIdInt, input);
+            } else throw new UnauthorizedException('User is not hosting this event');
+        }
     }
 }
