@@ -59,7 +59,7 @@ export class EventController {
       } else throw new UnauthorizedException('User is not hosting this event');
     }
   }
-    @Post('invite')
+    @Post('invite/send')
     inviteGuest(@Body() input: inviteGuestInput, @Request() req: ExpressRequest){
         return this.eventService.inviteGuest(input, req.user['id']);
     }
