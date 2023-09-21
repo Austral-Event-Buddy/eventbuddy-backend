@@ -1,8 +1,7 @@
-import { getEventsBySearchInput, NewEventInput } from '../input';
+import { NewEventInput } from '../input';
 import {
   Guest,
   Event,
-  Prisma,
   $Enums,
   confirmationStatus,
 } from '@prisma/client';
@@ -33,8 +32,10 @@ export abstract class IEventRepository {
   abstract getGuest(guestId: number): Promise<Guest>;
 
   abstract getGuestsByEvent(eventId: number): Promise<Guest[]>;
-
+  
   abstract findConfirmationStatus(userId: number, eventId: number): Promise<confirmationStatus>;
+  
   abstract countGuestsByEventId(eventId: number) : Promise<number>;
+  
   abstract checkIfUserIsCreator(userId: number, eventId: number): Promise<Event>;
 }
