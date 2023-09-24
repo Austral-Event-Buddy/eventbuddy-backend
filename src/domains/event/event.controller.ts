@@ -48,23 +48,7 @@ export class EventController {
     return this.eventService.createEvent(req.user['id'], input);
   }
 
-  @Post(':eventId')
-  updateEvent(
-    @Request() req: ExpressRequest,
-    @Param('eventId') eventId: string,
-    @Body() input: updateEventInput,
-  ) {
-    const eventIdInt = parseInt(eventId);
-    if (Number.isNaN(eventIdInt)) {
-      throw new TypeError('Event id must be a number');
-    } else {
-      if (
-        this.eventService.checkGuestStatusOnEvent(req.user['id'], eventIdInt)
-      ) {
-        return this.eventService.updateEvent(eventIdInt, input);
-      } else throw new UnauthorizedException('User is not hosting this event');
-    }
-  }
+
   @Post('inviteGuest')
   inviteGuest(@Body() input: inviteGuestInput, @Request() req: ExpressRequest) {
     return this.eventService.inviteGuest(input, req.user['id']);
@@ -78,18 +62,7 @@ export class EventController {
     return this.eventService.answerInvite(input, req.user['id']);
   }
 
-  @Delete(':eventId')
-  deleteEvent(
-    @Request() req: ExpressRequest,
-    @Param('eventId') eventId: string,
-  ) {
-    const eventIdInt = parseInt(eventId);
-    if (Number.isNaN(eventIdInt)) {
-      throw new TypeError('Event id must be a number');
-    } else {
-      return this.eventService.deleteEvent(req.user['id'], eventIdInt);
-    }
-  }
+
   @Get('getInvitesByUser')
   getInvitesByUser(@Request() req: ExpressRequest) {
     return this.eventService.getInvitesByUser(req.user['id']);
@@ -99,4 +72,33 @@ export class EventController {
   getGuestsByEvent(@Body() input: getGuestsByEventInput) {
     return this.eventService.getGuestsByEvent(input.eventId);
   }
+    @Post(':eventId')
+    updateEvent(
+        @Request() req: ExpressRequest,
+        @Param('eventId') eventId: string,
+        @Body() input: updateEventInput,
+    ) {
+        const eventIdInt = parseInt(eventId);
+        if (Number.isNaN(eventIdInt)) {
+            throw new TypeError('Event id must be a number');
+        } else {
+            if (
+                this.eventService.checkGuestStatusOnEvent(req.user['id'], eventIdInt)
+            ) {
+                return this.eventService.updateEvent(eventIdInt, input);
+            } else throw new UnauthorizedException('User is not hosting this event');
+        }
+    }
+    @Delete(':eventId')
+    deleteEvent(
+        @Request() req: ExpressRequest,
+        @Param('eventId') eventId: string,
+    ) {
+        const eventIdInt = parseInt(eventId);
+        if (Number.isNaN(eventIdInt)) {
+            throw new TypeError('Event id must be a number');
+        } else {
+            return this.eventService.deleteEvent(req.user['id'], eventIdInt);
+        }
+    }
 }

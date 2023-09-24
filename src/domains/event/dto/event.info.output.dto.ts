@@ -6,7 +6,7 @@ import {
   confirmationStatus,
 } from '@prisma/client';
 
-export class eventInfoOutputDto {
+export class EventInfoOutputDto {
   name: string;
   description: string;
   coordinates: Number[];

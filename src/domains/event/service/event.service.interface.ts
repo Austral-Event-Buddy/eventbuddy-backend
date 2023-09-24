@@ -6,57 +6,39 @@ import {
 } from '../input';
 import { updateEventInput } from '../input';
 import { $Enums, Event } from '@prisma/client';
-import { eventInfoOutputDto } from '../dto/eventInfoOutput.dto';
+import { EventInfoOutputDto } from '../dto/event.info.output.dto';
+import {EventDto} from "../dto/event.dto";
+import {GuestDto} from "../dto/guest.dto";
 
 export abstract class IEventService {
-  abstract createEvent(userId: number, input: NewEventInput): Promise<Event>;
-  abstract getEventsByUserId(userId: number): Promise<eventInfoOutputDto[]>;
+  abstract createEvent(userId: number, input: NewEventInput): Promise<EventDto>;
+  abstract getEventsByUserId(userId: number): Promise<EventInfoOutputDto[]>;
   abstract getEventsByNameOrDescriptionAndUserId(
     userId: number,
     input: getEventsBySearchInput,
-  ): Promise<eventInfoOutputDto[]>;
+  ): Promise<EventInfoOutputDto[]>;
 
   abstract checkGuestStatusOnEvent(userId: number, eventId: number): Promise<boolean>;
 
-  abstract updateEvent(eventId: number, input: updateEventInput): Promise<Event>;
+  abstract updateEvent(eventId: number, input: updateEventInput): Promise<EventDto>;
 
   abstract deleteEvent(userId: number, eventId: number): Promise<boolean>;
 
   abstract inviteGuest(
     input: inviteGuestInput,
     userId: number,
-  ): Promise<{
-    id: number;
-    userId: number;
-    eventId: number;
-    confirmationStatus: $Enums.confirmationStatus;
-  }>;
+  ): Promise<GuestDto>;
 
   abstract answerInvite(
     input: answerInviteInput,
     userId: number,
-  ): Promise<{
-    id: number;
-    userId: number;
-    eventId: number;
-    confirmationStatus: $Enums.confirmationStatus;
-  }>;
+  ): Promise<GuestDto>;
 
   abstract getInvitesByUser(userId: number): Promise<
-    {
-      id: number;
-      userId: number;
-      eventId: number;
-      confirmationStatus: $Enums.confirmationStatus;
-    }[]
+    GuestDto[]
   >;
 
   abstract getGuestsByEvent(eventId: number): Promise<
-    {
-      id: number;
-      userId: number;
-      eventId: number;
-      confirmationStatus: $Enums.confirmationStatus;
-    }[]
+    GuestDto[]
   >;
 }
