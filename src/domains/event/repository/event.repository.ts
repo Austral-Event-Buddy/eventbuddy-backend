@@ -13,6 +13,7 @@ export class EventRepository implements IEventRepository {
     return this.prisma.event.findMany({
       where: {
           OR: [{creatorId: userId}, {guests: {some: {userId: userId}}}],
+          NOT: [{guests: {some: {userId: userId, confirmationStatus: 'NOT_ATTENDING'}}}]
       }
       // },
       // select: {
