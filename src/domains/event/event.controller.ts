@@ -8,7 +8,7 @@ import {
     Request,
     UnauthorizedException,
     UseGuards,
-    Put, Query
+    Put, Query, ForbiddenException
 } from '@nestjs/common';
 import { IEventService } from './service';
 import { Request as ExpressRequest } from 'express';
@@ -37,10 +37,19 @@ export class EventController {
     );
   }
 
-  @Post()
-  createEvent(@Request() req: ExpressRequest, @Body() input: NewEventInput) {
-    return this.eventService.createEvent(req.user['id'], input);
-  }
+    @Post()
+    createEvent(@Request() req: ExpressRequest, @Body() input: NewEventInput) {
+        const date = new Date(input.date);
+        const confirmationDeadline = new Date(input.confirmationDeadline);
+        const today = new Date();
+        if (date < today || confirmationDeadline < today){
+            throw new ForbiddenException("Both date and confirmation deadline must be in the future")
+        }
+        else if (date < confirmationDeadline){
+            throw new ForbiddenException("Confirmation deadline cannot be after the event date")
+        }
+        return this.eventService.createEvent(req.user['id'], input);
+    }
 
   @Post('invite/send')
   inviteGuest(@Body() input: inviteGuestInput, @Request() req: ExpressRequest){
