@@ -40,7 +40,8 @@ export class EventService implements IEventService {
     if (!events) {
       throw new NotFoundException('No events found');
     }
-    return this.toEventInfoOutput(events, userId);
+    const finalEvents = await this.checkEvents(events, userId);
+    return this.toEventInfoOutput(finalEvents, userId);
   }
 
   async createEvent(userId: number, input: NewEventInput) {
@@ -135,4 +136,21 @@ export class EventService implements IEventService {
     }
     return eventInfoOutput;
   }
+    private async checkEvents(events: Event[], userId: number): Promise<Event[]> {
+        const result : Event[] = [];
+        for (const event of events)
+            if (this.checkEventDate(event.date) && await this.checkConfirmationDeadline(event.confirmationDeadline, userId, event.id))
+                result.push(event);
+        return result;
+    }
+
+    private checkEventDate(dateEvent: Date): boolean {
+        return dateEvent >= new Date();
+    }
+
+    private async checkConfirmationDeadline(dateEvent: Date, userId: number, eventId: number): Promise<boolean> {
+        const confirmationStatus = await this.repository.findConfirmationStatus(userId, eventId);
+        if (confirmationStatus === "PENDING") return dateEvent >= new Date();
+        return true;
+    }
 }
