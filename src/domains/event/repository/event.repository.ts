@@ -1,123 +1,79 @@
-import {PrismaService} from '../../../prisma/prisma.service';
-import {Injectable} from '@nestjs/common';
-import {NewEventInput} from '../input';
-import {updateEventInput} from '../input';
-import {IEventRepository} from './event.repository.interface';
-import {confirmationStatus} from '@prisma/client';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { Injectable } from '@nestjs/common';
+import { NewEventInput } from '../input';
+import { updateEventInput } from '../input';
+import { IEventRepository } from './event.repository.interface';
+import { confirmationStatus } from '@prisma/client';
 
 @Injectable()
 export class EventRepository implements IEventRepository {
-    constructor(private prisma: PrismaService) {
-    }
+  constructor(private prisma: PrismaService) {}
 
-    async getEventsByUserId(userId: number) {
-        return this.prisma.event.findMany({
-            where: {
-                OR: [{creatorId: userId}, {guests: {some: {userId: userId}}}],
-            }
-            // },
-            // select: {
-            //   id: true,
-            //   name: true,
-            //   description: true,
-            //   coordinates: true,
-            //   date: true,
-            //   confirmationDeadline: true,
-            // },
-        });
-    }
+  async getEventsByUserId(userId: number) {
+    return this.prisma.event.findMany({
+      where: {
+          OR: [{creatorId: userId}, {guests: {some: {userId: userId}}}],
+          NOT: [{guests: {some: {userId: userId, confirmationStatus: 'NOT_ATTENDING'}}}]
+      }
+    });
+  }
+  async countGuestsByEventId(eventId: number) {
+    return this.prisma.guest.count({
+      where: {
+        eventId: eventId,
+        confirmationStatus: { in: ['ATTENDING', 'HOST'] },
+      },
+    });
+  }
 
-    // async getEventsByUserId(userId: number) {
-    //     return this.prisma.event.findMany({
-    //         where: {
-    //             OR: [
-    //                 {creatorId: userId},
-    //                 {guests: {some: {userId: userId}}}
-    //             ]
-    //         },
-    //         select: {
-    //             name: true,
-    //             description: true,
-    //             coordinates: true,
-    //             date: true,
-    //             guests: {
-    //                 where: {
-    //                     userId: userId
-    //                 },
-    //                 select: {
-    //                     confirmationStatus: true
-    //                 }
-    //             },
-    //             _count: {
-    //                 select: {
-    //                     guests: {
-    //                         where: {
-    //                             confirmationStatus: {in: ["ATTENDING", "HOST"]}
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //
-    //         }
-    //     });
-    // }
-    async countGuestsByEventId(eventId: number) {
-        return this.prisma.guest.count({
-            where: {
-                eventId: eventId,
-                confirmationStatus: {in: ['ATTENDING', 'HOST']},
-            },
-        });
-    }
+  async findConfirmationStatus(
+    userId: number,
+    eventId: number,
+  ): Promise<confirmationStatus> {
+    return (
+      await this.prisma.guest.findUnique({
+        where: {
+          userId_eventId: { userId, eventId },
+        },
+        select: {
+          confirmationStatus: true,
+        },
+      })
+    ).confirmationStatus;
+  }
 
-    async findConfirmationStatus(
-        userId: number,
-        eventId: number,
-    ): Promise<confirmationStatus> {
-        return (
-            await this.prisma.guest.findUnique({
-                where: {
-                    userId_eventId: {userId, eventId},
-                },
-                select: {
-                    confirmationStatus: true,
-                },
-            })
-        ).confirmationStatus;
-    }
+  async getEventsByNameOrDescriptionAndUserId(userId: number, input: string) {
+    const keywords = input.split(' ');
 
-    async getEventsByNameOrDescriptionAndUserId(userId: number, input: string) {
-        const today = new Date();
-        const keywords = input.split(' ');
-        const keywordConditions = keywords.map((keyword) => ({
+    const keywordConditions = keywords.map((keyword) => ({
+      OR: [
+        { name: { contains: keyword } },
+        { description: { contains: keyword } },
+      ],
+    }));
+    return this.prisma.event.findMany({
+      where: {
+        OR: [...keywordConditions],
+        AND: [
+          {
             OR: [
-                {name: {contains: keyword}},
-                {description: {contains: keyword}},
+              { creatorId: userId },
+              { guests: { some: { userId: userId } } },
             ],
-        }));
-        return this.prisma.event.findMany({
-            where: {
-                OR: [...keywordConditions],
-                AND: [
-                    {
-                        OR: [
-                            {creatorId: userId},
-                            {guests: {some: {userId: userId}}},
-                        ],
-                    },
-                ],
-            },
-        });
-    }
+          },
+        ],
+      },
+    });
+  }
 
-    async getHostGuest(userId: number, eventId: number) {
-        return this.prisma.guest.findUnique({
-            where: {
-                userId_eventId: {userId, eventId},
-                confirmationStatus: 'HOST',
-            },
-        });
-    }
+  async getHostGuest(userId: number, eventId: number) {
+    return this.prisma.guest.findUnique({
+      where: {
+        userId_eventId: { userId, eventId },
+        confirmationStatus: 'HOST',
+      },
+    });
+  }
 
     async createEvent(userId: number, input: NewEventInput) {
         return this.prisma.event.create({

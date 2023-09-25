@@ -22,7 +22,7 @@ export class EventService implements IEventService {
   constructor(private repository: IEventRepository) {}
 
   async getEventsByUserId(userId: number) {
-    const events = await this.repository.getEventsByUserId(userId);
+    const events = await this.checkEvents(await this.repository.getEventsByUserId(userId), userId);
     if (!events) {
       throw new NotFoundException('No events found');
     }
@@ -78,6 +78,8 @@ export class EventService implements IEventService {
     const hostGuest = await this.repository.getHostGuest(eventId, userId);
     const event = await this.repository.getEvent(eventId);
     if (hostGuest != null || event.creatorId === userId) {
+      if (!this.checkEventDate(event.date)) throw new ForbiddenException("The event date has passed")
+      else if (!this.checkEventDate(event.confirmationDeadline)) throw new ForbiddenException("The confirmation deadline has passed")
       try {
         return await this.repository.inviteGuest(eventId, invitedId);
       } catch (error) {
@@ -97,6 +99,11 @@ export class EventService implements IEventService {
   async answerInvite(input: answerInviteInput, userId: number) {
     const guestId = input.guestId;
     const guest = await this.repository.getGuest(guestId);
+    const event = await this.repository.getEvent(guest.eventId);
+    if (!this.checkEventDate(event.date))
+      throw new ForbiddenException("The confirmation deadline has passed");
+    else if (!await this.checkConfirmationDeadline(event.confirmationDeadline, guest.userId, event.id))
+      throw new ForbiddenException("The confirmation deadline has passed");
     if (guest['userId'] == userId) {
       return await this.repository.answerInvite(guestId, input.answer);
     } else {
@@ -136,21 +143,22 @@ export class EventService implements IEventService {
     }
     return eventInfoOutput;
   }
-    private async checkEvents(events: Event[], userId: number): Promise<Event[]> {
-        const result : Event[] = [];
-        for (const event of events)
-            if (this.checkEventDate(event.date) && await this.checkConfirmationDeadline(event.confirmationDeadline, userId, event.id))
-                result.push(event);
-        return result;
-    }
 
-    private checkEventDate(dateEvent: Date): boolean {
-        return dateEvent >= new Date();
-    }
+  private async checkEvents(events: Event[], userId: number): Promise<Event[]> {
+    const result : Event[] = [];
+    for (const event of events)
+      if (this.checkEventDate(event.date) && await this.checkConfirmationDeadline(event.confirmationDeadline, userId, event.id))
+        result.push(event);
+    return result;
+  }
 
-    private async checkConfirmationDeadline(dateEvent: Date, userId: number, eventId: number): Promise<boolean> {
-        const confirmationStatus = await this.repository.findConfirmationStatus(userId, eventId);
-        if (confirmationStatus === "PENDING") return dateEvent >= new Date();
-        return true;
-    }
+  private checkEventDate(dateEvent: Date): boolean {
+    return dateEvent >= new Date();
+  }
+
+  private async checkConfirmationDeadline(dateEvent: Date, userId: number, eventId: number): Promise<boolean> {
+    const confirmationStatus = await this.repository.findConfirmationStatus(userId, eventId);
+    if (confirmationStatus === "PENDING") return dateEvent >= new Date();
+    return true;
+  }
 }
