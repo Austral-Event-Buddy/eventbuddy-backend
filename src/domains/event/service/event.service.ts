@@ -40,7 +40,8 @@ export class EventService implements IEventService {
     if (!events) {
       throw new NotFoundException('No events found');
     }
-    return this.toEventInfoOutput(events, userId);
+    const finalEvents = await this.checkEvents(events, userId);
+    return this.toEventInfoOutput(finalEvents, userId);
   }
 
   async createEvent(userId: number, input: NewEventInput) {
