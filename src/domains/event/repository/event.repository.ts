@@ -1,22 +1,24 @@
-import { PrismaService } from '../../../prisma/prisma.service';
-import { Injectable } from '@nestjs/common';
-import { NewEventInput } from '../input';
-import { updateEventInput } from '../input';
-import { IEventRepository } from './event.repository.interface';
-import { confirmationStatus } from '@prisma/client';
+import {PrismaService} from '../../../prisma/prisma.service';
+import {Injectable} from '@nestjs/common';
+import {NewEventInput} from '../input';
+import {updateEventInput} from '../input';
+import {IEventRepository} from './event.repository.interface';
+import {confirmationStatus} from '@prisma/client';
+import {EventDto} from "../dto/event.dto";
+import {GuestDto} from "../dto/guest.dto";
 
 @Injectable()
 export class EventRepository implements IEventRepository {
-  constructor(private prisma: PrismaService) {}
-
-  async getEventsByUserId(userId: number) {
+    constructor(private prisma: PrismaService) {
+    }
+  async getEventsByUserId(userId: number):Promise<EventDto[]> {
     return this.prisma.event.findMany({
       where: {
           OR: [{creatorId: userId}, {guests: {some: {userId: userId}}}],
           NOT: [{guests: {some: {userId: userId, confirmationStatus: 'NOT_ATTENDING'}}}]
       }
     });
-  }
+  };
   async countGuestsByEventId(eventId: number) {
     return this.prisma.guest.count({
       where: {
@@ -42,7 +44,7 @@ export class EventRepository implements IEventRepository {
     ).confirmationStatus;
   }
 
-  async getEventsByNameOrDescriptionAndUserId(userId: number, input: string) {
+  async getEventsByNameOrDescriptionAndUserId(userId: number, input: string):Promise<EventDto[]> {
     const keywords = input.split(' ');
 
     const keywordConditions = keywords.map((keyword) => ({
@@ -60,22 +62,24 @@ export class EventRepository implements IEventRepository {
               { creatorId: userId },
               { guests: { some: { userId: userId } } },
             ],
+              NOT: [{guests: {some: {userId: userId, confirmationStatus: 'NOT_ATTENDING'}}}]
+
           },
         ],
       },
     });
   }
 
-  async getHostGuest(userId: number, eventId: number) {
-    return this.prisma.guest.findUnique({
-      where: {
-        userId_eventId: { userId, eventId },
-        confirmationStatus: 'HOST',
-      },
-    });
+  async getHostGuest(userId: number, eventId: number):Promise<GuestDto> {
+      return this.prisma.guest.findUnique({
+          where: {
+              userId_eventId: {userId, eventId},
+              confirmationStatus: 'HOST',
+          },
+      });
   }
 
-    async createEvent(userId: number, input: NewEventInput) {
+    async createEvent(userId: number, input: NewEventInput):Promise<EventDto> {
         return this.prisma.event.create({
             data: {
                 name: input.name,
@@ -94,7 +98,7 @@ export class EventRepository implements IEventRepository {
         });
     }
 
-    async updateEvent(eventId: number, input: updateEventInput) {
+    async updateEvent(eventId: number, input: updateEventInput):Promise<EventDto> {
         return this.prisma.event.update({
             where: {
                 id: eventId,
@@ -109,7 +113,9 @@ export class EventRepository implements IEventRepository {
         });
     }
 
-    async checkIfUserIsCreator(userId: number, eventId: number) {
+
+
+    async checkIfUserIsCreator(userId: number, eventId: number): Promise<EventDto> {
         return this.prisma.event.findUnique({
             where: {
                 id: eventId,
@@ -119,25 +125,14 @@ export class EventRepository implements IEventRepository {
     }
 
     async deleteEventAndGuests(eventId: number) {
-        try {
-            return await this.prisma.$transaction([
-                this.prisma.guest.deleteMany({
-                    where: {
-                        eventId: eventId,
-                    },
-                }),
-                this.prisma.event.delete({
-                    where: {
-                        id: eventId,
-                    },
-                }),
-            ]);
-        } catch (error) {
-            throw new Error(`Error when deleting event: ${error}`);
-        }
+        this.prisma.event.delete({
+            where: {
+                id: eventId,
+            }
+        });
     }
 
-    getEvent(eventId: number) {
+    getEvent(eventId: number): Promise<EventDto> {
         return this.prisma.event.findUnique({
             where: {
                 id: eventId,
@@ -145,7 +140,7 @@ export class EventRepository implements IEventRepository {
         });
     }
 
-    async inviteGuest(eventId: number, invitedId: number) {
+    async inviteGuest(eventId: number, invitedId: number): Promise<GuestDto> {
         return this.prisma.guest.create({
             data: {
                 userId: invitedId,
@@ -155,7 +150,7 @@ export class EventRepository implements IEventRepository {
         });
     }
 
-    async answerInvite(guestId: number, answer: confirmationStatus) {
+    async answerInvite(guestId: number, answer: confirmationStatus): Promise<GuestDto> {
         return this.prisma.guest.update({
             where: {
                 id: guestId,
@@ -164,10 +159,10 @@ export class EventRepository implements IEventRepository {
                 confirmationStatus: answer,
             },
         });
-    }
+  }
 
     //Should only return with status pending (?)
-    async getInvitesByUser(userId: number) {
+    async getInvitesByUser(userId: number): Promise<GuestDto[]> {
         return this.prisma.guest.findMany({
             where: {
                 userId: userId,
@@ -175,15 +170,15 @@ export class EventRepository implements IEventRepository {
         });
     }
 
-    getGuest(guestId: number) {
+    getGuest(guestId: number): Promise<GuestDto> {
         return this.prisma.guest.findUnique({
             where: {
                 id: guestId,
             },
         });
     }
+    getGuestsByEvent(eventId: number): Promise<GuestDto[]> {
 
-    getGuestsByEvent(eventId: number) {
         return this.prisma.guest.findMany({
             where: {
                 eventId: eventId,

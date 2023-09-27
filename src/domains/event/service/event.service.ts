@@ -15,7 +15,8 @@ import { updateEventInput } from '../input';
 import { Event } from '@prisma/client';
 import { IEventRepository } from "../repository";
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { eventInfoOutputDto } from '../dto/eventInfoOutput.dto';
+import { EventInfoOutputDto } from '../dto/event.info.output.dto';
+import {EventDto} from "../dto/event.dto";
 
 @Injectable()
 export class EventService implements IEventService {
@@ -55,12 +56,22 @@ export class EventService implements IEventService {
     } else return true;
   }
 
-  async updateEvent(eventId: number, input: updateEventInput) {
+  async updateEvent(eventId: number, input: updateEventInput): Promise<EventDto> {
     const event = await this.repository.updateEvent(eventId, input);
     if (event === null) {
       throw new NotFoundException('Event not found');
     }
-    return event;
+    return {
+        id: event.id,
+        name: event.name,
+        description: event.description,
+        creatorId: event.creatorId,
+        coordinates: event.coordinates,
+        confirmationDeadline: event.confirmationDeadline,
+        date: event.date,
+        updatedAt: event.updatedAt,
+        createdAt: event.createdAt
+    }
   }
 
   async deleteEvent(userId: number, eventId: number) {
@@ -122,8 +133,8 @@ export class EventService implements IEventService {
   private async toEventInfoOutput(
       events: Event[],
       userId: number,
-  ): Promise<eventInfoOutputDto[]> {
-    let eventInfoOutput: eventInfoOutputDto[] = [];
+  ): Promise<EventInfoOutputDto[]> {
+    let eventInfoOutput: EventInfoOutputDto[] = [];
     for (const event of events) {
       const confirmationStatus = await this.repository.findConfirmationStatus(
           userId,

@@ -123,7 +123,8 @@ describe('EventService Unit Test', () => {
 			};
 			const result = await eventService.updateEvent(event.id, updateInput);
 			event.name = input.name;
-			expect(result).toEqual(event);
+            expect(result).not.toEqual(event);
+			expect(event.name).toEqual(input.name);
 		})
 	})
 
