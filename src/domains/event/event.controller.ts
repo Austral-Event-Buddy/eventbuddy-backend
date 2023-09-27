@@ -8,17 +8,25 @@ import {
     Request,
     UnauthorizedException,
     UseGuards,
-    Put, Query
+    Put, Query, ForbiddenException
 } from '@nestjs/common';
-import { IEventService } from './service';
-import { Request as ExpressRequest } from 'express';
-import { JwtAuthGuard } from '../auth/auth.guard';
-import {answerInviteInput, getEventsBySearchInput, getGuestsByEventInput, inviteGuestInput, NewEventInput, updateEventInput} from "./input";
+import {IEventService} from './service';
+import {Request as ExpressRequest} from 'express';
+import {JwtAuthGuard} from '../auth/auth.guard';
+import {
+    answerInviteInput,
+    getEventsBySearchInput,
+    getGuestsByEventInput,
+    inviteGuestInput,
+    NewEventInput,
+    updateEventInput
+} from "./input";
 
 @UseGuards(JwtAuthGuard)
 @Controller('event')
 export class EventController {
-    constructor(private eventService: IEventService) {}
+    constructor(private eventService: IEventService) {
+    }
 
     @Get()
     getEvents(@Request() req: ExpressRequest) {
@@ -39,27 +47,35 @@ export class EventController {
 
     @Post()
     createEvent(@Request() req: ExpressRequest, @Body() input: NewEventInput) {
+
+        const date = new Date(input.date);
+        const confirmationDeadline = new Date(input.confirmationDeadline);
+        const today = new Date();
+        if (date < today || confirmationDeadline < today) {
+            throw new ForbiddenException("Both date and confirmation deadline must be in the future")
+        } else if (date < confirmationDeadline) {
+            throw new ForbiddenException("Confirmation deadline cannot be after the event date")
+        }
         return this.eventService.createEvent(req.user['id'], input);
     }
 
     @Post('invite/send')
-    inviteGuest(@Body() input: inviteGuestInput, @Request() req: ExpressRequest){
+    inviteGuest(@Body() input: inviteGuestInput, @Request() req: ExpressRequest) {
         return this.eventService.inviteGuest(input, req.user['id']);
     }
 
     @Put('invite/answer')
-    answerInvite(@Body() input: answerInviteInput, @Request() req: ExpressRequest){
+    answerInvite(@Body() input: answerInviteInput, @Request() req: ExpressRequest) {
         return this.eventService.answerInvite(input, req.user['id']);
     }
 
-
     @Get('invites/by_user')
-    getInvitesByUser(@Request() req:ExpressRequest){
+    getInvitesByUser(@Request() req: ExpressRequest) {
         return this.eventService.getInvitesByUser(req.user['id']);
     }
 
     @Get('invites/by_event')
-    getGuestsByEvent(@Body() input: getGuestsByEventInput){
+    getGuestsByEvent(@Body() input: getGuestsByEventInput) {
         return this.eventService.getGuestsByEvent(input.eventId);
     }
 
