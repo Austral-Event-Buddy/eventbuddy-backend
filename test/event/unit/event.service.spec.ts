@@ -79,10 +79,10 @@ describe('EventService Unit Test', () => {
 			expect(result).toEqual([event]);
 		})
 		it('By user id. And the guest will not attend.', async () => {
-			await eventService.createEvent(userId, input);
+			const event = await eventService.createEvent(userId, input);
 			await eventService.inviteGuest(inviteGuestInput, userId);
 			await eventService.answerInvite({
-				guestId: guestId,
+				eventId: event.id,
 				answer: confirmationStatus.NOT_ATTENDING,
 			}, guestId);
 			const result = await eventService.getEventsByUserId(guestId);
@@ -158,11 +158,11 @@ describe('EventService Unit Test', () => {
 
 	describe('Answer Invite', () => {
 		it('Guest answer ATTENDING', async () => {
+			const event = await eventService.createEvent(userId, input);
 			const answerInviteInput = {
-				guestId: guestId,
+				eventId: event.id,
 				answer: confirmationStatus.ATTENDING,
 			}
-			const event = await eventService.createEvent(userId, input);
 			await eventService.inviteGuest(inviteGuestInput, userId);
 			const result = await eventService.answerInvite(answerInviteInput, guestId);
 
@@ -174,11 +174,11 @@ describe('EventService Unit Test', () => {
 			});
 		})
 		it('Guest answer HOST', async () => {
+			const event = await eventService.createEvent(userId, input);
 			const answerInviteInput = {
-				guestId: guestId,
+				eventId: event.id,
 				answer: confirmationStatus.HOST,
 			}
-			const event = await eventService.createEvent(userId, input);
 			await eventService.inviteGuest(inviteGuestInput, userId);
 			const result = await eventService.answerInvite(answerInviteInput, guestId);
 
@@ -190,11 +190,11 @@ describe('EventService Unit Test', () => {
 			});
 		})
 		it('Guest answer PENDING', async () => {
+			const event = await eventService.createEvent(userId, input);
 			const answerInviteInput = {
-				guestId: guestId,
+				eventId: event.id,
 				answer: confirmationStatus.PENDING,
 			}
-			const event = await eventService.createEvent(userId, input);
 			await eventService.inviteGuest(inviteGuestInput, userId);
 			const result = await eventService.answerInvite(answerInviteInput, guestId);
 
@@ -206,11 +206,11 @@ describe('EventService Unit Test', () => {
 			});
 		})
 		it('Guest answer NOT ATTENDING', async () => {
+			const event = await eventService.createEvent(userId, input);
 			const answerInviteInput = {
-				guestId: guestId,
+				eventId: event.id,
 				answer: confirmationStatus.NOT_ATTENDING,
 			}
-			const event = await eventService.createEvent(userId, input);
 			await eventService.inviteGuest(inviteGuestInput, userId);
 			const result = await eventService.answerInvite(answerInviteInput, guestId);
 
