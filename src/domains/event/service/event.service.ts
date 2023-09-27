@@ -134,6 +134,7 @@ export class EventService implements IEventService {
       );
       const guestCount = await this.repository.countGuestsByEventId(event.id);
       eventInfoOutput.push({
+        id: event.id,
         name: event.name,
         description: event.description,
         coordinates: event.coordinates,

@@ -5,10 +5,10 @@ import {
   NewEventInput,
 } from '../input';
 import { updateEventInput } from '../input';
-import { $Enums, Event } from '@prisma/client';
 import { EventInfoOutputDto } from '../dto/event.info.output.dto';
 import {EventDto} from "../dto/event.dto";
 import {GuestDto} from "../dto/guest.dto";
+
 
 export abstract class IEventService {
   abstract createEvent(userId: number, input: NewEventInput): Promise<EventDto>;
