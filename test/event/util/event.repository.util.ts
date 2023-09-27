@@ -36,7 +36,7 @@ export class EventRepositoryUtil implements IEventRepository{
 	getEventsByUserId(userId: number): Promise<Event[]> {
 		const eventsIds :number[] = [];
 		for(let i=0; i<this.guests.length; i++){
-			if (this.guests[i].userId === userId) eventsIds.push(this.guests[i].eventId);
+			if (this.guests[i].userId === userId && this.guests[i].confirmationStatus !== "NOT_ATTENDING") eventsIds.push(this.guests[i].eventId);
 		}
 		const result = [];
 		for(let i=0; i<eventsIds.length; i++){
