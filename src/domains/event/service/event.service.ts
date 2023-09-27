@@ -108,15 +108,15 @@ export class EventService implements IEventService {
   }
 
   async answerInvite(input: answerInviteInput, userId: number) {
-    const guestId = input.guestId;
-    const guest = await this.repository.getGuest(guestId);
-    const event = await this.repository.getEvent(guest.eventId);
+    const eventId = input.eventId;
+    const guest = await this.repository.getGuest(userId,eventId);
+    const event = await this.repository.getEvent(eventId);
     if (!this.checkEventDate(event.date))
       throw new ForbiddenException("The confirmation deadline has passed");
     else if (!await this.checkConfirmationDeadline(event.confirmationDeadline, guest.userId, event.id))
       throw new ForbiddenException("The confirmation deadline has passed");
     if (guest['userId'] == userId) {
-      return await this.repository.answerInvite(guestId, input.answer);
+      return await this.repository.answerInvite(guest.id, input.answer);
     } else {
       throw new ForbiddenException('This invite is not yours');
     }
