@@ -43,10 +43,10 @@ export class EventController {
         const confirmationDeadline = new Date(input.confirmationDeadline);
         const today = new Date();
         if (date < today || confirmationDeadline < today){
-            throw new RangeError("Both date and confirmation deadline must be in the future")
+            throw new ForbiddenException("Both date and confirmation deadline must be in the future")
         }
         else if (date < confirmationDeadline){
-            throw new RangeError("Confirmation deadline cannot be after the event date")
+            throw new ForbiddenException("Confirmation deadline cannot be after the event date")
         }
         return this.eventService.createEvent(req.user['id'], input);
     }
