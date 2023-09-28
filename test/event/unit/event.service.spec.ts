@@ -9,6 +9,7 @@ import {
 	updateEventInput
 } from '../../../src/domains/event/input';
 import {confirmationStatus, Event} from '@prisma/client';
+import {UserRepository} from "../../../src/domains/user/user.repository";
 
 describe('EventService Unit Test', () => {
 	let eventService: IEventService;
@@ -27,6 +28,7 @@ describe('EventService Unit Test', () => {
 			providers: [
 				eventRepositoryProvider,
 				eventServiceProvider,
+                UserRepository
 			],
 		})
 			.compile();
