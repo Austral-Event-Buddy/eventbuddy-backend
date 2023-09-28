@@ -170,10 +170,10 @@ export class EventRepository implements IEventRepository {
         });
     }
 
-    getGuest(guestId: number): Promise<GuestDto> {
+    getGuest(userId: number, eventId:number): Promise<GuestDto> {
         return this.prisma.guest.findUnique({
             where: {
-                id: guestId,
+                userId_eventId: { userId, eventId },
             },
         });
     }

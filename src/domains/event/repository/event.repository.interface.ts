@@ -37,7 +37,7 @@ export abstract class IEventRepository {
    GuestDto[]
   >;
 
-  abstract getGuest(guestId: number): Promise<
+  abstract getGuest(userId: number, eventId: number): Promise<
     GuestDto>;
 
   abstract getGuestsByEvent(eventId: number): Promise<
