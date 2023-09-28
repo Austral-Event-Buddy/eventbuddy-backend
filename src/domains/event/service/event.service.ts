@@ -103,7 +103,7 @@ export class EventService implements IEventService {
         }
       }
     } else {
-      throw new ForbiddenException('You are not a host of this event'); //Didnt work
+      throw new ForbiddenException('You are not a host of this event');
     }
   }
 

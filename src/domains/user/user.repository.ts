@@ -14,4 +14,12 @@ export class UserRepository {
     if (!user) throw new ForbiddenException('User not found');
     return user;
   }
+
+    async findUserByUsername(username: string) {
+        return this.prisma.user.findUnique({
+            where: {
+                username: username,
+            },
+        });
+    }
 }
