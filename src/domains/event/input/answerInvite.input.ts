@@ -4,7 +4,7 @@ import { confirmationStatus } from '@prisma/client';
 export class answerInviteInput {
   @IsNumber()
   @IsNotEmpty()
-  guestId: number;
+  eventId: number;
   @IsNotEmpty()
   @IsEnum(confirmationStatus)
   answer: confirmationStatus;

@@ -42,7 +42,7 @@ model Guest {
   userId             Int
   eventId            Int
   user               User               @relation("Guests", fields: [userId], references: [id])
-  event              Event              @relation(fields: [eventId], references: [id])
+  event              Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
   confirmationStatus confirmationStatus
 
   @@unique([userId, eventId])

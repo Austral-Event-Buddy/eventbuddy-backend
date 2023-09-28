@@ -2,12 +2,12 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
-import { User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 import { LoginInput, RegisterInput } from '../input';
 import { IAuthService } from "./auth.service.interface";
 import { IAuthRepository } from "../repository/auth.repository.interface";
+import { UserDto } from '../../user/dto/user.dto';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -32,7 +32,7 @@ export class AuthService implements IAuthService {
   }
 
   async login(dto: LoginInput) {
-    let user: User;
+    let user: UserDto;
     if (dto.username) {
       user = await this.repository.findUserByUsername(dto.username);
     } else if (dto.email) {
@@ -49,7 +49,7 @@ export class AuthService implements IAuthService {
     return this.signToken(user.id);
   }
 
-  async findUserById(userId: number) {
+  async findUserById(userId: number): Promise<UserDto> {
     try {
       return this.repository.findUserById(userId);
     } catch (_) {

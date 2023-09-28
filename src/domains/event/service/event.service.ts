@@ -16,7 +16,8 @@ import { updateEventInput } from '../input';
 import { Event } from '@prisma/client';
 import { IEventRepository } from "../repository";
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { eventInfoOutputDto } from '../dto/eventInfoOutput.dto';
+import { EventInfoOutputDto } from '../dto/event.info.output.dto';
+import {EventDto} from "../dto/event.dto";
 import {UserRepository} from "../../user/user.repository";
 
 @Injectable()
@@ -24,7 +25,7 @@ export class EventService implements IEventService {
   constructor(private repository: IEventRepository, private userRepository: UserRepository) {}
 
   async getEventsByUserId(userId: number) {
-    const events = await this.repository.getEventsByUserId(userId);
+    const events = await this.checkEvents(await this.repository.getEventsByUserId(userId), userId);
     if (!events) {
       throw new NotFoundException('No events found');
     }
@@ -42,7 +43,8 @@ export class EventService implements IEventService {
     if (!events) {
       throw new NotFoundException('No events found');
     }
-    return this.toEventInfoOutput(events, userId);
+    const finalEvents = await this.checkEvents(events, userId);
+    return this.toEventInfoOutput(finalEvents, userId);
   }
 
   async createEvent(userId: number, input: NewEventInput) {
@@ -56,12 +58,22 @@ export class EventService implements IEventService {
     } else return true;
   }
 
-  async updateEvent(eventId: number, input: updateEventInput) {
+  async updateEvent(eventId: number, input: updateEventInput): Promise<EventDto> {
     const event = await this.repository.updateEvent(eventId, input);
     if (event === null) {
       throw new NotFoundException('Event not found');
     }
-    return event;
+    return {
+        id: event.id,
+        name: event.name,
+        description: event.description,
+        creatorId: event.creatorId,
+        coordinates: event.coordinates,
+        confirmationDeadline: event.confirmationDeadline,
+        date: event.date,
+        updatedAt: event.updatedAt,
+        createdAt: event.createdAt
+    }
   }
 
   async deleteEvent(userId: number, eventId: number) {
@@ -86,6 +98,8 @@ export class EventService implements IEventService {
         throw new BadRequestException("Event not found");
     }
     if (hostGuest != null || event.creatorId === userId) {
+      if (!this.checkEventDate(event.date)) throw new ForbiddenException("The event date has passed")
+      else if (!this.checkEventDate(event.confirmationDeadline)) throw new ForbiddenException("The confirmation deadline has passed")
       try {
         return await this.repository.inviteGuest(eventId, invitedId);
       } catch (error) {
@@ -103,10 +117,15 @@ export class EventService implements IEventService {
   }
 
   async answerInvite(input: answerInviteInput, userId: number) {
-    const guestId = input.guestId;
-    const guest = await this.repository.getGuest(guestId);
+    const eventId = input.eventId;
+    const guest = await this.repository.getGuest(userId,eventId);
+    const event = await this.repository.getEvent(eventId);
+    if (!this.checkEventDate(event.date))
+      throw new ForbiddenException("The confirmation deadline has passed");
+    else if (!await this.checkConfirmationDeadline(event.confirmationDeadline, guest.userId, event.id))
+      throw new ForbiddenException("The confirmation deadline has passed");
     if (guest['userId'] == userId) {
-      return await this.repository.answerInvite(guestId, input.answer);
+      return await this.repository.answerInvite(guest.id, input.answer);
     } else {
       throw new ForbiddenException('This invite is not yours');
     }
@@ -123,8 +142,8 @@ export class EventService implements IEventService {
   private async toEventInfoOutput(
       events: Event[],
       userId: number,
-  ): Promise<eventInfoOutputDto[]> {
-    let eventInfoOutput: eventInfoOutputDto[] = [];
+  ): Promise<EventInfoOutputDto[]> {
+    let eventInfoOutput: EventInfoOutputDto[] = [];
     for (const event of events) {
       const confirmationStatus = await this.repository.findConfirmationStatus(
           userId,
@@ -132,6 +151,7 @@ export class EventService implements IEventService {
       );
       const guestCount = await this.repository.countGuestsByEventId(event.id);
       eventInfoOutput.push({
+        id: event.id,
         name: event.name,
         description: event.description,
         coordinates: event.coordinates,
@@ -142,5 +162,23 @@ export class EventService implements IEventService {
       });
     }
     return eventInfoOutput;
+  }
+
+  private async checkEvents(events: Event[], userId: number): Promise<Event[]> {
+    const result : Event[] = [];
+    for (const event of events)
+      if (this.checkEventDate(event.date) && await this.checkConfirmationDeadline(event.confirmationDeadline, userId, event.id))
+        result.push(event);
+    return result;
+  }
+
+  private checkEventDate(dateEvent: Date): boolean {
+    return dateEvent >= new Date();
+  }
+
+  private async checkConfirmationDeadline(dateEvent: Date, userId: number, eventId: number): Promise<boolean> {
+    const confirmationStatus = await this.repository.findConfirmationStatus(userId, eventId);
+    if (confirmationStatus === "PENDING") return dateEvent >= new Date();
+    return true;
   }
 }
