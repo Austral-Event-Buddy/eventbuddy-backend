@@ -17,14 +17,6 @@ export class UserController {
   @Get('by_username')
   async getUserByUsername(@Body() input: getUserByUsername): Promise<GetUserDto> {
       const user = await this.userService.getUserByUsername(input.username)
-      return new GetUserDto({
-          createdAt: user['createdAt'],
-          email: user['email'],
-          id: user['id'],
-          name: user['name'],
-          updatedAt: user['updatedAt'],
-          username: user['username'],
-          password: user['password']
-      });
+      return new GetUserDto(user);
   }
 }
