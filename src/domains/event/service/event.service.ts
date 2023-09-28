@@ -79,10 +79,10 @@ export class EventService implements IEventService {
     const hostGuest = await this.repository.getHostGuest(eventId, userId);
     const event = await this.repository.getEvent(eventId);
     const user = await this.userRepository.findUserById(invitedId);
-    if(user == null){
+    if(!user){
         throw new BadRequestException("User not found");
     }
-    if(event == null){
+    if(!event){
         throw new BadRequestException("Event not found");
     }
     if (hostGuest != null || event.creatorId === userId) {
