@@ -16,7 +16,17 @@ export class EventRepository implements IEventRepository {
       where: {
           OR: [{creatorId: userId}, {guests: {some: {userId: userId}}}],
           NOT: [{guests: {some: {userId: userId, confirmationStatus: 'NOT_ATTENDING'}}}]
-      }
+      },
+      include: {
+        guests: {
+          include: {
+            user: true,
+          },
+        },
+      },
+      orderBy: {
+        date: 'asc',
+      },
     });
   };
   async countGuestsByEventId(eventId: number) {
@@ -67,6 +77,16 @@ export class EventRepository implements IEventRepository {
           },
         ],
       },
+      include: {
+        guests: {
+          include: {
+            user: true,
+          },
+        },
+      },
+      orderBy: {
+        date: 'asc',
+      },
     });
   }
 
@@ -113,13 +133,19 @@ export class EventRepository implements IEventRepository {
         });
     }
 
-
-
     async checkIfUserIsCreator(userId: number, eventId: number): Promise<EventDto> {
         return this.prisma.event.findUnique({
             where: {
                 id: eventId,
                 creatorId: userId
+            },
+        });
+    }
+
+    async checkIfUserIsInvited(userId: number, eventId: number): Promise<GuestDto> {
+        return this.prisma.guest.findUnique({
+            where: {
+                userId_eventId: { userId, eventId },
             },
         });
     }
@@ -135,17 +161,25 @@ export class EventRepository implements IEventRepository {
     getEvent(eventId: number): Promise<EventDto> {
         return this.prisma.event.findUnique({
             where: {
-                id: eventId,
+              id: eventId,
             },
+            include: {
+              guests: {
+                include: {
+                  user: true,
+                },
+              },
+            }
         });
     }
 
     async inviteGuest(eventId: number, invitedId: number): Promise<GuestDto> {
         return this.prisma.guest.create({
             data: {
-                userId: invitedId,
-                eventId: eventId,
-                confirmationStatus: 'PENDING',
+              id: Math.floor(Math.random() * 100) + 100,
+              userId: invitedId,
+              eventId: eventId,
+              confirmationStatus: 'PENDING',
             },
         });
     }

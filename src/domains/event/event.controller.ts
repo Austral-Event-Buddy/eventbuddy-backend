@@ -47,7 +47,6 @@ export class EventController {
 
     @Post()
     createEvent(@Request() req: ExpressRequest, @Body() input: NewEventInput) {
-
         const date = new Date(input.date);
         const confirmationDeadline = new Date(input.confirmationDeadline);
         const today = new Date();
@@ -79,6 +78,14 @@ export class EventController {
         return this.eventService.getGuestsByEvent(input.eventId);
     }
 
+    @Get(':eventId')
+    getEvent(
+        @Request() req: ExpressRequest,
+        @Param('eventId') eventId: number,
+    ) {
+        return this.eventService.getEventById(req.user['id'], eventId);
+    }
+
     @Post(':eventId')
     updateEvent(
         @Request() req: ExpressRequest,
@@ -88,13 +95,12 @@ export class EventController {
         const eventIdInt = parseInt(eventId);
         if (Number.isNaN(eventIdInt)) {
             throw new TypeError('Event id must be a number');
-        } else {
-            if (
-                this.eventService.checkGuestStatusOnEvent(req.user['id'], eventIdInt)
-            ) {
-                return this.eventService.updateEvent(eventIdInt, input);
-            } else throw new UnauthorizedException('User is not hosting this event');
-        }
+        } 
+        if (
+            this.eventService.checkGuestStatusOnEvent(req.user['id'], eventIdInt)
+        ) {
+            return this.eventService.updateEvent(eventIdInt, input);
+        } else throw new UnauthorizedException('User is not hosting this event');
     }
 
     @Delete(':eventId')
@@ -105,8 +111,7 @@ export class EventController {
         const eventIdInt = parseInt(eventId);
         if (Number.isNaN(eventIdInt)) {
             throw new TypeError('Event id must be a number');
-        } else {
-            return this.eventService.deleteEvent(req.user['id'], eventIdInt);
         }
+        return this.eventService.deleteEvent(req.user['id'], eventIdInt);
     }
 }

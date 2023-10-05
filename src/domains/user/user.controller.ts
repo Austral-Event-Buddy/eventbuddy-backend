@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Request, UseGuards} from '@nestjs/common';
+import {Body, Controller, Get, Param, Request, UseGuards} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/auth.guard';
 import { Request as ExpressRequest } from 'express';
 import { GetUserDto } from './dto/get.user.dto';
@@ -14,9 +14,9 @@ export class UserController {
     return request.user as GetUserDto;
   }
 
-  @Get('by_username')
-  async getUserByUsername(@Body() input: getUserByUsername): Promise<GetUserDto> {
-      const user = await this.userService.getUserByUsername(input.username)
-      return new GetUserDto(user);
+  @Get('by_username/:username')
+  async getUserByUsername(@Param('username') username: string): Promise<GetUserDto[]> {
+      const users = await this.userService.getUserByUsername(username)
+      return users.map(user => new GetUserDto(user))
   }
 }

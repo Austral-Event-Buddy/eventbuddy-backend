@@ -47,5 +47,5 @@ export abstract class IEventRepository {
   
   abstract countGuestsByEventId(eventId: number) : Promise<number>;
   abstract checkIfUserIsCreator(userId: number, eventId: number): Promise<EventDto>;
-
+  abstract checkIfUserIsInvited(userId: number, eventId: number): Promise<GuestDto>;
 }

@@ -25,7 +25,10 @@ async function bootstrap() {
     app,
     SwaggerModule.createDocument(
       app,
-      new DocumentBuilder().setTitle('EventBuddy API').build(),
+      new DocumentBuilder()
+        .setTitle('EventBuddy API')
+        .setExternalDoc('Postman', '/docs-json')
+        .build(),
     ),
   );
 
