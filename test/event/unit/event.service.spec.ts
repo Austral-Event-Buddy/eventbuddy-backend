@@ -9,6 +9,8 @@ import {
 	updateEventInput
 } from '../../../src/domains/event/input';
 import {confirmationStatus, Event} from '@prisma/client';
+import { UserService } from '../../../src/domains/user/user.service';
+import { UserServiceUtil } from '../../user/util/user.service.util';
 
 describe('EventService Unit Test', () => {
 	let eventService: IEventService;
@@ -22,11 +24,17 @@ describe('EventService Unit Test', () => {
 			provide: IEventRepository,
 			useClass: EventRepositoryUtil,
 		}
+    const userService = {
+      provide: UserService,
+      useClass: UserServiceUtil
+    }
+
 		const app: TestingModule = await Test.createTestingModule({
 			imports: [],
 			providers: [
 				eventRepositoryProvider,
 				eventServiceProvider,
+        userService,
 			],
 		})
 			.compile();
