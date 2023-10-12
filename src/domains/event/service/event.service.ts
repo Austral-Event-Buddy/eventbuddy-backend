@@ -92,7 +92,7 @@ export class EventService implements IEventService {
       if (!this.checkEventDate(event.date)) throw new ForbiddenException("The event date has passed")
       else if (!this.checkEventDate(event.confirmationDeadline)) throw new ForbiddenException("The confirmation deadline has passed")
       try {
-        return await this.repository.inviteGuest(eventId, invitedId);
+        return await this.repository.inviteGuest(eventId, invitedId, input.isHost);
       } catch (error) {
         if (error instanceof PrismaClientKnownRequestError) {
           if (error.code === 'P2002') {

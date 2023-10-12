@@ -26,6 +26,7 @@ export abstract class IEventRepository {
   abstract inviteGuest(
     eventId: number,
     invitedId: number,
+    isHost: boolean,
   ): Promise<GuestDto>;
 
   abstract answerInvite(

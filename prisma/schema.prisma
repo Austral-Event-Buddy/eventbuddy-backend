@@ -44,6 +44,7 @@ model Guest {
   user               User               @relation("Guests", fields: [userId], references: [id])
   event              Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
   confirmationStatus confirmationStatus
+  isHost             Boolean
 
   @@unique([userId, eventId])
 }
@@ -52,5 +53,4 @@ enum confirmationStatus {
   PENDING
   ATTENDING
   NOT_ATTENDING
-  HOST
 }
