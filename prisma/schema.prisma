@@ -12,28 +12,30 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  username  String   @unique
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  username  String    @unique
   name      String?
   password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  events    Event[]  @relation("Events")
-  guests    Guest[]  @relation("Guests")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  events    Event[]   @relation("Events")
+  guests    Guest[]   @relation("Guests")
+  elements  Element[] @relation()
 }
 
 model Event {
-  id                   Int      @id @default(autoincrement())
+  id                   Int       @id @default(autoincrement())
   name                 String
   description          String
   creatorId            Int
-  creator              User     @relation("Events", fields: [creatorId], references: [id])
+  creator              User      @relation("Events", fields: [creatorId], references: [id])
   coordinates          Float[]
   confirmationDeadline DateTime
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  guests               Guest[]  @relation
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  guests               Guest[]   @relation
+  elements             Element[] @relation
   date                 DateTime
 }
 
@@ -46,6 +48,13 @@ model Guest {
   confirmationStatus confirmationStatus
 
   @@unique([userId, eventId])
+}
+
+model Element {
+  id      Int    @id @default(autoincrement())
+  eventId Int
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  users   User[] @relation
 }
 
 enum confirmationStatus {
