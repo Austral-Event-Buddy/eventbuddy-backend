@@ -51,10 +51,12 @@ model Guest {
 }
 
 model Element {
-  id      Int    @id @default(autoincrement())
-  eventId Int
-  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  users   User[] @relation
+  id       Int    @id @default(autoincrement())
+  name     String
+  quantity Int
+  eventId  Int
+  event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  users    User[] @relation
 }
 
 enum confirmationStatus {
