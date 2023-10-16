@@ -88,6 +88,7 @@ export class EventService implements IEventService {
     const invitedId = input.userId;
     const hostGuest = await this.repository.getHostGuest(eventId, userId);
     const event = await this.repository.getEvent(eventId);
+    console.log(hostGuest);
     if (hostGuest != null || event.creatorId === userId) {
       if (!this.checkEventDate(event.date)) throw new ForbiddenException("The event date has passed")
       else if (!this.checkEventDate(event.confirmationDeadline)) throw new ForbiddenException("The confirmation deadline has passed")

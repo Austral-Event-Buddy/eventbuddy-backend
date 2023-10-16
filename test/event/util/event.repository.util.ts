@@ -26,7 +26,8 @@ export class EventRepositoryUtil implements IEventRepository{
 			id: this.guestId++,
 			userId: 1,
 			eventId: this.id++,
-			confirmationStatus: 'HOST',
+			confirmationStatus: 'ATTENDING',
+            isHost: true
 		};
 		this.events.push(event);
 		this.guests.push(guest);
@@ -60,8 +61,7 @@ export class EventRepositoryUtil implements IEventRepository{
 		let counter = 0;
 		for(let i=0; i<this.guests.length; i++){
 			if (this.guests[i].eventId === id &&
-				(this.guests[i].confirmationStatus === 'ATTENDING' ||
-					this.guests[i].confirmationStatus === 'HOST')) counter++;
+				(this.guests[i].confirmationStatus === 'ATTENDING')) counter++;
 		}
 		return Promise.resolve(counter);
 	}
@@ -110,7 +110,7 @@ export class EventRepositoryUtil implements IEventRepository{
 
 	getHostGuest(userId: number, eventId: number): Promise<Guest> {
 		for (const guest of this.guests) {
-			if (guest.eventId === eventId && guest.userId === userId && guest.confirmationStatus === 'HOST') return Promise.resolve(guest);
+			if (guest.eventId === eventId && guest.userId === userId && guest.isHost === true) return Promise.resolve(guest);
 		}
 		return Promise.resolve(undefined);
 	}
@@ -120,6 +120,7 @@ export class EventRepositoryUtil implements IEventRepository{
 		userId: number;
 		eventId: number;
 		confirmationStatus: $Enums.confirmationStatus
+        isHost: boolean
 	}> {
 		for (const guest of this.guests) {
 			if (guest.id === guestId) {
@@ -128,7 +129,8 @@ export class EventRepositoryUtil implements IEventRepository{
 					id: guest.id,
 					userId: guest.userId,
 					eventId: guest.eventId,
-					confirmationStatus: guest.confirmationStatus
+					confirmationStatus: guest.confirmationStatus,
+                    isHost: guest.isHost
 				});
 			}
 		}
@@ -156,6 +158,7 @@ export class EventRepositoryUtil implements IEventRepository{
 		userId: number;
 		eventId: number;
 		confirmationStatus: $Enums.confirmationStatus
+        isHost: boolean
 	}> {
 		for (const guest of this.guests) {
 			if (guest.id === guestId) return Promise.resolve({
@@ -163,6 +166,7 @@ export class EventRepositoryUtil implements IEventRepository{
 				userId: guest.userId,
 				eventId: guest.eventId,
 				confirmationStatus: guest.confirmationStatus,
+                isHost: guest.isHost
 			});
 		}
 	}
@@ -172,6 +176,7 @@ export class EventRepositoryUtil implements IEventRepository{
 		userId: number;
 		eventId: number;
 		confirmationStatus: $Enums.confirmationStatus
+        isHost: boolean
 	}[]> {
 		const result = [];
 		for (const guest of this.guests) {
@@ -185,6 +190,7 @@ export class EventRepositoryUtil implements IEventRepository{
 		userId: number;
 		eventId: number;
 		confirmationStatus: $Enums.confirmationStatus
+        isHost: boolean
 	}[]> {
 		const result = [];
 		for (const guest of this.guests) {
@@ -193,17 +199,19 @@ export class EventRepositoryUtil implements IEventRepository{
 		return Promise.resolve(result);
 	}
 
-	inviteGuest(eventId: number, invitedId: number): Promise<{
+	inviteGuest(eventId: number, invitedId: number, isHost: boolean): Promise<{
 		id: number;
 		userId: number;
 		eventId: number;
 		confirmationStatus: $Enums.confirmationStatus
+        isHost: boolean
 	}> {
 		const guest : Guest = {
 			id: this.guestId++,
 			userId: invitedId,
 			eventId: eventId,
 			confirmationStatus: 'PENDING',
+            isHost: isHost
 		}
 		this.guests.push(guest);
 		return Promise.resolve(guest);
