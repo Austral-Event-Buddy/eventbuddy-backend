@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import {IsBoolean, IsNotEmpty, IsNumber} from 'class-validator';
 
 export class inviteGuestInput {
   @IsNotEmpty()
@@ -7,4 +7,7 @@ export class inviteGuestInput {
   @IsNotEmpty()
   @IsNumber()
   userId: number;
+  @IsNotEmpty()
+  @IsBoolean()
+  isHost: boolean;
 }
