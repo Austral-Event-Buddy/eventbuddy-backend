@@ -9,14 +9,17 @@ export class ElementController {
 
 	constructor(private service: IElementService, private eventService: EventService) {}
 
+	// cambiar esto a que solo reciba cantidad max de personas, cantidad de elementos y nombre
 	@Post()
-	createElement(@Request() req: ExpressRequest, @Body() input: NewElementInput){
-		if(!this.eventService.checkFutureEvent(input.eventId, input.date)) throw new ForbiddenException("The event id is not valid");
-		for (const userId of input.usersIds) {
-			const status = this.eventService.checkGuestStatusOnEvent()
-			if(!this.eventService.)
-		}
-		else if(this.eventService.checkGuestStatusOnEvent())
-		return this.service.createElement(req.user['id'], input)
+	async createElement(@Request() req: ExpressRequest, @Body() input: NewElementInput): Promise<ElementDto>{
+		if(!await this.eventService.checkFutureEvent(input.eventId, input.date)) throw new ForbiddenException("The event id is not valid");
+		// hacer que solo los host puedan agregar elementos a un elemento
+		return this.service.createElement(input)
 	}
+
+	// TO-DO: hacer que cualquier persona host o confirmada se pueda hacer cargo del elemento
+	// TO-DO: hacer que haya una cantidad limite de elementos
+	// TO-DO: hacer que la persona se pueda hacer cargo del elemento o bajarse
+	// TO-DO: solo un host puede updatear y eliminarlo
+
 }

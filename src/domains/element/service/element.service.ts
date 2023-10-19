@@ -1,16 +1,15 @@
 import {Injectable} from "@nestjs/common";
 import {IElementService} from "./element.service.interface";
 import {NewElementInput} from "../input/newElementInput";
+import {IElementRepository} from "../repository/element.repository.interface";
 
 @Injectable()
 export class ElementService implements IElementService {
-	createEvent(){
-		// TICK check if the event is in the future
-		// check if the users id are host or confirmation
+
+	constructor(private repository: IElementRepository) {}
+
+	createElement(input: NewElementInput): Promise<ElementDto> {
+		return this.repository.createElement(input);
 	}
 
-	createElement(userId: number, input: NewElementInput): Promise<ElementDto> {
-
-		return Promise.resolve(undefined);
-	}
 }
