@@ -43,7 +43,7 @@ model Guest {
   id                 Int                @id @default(autoincrement())
   userId             Int
   eventId            Int
-  user               User               @relation("Guests", fields: [userId], references: [id])
+  user               User               @relation("Guests", fields: [userId], references: [id], onDelete: Cascade)
   event              Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
   confirmationStatus confirmationStatus
   isHost             Boolean
