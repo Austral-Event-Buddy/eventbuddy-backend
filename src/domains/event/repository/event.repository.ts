@@ -23,7 +23,7 @@ export class EventRepository implements IEventRepository {
     return this.prisma.guest.count({
       where: {
         eventId: eventId,
-        confirmationStatus: { in: ['ATTENDING', 'HOST'] },
+        confirmationStatus: { in: ['ATTENDING'] },
       },
     });
   }
@@ -74,7 +74,7 @@ export class EventRepository implements IEventRepository {
       return this.prisma.guest.findUnique({
           where: {
               userId_eventId: {userId, eventId},
-              confirmationStatus: 'HOST',
+             isHost: true,
           },
       });
   }
@@ -91,7 +91,8 @@ export class EventRepository implements IEventRepository {
                 guests: {
                     create: {
                         userId: userId,
-                        confirmationStatus: 'HOST',
+                        confirmationStatus: 'ATTENDING',
+                        isHost: true,
                     },
                 },
             },
@@ -140,11 +141,12 @@ export class EventRepository implements IEventRepository {
         });
     }
 
-    async inviteGuest(eventId: number, invitedId: number): Promise<GuestDto> {
+    async inviteGuest(eventId: number, invitedId: number, isHost: boolean): Promise<GuestDto> {
         return this.prisma.guest.create({
             data: {
                 userId: invitedId,
                 eventId: eventId,
+                isHost: isHost,
                 confirmationStatus: 'PENDING',
             },
         });

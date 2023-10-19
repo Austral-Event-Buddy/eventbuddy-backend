@@ -86,13 +86,13 @@ export class EventService implements IEventService {
   async inviteGuest(input: inviteGuestInput, userId: number) {
     const eventId = input.eventId;
     const invitedId = input.userId;
-    const hostGuest = await this.repository.getHostGuest(eventId, userId);
+    const hostGuest = await this.repository.getHostGuest(userId, eventId);
     const event = await this.repository.getEvent(eventId);
     if (hostGuest != null || event.creatorId === userId) {
       if (!this.checkEventDate(event.date)) throw new ForbiddenException("The event date has passed")
       else if (!this.checkEventDate(event.confirmationDeadline)) throw new ForbiddenException("The confirmation deadline has passed")
       try {
-        return await this.repository.inviteGuest(eventId, invitedId);
+        return await this.repository.inviteGuest(eventId, invitedId, input.isHost);
       } catch (error) {
         if (error instanceof PrismaClientKnownRequestError) {
           if (error.code === 'P2002') {
