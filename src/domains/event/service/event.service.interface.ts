@@ -41,4 +41,5 @@ export abstract class IEventService {
   abstract getGuestsByEvent(eventId: number): Promise<
     GuestDto[]
   >;
+  abstract getEventByEventId(userId: number, eventId: number): Promise<EventDto>
 }
