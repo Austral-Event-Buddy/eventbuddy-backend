@@ -1,0 +1,1 @@
+export * from '../repository/comment.repository.interface'
