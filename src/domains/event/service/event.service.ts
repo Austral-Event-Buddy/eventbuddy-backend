@@ -130,6 +130,11 @@ export class EventService implements IEventService {
     return this.repository.getGuestsByEvent(eventId);
   }
 
+  async checkFutureEvent(eventId: number, date: Date) {
+    const event = await this.repository.getEvent(eventId)
+    return event.date >= date
+  }
+
   private async toEventInfoOutput(
       events: Event[],
       userId: number,

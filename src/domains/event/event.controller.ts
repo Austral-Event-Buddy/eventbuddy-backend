@@ -25,8 +25,7 @@ import {
 @UseGuards(JwtAuthGuard)
 @Controller('event')
 export class EventController {
-    constructor(private eventService: IEventService) {
-    }
+    constructor(private eventService: IEventService) {}
 
     @Get()
     getEvents(@Request() req: ExpressRequest) {

@@ -20,5 +20,6 @@ const eventRepositoryProvider = {
     eventServiceProvider,
     eventRepositoryProvider,
   ],
+  exports: [eventServiceProvider]
 })
 export class EventModule {}

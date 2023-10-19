@@ -1,4 +1,4 @@
-import {IsArray, IsInt, IsNotEmpty, IsOptional, IsString} from "class-validator";
+import {IsArray, IsDateString, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString} from "class-validator";
 
 export class NewElementInput {
 	@IsString()
@@ -6,6 +6,7 @@ export class NewElementInput {
 	name: string;
 
 	@IsInt()
+	@IsPositive()
 	@IsNotEmpty()
 	quantity: number;
 
@@ -15,5 +16,9 @@ export class NewElementInput {
 
 	@IsArray()
 	@IsOptional()
-	usersIds: number[]
+	usersIds: number[];
+
+	@IsNotEmpty()
+	@IsDateString()
+	date: Date;
 }
