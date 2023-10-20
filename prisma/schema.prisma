@@ -58,6 +58,7 @@ model Element {
   name     String
   quantity Int
   eventId  Int
+  maxUsers Int
   event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
   users    User[] @relation
 }
