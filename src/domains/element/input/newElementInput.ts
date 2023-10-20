@@ -1,4 +1,4 @@
-import {IsArray, IsDateString, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString} from "class-validator";
+import {IsDateString, IsInt, IsNotEmpty, IsPositive, IsString} from "class-validator";
 
 export class NewElementInput {
 	@IsString()
