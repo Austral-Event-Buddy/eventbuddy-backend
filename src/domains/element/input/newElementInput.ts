@@ -11,12 +11,13 @@ export class NewElementInput {
 	quantity: number;
 
 	@IsInt()
+	@IsPositive()
+	@IsNotEmpty()
+	maxUsers: number;
+
+	@IsInt()
 	@IsNotEmpty()
 	eventId: number;
-
-	@IsArray()
-	@IsOptional()
-	usersIds: number[];
 
 	@IsNotEmpty()
 	@IsDateString()
