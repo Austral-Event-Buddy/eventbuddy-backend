@@ -79,6 +79,21 @@ export class EventController {
         return this.eventService.getGuestsByEvent(input.eventId);
     }
 
+    @Get(':eventId')
+    getEventByEventId(
+        @Request() req,
+        @Param('eventId') eventId: string
+    ) {
+        const eventIdInt = parseInt(eventId)
+        if (Number.isNaN(eventIdInt)){
+            throw new TypeError("Event id must be a number")
+        }
+        else{
+            return this.eventService.getEventByEventId(req.user['id'], eventIdInt)
+        }
+
+    }
+
     @Post(':eventId')
     updateEvent(
         @Request() req: ExpressRequest,
