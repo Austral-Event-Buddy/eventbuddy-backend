@@ -132,7 +132,7 @@ export class EventService implements IEventService {
 
   async checkFutureEvent(eventId: number, date: Date) {
     const event = await this.repository.getEvent(eventId)
-    return event.date >= date
+    return new Date(event.date) >= new Date(date)
   }
 
   private async toEventInfoOutput(
