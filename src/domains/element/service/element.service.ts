@@ -51,9 +51,9 @@ export class ElementService implements IElementService {
 	}
 
 	private checkUserInUsers(users: UserDto[], userId: number) {
-		users.forEach(user => {
+		for (const user of users) {
 			if(user.id === userId) { return true }
-		});
+		}
 		return false
 	}
 

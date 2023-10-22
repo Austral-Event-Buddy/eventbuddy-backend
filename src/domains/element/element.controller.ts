@@ -4,7 +4,7 @@ import {
 	Post,
 	Request,
 	UseGuards,
-	ForbiddenException, Put, Delete, Get
+	ForbiddenException, Put, Delete, Get, Param
 } from '@nestjs/common';
 import {Request as ExpressRequest} from "express";
 import {ElementInput, NewElementInput, UserElementInput, UpdateElementInput} from "./input";
@@ -36,6 +36,7 @@ export class ElementController {
 		return this.service.addUser(req.user['id'], input)
 
 	}
+
 	@Put('charge/delete')
 	async deleteUser(@Request() req: ExpressRequest, @Body() input: UserElementInput): Promise<ElementDto>{
 		const eventId = await this.getEventId(new ElementInput(input.elementId));
@@ -60,8 +61,12 @@ export class ElementController {
 	}
 
 	@Get()
-	getElement(@Body() input: ElementInput): Promise<ElementDto> {
-		return this.service.getElementById(input);
+	getElement(@Param('elementId') id: string): Promise<ElementDto> {
+		const elementId = parseInt(id);
+		if (Number.isNaN(elementId)) {
+			throw new TypeError('Element id must be a number');
+		} else { return this.service.getElementById(new ElementInput(elementId));}
+
 	}
 
 

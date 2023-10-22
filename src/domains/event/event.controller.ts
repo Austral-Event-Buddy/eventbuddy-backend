@@ -79,8 +79,11 @@ export class EventController {
     }
 
     @Get('elements')
-    getElementsByEvent(@Body() input: getGuestsByEventInput) {
-        return this.eventService.getElementsByEvent(input.eventId);
+    getElementsByEvent(@Param('eventId') id: string) {
+        const eventId = parseInt(id);
+        if (Number.isNaN(eventId)) {
+            throw new ForbiddenException('Event id must be a number');
+        } else { return this.eventService.getElementsByEvent(eventId); }
     }
 
     @Post(':eventId')
