@@ -4,7 +4,7 @@ import {
 	Post,
 	Request,
 	UseGuards,
-	ForbiddenException, Put, Delete
+	ForbiddenException, Put, Delete, Get
 } from '@nestjs/common';
 import {Request as ExpressRequest} from "express";
 import {ElementInput, NewElementInput, UserElementInput, UpdateElementInput} from "./input";
@@ -57,6 +57,11 @@ export class ElementController {
 		const eventId = await this.getEventId(input);
 		if(!await this.eventService.checkGuestStatusOnEvent(eventId, req.user['id'])) throw new ForbiddenException("User is not authorized to delete the element")
 		return this.service.deleteElement(input);
+	}
+
+	@Get()
+	getElement(@Request() req: ExpressRequest, @Body() input: ElementInput): Promise<ElementDto> {
+		return this.service.getElementById(input);
 	}
 
 
