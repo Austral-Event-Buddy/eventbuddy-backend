@@ -1,7 +1,10 @@
 import {Injectable} from "@nestjs/common";
 import {IElementRepository} from "./element.repository.interface";
-import {NewElementInput} from "../input/newElementInput";
 import {PrismaService} from "../../../prisma/prisma.service";
+import {UserDto} from "../../user/dto/user.dto";
+import {ElementDto} from "../dto/element.dto";
+import {MaxUsersDto} from "../dto/maxUsersDto";
+import {UpdateElementInput, NewElementInput} from "../input";
 
 @Injectable()
 export class ElementRepository implements IElementRepository {
@@ -9,14 +12,75 @@ export class ElementRepository implements IElementRepository {
 	createElement(input: NewElementInput): Promise<ElementDto> {
 		return this.prisma.element.create({
 			data: {
+				eventId: input.eventId,
+				maxUsers: input.maxUsers,
 				name: input.name,
 				quantity: input.quantity,
-				eventId: input.eventId,
+			},
+		});
+	}
+
+	getUsers(elementId: number): Promise<UserDto[]> {
+		return this.prisma.element.findUnique({ where: { id: elementId } })
+			.users()
+	}
+
+	addUser(userId: number , elementId: number): Promise<ElementDto> {
+		return this.prisma.element.update({
+			where: {
+				id: elementId
+			},
+			data: {
 				users: {
-					connect: input.usersIds.map(userId => ({id: userId})),
+					connect: {
+						id: userId,
+					},
 				},
 			},
 		});
+	}
+
+	getElementById(elementId:number): Promise<ElementDto> {
+		return this.prisma.element.findUnique({
+			where: {id: elementId}
+		})
+	}
+
+	deleteUser(userId: number, elementId: number): Promise<ElementDto> {
+		return this.prisma.element.update({
+			where: { id: elementId },
+			data: {
+				users: {
+					disconnect: {
+						id: userId,
+					},
+				},
+			},
+		});
+	}
+	getMaxUsers(elementId: number): Promise<MaxUsersDto> {
+		return this.prisma.element.findUnique({
+			where: {id: elementId},
+			select: {maxUsers: true}
+		})
+	}
+
+	updateElement(input: UpdateElementInput): Promise<ElementDto> {
+		return this.prisma.element.update({
+			where: {id: input.id},
+			data: {
+				name: input.name,
+				eventId: input.eventId,
+				quantity: input.quantity,
+				maxUsers: input.maxUsers
+			}
+		})
+	}
+
+	deleteElement(elementId: number) {
+		return this.prisma.element.delete({
+			where: {id: elementId}
+		})
 	}
 
 }
