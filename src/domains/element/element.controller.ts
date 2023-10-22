@@ -10,7 +10,6 @@ import {Request as ExpressRequest} from "express";
 import {ElementInput, NewElementInput, UserElementInput, UpdateElementInput} from "./input";
 import {IElementService} from "./service/element.service.interface";
 import {EventService} from "../event/service";
-import {UserService} from "../user/service/user.service";
 import {JwtAuthGuard} from '../auth/auth.guard';
 import {ElementDto} from "./dto/element.dto";
 

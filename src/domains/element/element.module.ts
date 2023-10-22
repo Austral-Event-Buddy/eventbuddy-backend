@@ -5,7 +5,6 @@ import {IElementRepository} from "./repository/element.repository.interface";
 import {ElementRepository} from "./repository/element.repository";
 import {ElementController} from "./element.controller"
 import {EventModule} from "../event/event.module";
-import {UserModule} from "../user/user.module";
 
 const elementServiceProvider = {
 	provide: IElementService,
