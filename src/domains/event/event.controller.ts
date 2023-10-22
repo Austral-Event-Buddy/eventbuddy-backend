@@ -78,7 +78,7 @@ export class EventController {
         return this.eventService.getGuestsByEvent(input.eventId);
     }
 
-    @Get('elements')
+    @Get('elements/:eventId')
     getElementsByEvent(@Param('eventId') id: string) {
         const eventId = parseInt(id);
         if (Number.isNaN(eventId)) {

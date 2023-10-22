@@ -60,7 +60,7 @@ export class ElementController {
 		return this.service.deleteElement(input);
 	}
 
-	@Get()
+	@Get(':elementId')
 	getElement(@Param('elementId') id: string): Promise<ElementDto> {
 		const elementId = parseInt(id);
 		if (Number.isNaN(elementId)) {
