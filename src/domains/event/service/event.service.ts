@@ -8,15 +8,15 @@ import {
   answerInviteInput,
   getEventsBySearchInput,
   inviteGuestInput,
-  NewEventInput,
+  NewEventInput, updateEventInput,
 } from '../input';
 import { IEventService } from './event.service.interface';
-import { updateEventInput } from '../input';
-import { Event } from '@prisma/client';
+import {Event} from '@prisma/client';
 import { IEventRepository } from "../repository";
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { EventInfoOutputDto } from '../dto/event.info.output.dto';
 import {EventDto} from "../dto/event.dto";
+import {ElementDto} from "../../element/dto/element.dto";
 
 @Injectable()
 export class EventService implements IEventService {
@@ -128,6 +128,10 @@ export class EventService implements IEventService {
 
   getGuestsByEvent(eventId: number) {
     return this.repository.getGuestsByEvent(eventId);
+  }
+
+  getElementsByEvent(eventId: number): Promise<ElementDto[]> {
+    return this.repository.getElementsByEvent(eventId);
   }
 
   async checkFutureEvent(eventId: number, date: Date) {

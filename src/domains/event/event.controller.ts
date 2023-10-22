@@ -78,6 +78,11 @@ export class EventController {
         return this.eventService.getGuestsByEvent(input.eventId);
     }
 
+    @Get('elements')
+    getElementsByEvent(@Body() input: getGuestsByEventInput) {
+        return this.eventService.getElementsByEvent(input.eventId);
+    }
+
     @Post(':eventId')
     updateEvent(
         @Request() req: ExpressRequest,
