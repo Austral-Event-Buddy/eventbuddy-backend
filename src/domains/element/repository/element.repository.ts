@@ -42,7 +42,10 @@ export class ElementRepository implements IElementRepository {
 
 	getElementById(elementId:number): Promise<ElementDto> {
 		return this.prisma.element.findUnique({
-			where: {id: elementId}
+			where: {id: elementId},
+			include: {
+				users: true,
+			},
 		})
 	}
 
