@@ -2,6 +2,7 @@ import {Injectable, NotFoundException} from '@nestjs/common';
 import { UserRepository } from '../repository/user.repository';
 import { IUserService } from './user.service.inteface';
 import { UpdateUserInput } from '../input/update.user.input';
+import {UserDto} from "../dto/user.dto";
 
 @Injectable()
 export class UserService implements IUserService{
@@ -30,4 +31,12 @@ export class UserService implements IUserService{
       }
       return user;
   }
+
+    async getUserById(userId: number): Promise<UserDto> {
+        const user = await this.userRepository.findUserById(userId);
+        if(!user){
+            throw new NotFoundException('User could not be found');
+        }
+        return user;
+    }
 }
