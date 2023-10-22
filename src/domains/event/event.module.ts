@@ -16,10 +16,10 @@ const eventRepositoryProvider = {
 
 @Module({
   controllers: [EventController],
-  providers: [
+  providers: [EventService,
     eventServiceProvider,
     eventRepositoryProvider,
   ],
-  exports: [eventServiceProvider]
+  exports: [EventService]
 })
 export class EventModule {}
