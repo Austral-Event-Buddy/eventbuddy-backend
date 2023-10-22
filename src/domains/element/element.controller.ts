@@ -60,7 +60,7 @@ export class ElementController {
 	}
 
 	@Get()
-	getElement(@Request() req: ExpressRequest, @Body() input: ElementInput): Promise<ElementDto> {
+	getElement(@Body() input: ElementInput): Promise<ElementDto> {
 		return this.service.getElementById(input);
 	}
 
