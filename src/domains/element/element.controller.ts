@@ -18,7 +18,7 @@ import {ElementDto} from "./dto/element.dto";
 @Controller('element')
 export class ElementController {
 
-	constructor(private service: IElementService, private eventService: EventService, private userService: UserService) {}
+	constructor(private service: IElementService, private eventService: EventService) {}
 
 	@Post()
 	async createElement(@Request() req: ExpressRequest, @Body() input: NewElementInput): Promise<ElementDto>{
