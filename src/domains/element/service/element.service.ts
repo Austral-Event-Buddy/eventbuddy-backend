@@ -1,14 +1,9 @@
 import {ForbiddenException, Injectable} from "@nestjs/common";
 import {IElementService} from "./element.service.interface";
-import {NewElementInput} from "../input/newElement.input";
 import {IElementRepository} from "../repository/element.repository.interface";
-import {UserElementInput} from "../input/userElement.input";
 import {UserDto} from "../../user/dto/user.dto";
-import {ExtractJwt} from "passport-jwt";
-import fromAuthHeaderAsBearerToken = ExtractJwt.fromAuthHeaderAsBearerToken;
 import {ElementDto} from "../dto/element.dto";
-import {ElementInput, UpdateElementInput} from "../input";
-import {MaxUsersDto} from "../dto/maxUsersDto";
+import {ElementInput, UpdateElementInput, UserElementInput, NewElementInput} from "../input";
 
 @Injectable()
 export class ElementService implements IElementService {
