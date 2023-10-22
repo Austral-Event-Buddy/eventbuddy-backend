@@ -48,23 +48,21 @@ export class ElementController {
 	@Post('update')
 	async updateElement(@Request() req: ExpressRequest, @Body() input: UpdateElementInput){
 		const eventId = await this.getEventId(new ElementInput(input.id));
-		if(!await this.eventService.checkGuestStatusOnEvent(eventId, req.user['id'])) throw new ForbiddenException("User is not authorized to update the element")
-		return this.service.updateElement(input);
-
+		if(await this.eventService.checkGuestStatusOnEvent(req.user['id'], eventId)) return this.service.updateElement(input);
 	}
 
-	@Delete('delete')
+	@Delete()
 	async deleteElement(@Request() req: ExpressRequest, @Body() input: ElementInput){
 		const eventId = await this.getEventId(input);
-		if(!await this.eventService.checkGuestStatusOnEvent(eventId, req.user['id'])) throw new ForbiddenException("User is not authorized to delete the element")
-		return this.service.deleteElement(input);
+		if(!await this.eventService.checkGuestStatusOnEvent(req.user['id'], eventId)) throw new ForbiddenException("User is not authorized to delete the element")
+		await this.service.deleteElement(input);
 	}
 
 	@Get(':elementId')
 	getElement(@Param('elementId') id: string): Promise<ElementDto> {
 		const elementId = parseInt(id);
 		if (Number.isNaN(elementId)) {
-			throw new TypeError('Element id must be a number');
+			throw new ForbiddenException('Element id must be a number');
 		} else { return this.service.getElementById(new ElementInput(elementId));}
 
 	}

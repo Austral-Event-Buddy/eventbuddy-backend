@@ -41,7 +41,7 @@ export class ElementService implements IElementService {
 	}
 
 	async deleteElement(input: ElementInput) {
-		this.repository.deleteElement(input.id);
+		await this.repository.deleteElement(input.id);
 	}
 
 	async getElementById(input: ElementInput): Promise<ElementDto> {

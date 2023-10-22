@@ -86,8 +86,8 @@ export class ElementRepository implements IElementRepository {
 		})
 	}
 
-	deleteElement(elementId: number) {
-		return this.prisma.element.delete({
+	async deleteElement(elementId: number) {
+		await this.prisma.element.delete({
 			where: {id: elementId}
 		})
 	}
