@@ -77,9 +77,6 @@ export class ElementController {
 	private async checkGuest(eventId: number, userId: number): Promise<boolean>{
 		const events = await this.eventService.getEventsByUserId(userId)
 		for (const event of events) {
-			console.log(event.confirmationStatus !== "NOT_ATTENDING")
-			console.log(event.id === eventId)
-			console.log(event.id === eventId && event.confirmationStatus !== "NOT_ATTENDING")
 			if(event.id === eventId && event.confirmationStatus !== "NOT_ATTENDING") return true
 		}
 		return false
