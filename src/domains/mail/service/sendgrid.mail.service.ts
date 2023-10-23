@@ -10,12 +10,12 @@ export class SendgridMailService implements IMailService{
     SendGrid.setApiKey(config.get("SENDGRID_API_KEY"))
   }
 
-  async sendEmail(to: string, subject: string, body: string): Promise<void> {
+  async sendEmail(to: string, template_id: string, templateArgs: any): Promise<void> {
     await SendGrid.send({
       to: to,
       from: this.config.get("SENDGRID_EMAIL"),
-      subject: subject,
-      text: body,
+      templateId: template_id,
+      dynamicTemplateData: templateArgs
     })
   }
 

@@ -1,3 +1,3 @@
 export interface IMailService {
-  sendEmail(to: String, subject: String, body: String): void
+  sendEmail(to: string, templateId: string, templateArgs: any): void
 }
