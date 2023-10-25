@@ -11,10 +11,12 @@ export class GuestDto{
     userId: number;
     eventId: number;
     confirmationStatus: confirmationStatus;
+    isHost: boolean
     constructor(newGuest: GuestDto) {
         this.id = newGuest.id;
         this.userId = newGuest.userId;
         this.eventId = newGuest.eventId;
         this.confirmationStatus = newGuest.confirmationStatus;
+        this.isHost = newGuest.isHost;
     }
 }
