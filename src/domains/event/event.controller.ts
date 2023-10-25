@@ -84,6 +84,18 @@ export class EventController {
         if (Number.isNaN(eventId)) {
             throw new ForbiddenException('Event id must be a number');
         } else { return this.eventService.getElementsByEvent(eventId); }
+    @Get(':eventId')
+    getEventByEventId(
+        @Request() req,
+        @Param('eventId') eventId: string
+    ) {
+        const eventIdInt = parseInt(eventId)
+        if (Number.isNaN(eventIdInt)){
+            throw new TypeError("Event id must be a number")
+        }
+        else{
+            return this.eventService.getEventByEventId(req.user['id'], eventIdInt)
+        }
     }
 
     @Post(':eventId')

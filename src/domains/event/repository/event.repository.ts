@@ -11,75 +11,86 @@ import {ElementDto} from "../../element/dto/element.dto";
 export class EventRepository implements IEventRepository {
     constructor(private prisma: PrismaService) {
     }
-  async getEventsByUserId(userId: number):Promise<EventDto[]> {
-    return this.prisma.event.findMany({
-      where: {
-          OR: [{creatorId: userId}, {guests: {some: {userId: userId}}}],
-          NOT: [{guests: {some: {userId: userId, confirmationStatus: 'NOT_ATTENDING'}}}]
-      }
-    });
-  };
-  async countGuestsByEventId(eventId: number) {
-    return this.prisma.guest.count({
-      where: {
-        eventId: eventId,
-        confirmationStatus: { in: ['ATTENDING'] },
-      },
-    });
-  }
 
-  async findConfirmationStatus(
-    userId: number,
-    eventId: number,
-  ): Promise<confirmationStatus> {
-    return (
-      await this.prisma.guest.findUnique({
-        where: {
-          userId_eventId: { userId, eventId },
-        },
-        select: {
-          confirmationStatus: true,
-        },
-      })
-    ).confirmationStatus;
-  }
+    async getEventByEventId(eventId: number): Promise<EventDto> {
+        return this.prisma.event.findUnique({
+                where: {
+                    id: eventId
+                }
+            }
+        )
+    }
 
-  async getEventsByNameOrDescriptionAndUserId(userId: number, input: string):Promise<EventDto[]> {
-    const keywords = input.split(' ');
+    async getEventsByUserId(userId: number): Promise<EventDto[]> {
+        return this.prisma.event.findMany({
+            where: {
+                OR: [{creatorId: userId}, {guests: {some: {userId: userId}}}],
+                NOT: [{guests: {some: {userId: userId, confirmationStatus: 'NOT_ATTENDING'}}}]
+            }
+        });
+    };
 
-    const keywordConditions = keywords.map((keyword) => ({
-      OR: [
-        { name: { contains: keyword } },
-        { description: { contains: keyword } },
-      ],
-    }));
-    return this.prisma.event.findMany({
-      where: {
-        OR: [...keywordConditions],
-        AND: [
-          {
+    async countGuestsByEventId(eventId: number) {
+        return this.prisma.guest.count({
+            where: {
+                eventId: eventId,
+                confirmationStatus: {in: ['ATTENDING']},
+            },
+        });
+    }
+
+    async findConfirmationStatus(
+        userId: number,
+        eventId: number,
+    ): Promise<confirmationStatus> {
+        return (
+            await this.prisma.guest.findUnique({
+                where: {
+                    userId_eventId: {userId, eventId},
+                },
+                select: {
+                    confirmationStatus: true,
+                },
+            })
+        ).confirmationStatus;
+    }
+
+    async getEventsByNameOrDescriptionAndUserId(userId: number, input: string): Promise<EventDto[]> {
+        const keywords = input.split(' ');
+
+        const keywordConditions = keywords.map((keyword) => ({
             OR: [
-              { creatorId: userId },
-              { guests: { some: { userId: userId } } },
+                {name: {contains: keyword}},
+                {description: {contains: keyword}},
             ],
-              NOT: [{guests: {some: {userId: userId, confirmationStatus: 'NOT_ATTENDING'}}}]
+        }));
+        return this.prisma.event.findMany({
+            where: {
+                OR: [...keywordConditions],
+                AND: [
+                    {
+                        OR: [
+                            {creatorId: userId},
+                            {guests: {some: {userId: userId}}},
+                        ],
+                        NOT: [{guests: {some: {userId: userId, confirmationStatus: 'NOT_ATTENDING'}}}]
 
-          },
-        ],
-      },
-    });
-  }
+                    },
+                ],
+            },
+        });
+    }
 
-  async getHostGuest(userId: number, eventId: number):Promise<GuestDto> {
-      return this.prisma.guest.findUnique({
-          where: {
-              userId_eventId: {userId, eventId},
-             isHost: true,
-          },
-      });
-  }
+    async getHostGuest(userId: number, eventId: number): Promise<GuestDto> {
+        return this.prisma.guest.findUnique({
+            where: {
+                userId_eventId: {userId, eventId},
+                isHost: true,
+            },
+        });
+    }
 
-    async createEvent(userId: number, input: NewEventInput):Promise<EventDto> {
+    async createEvent(userId: number, input: NewEventInput): Promise<EventDto> {
         return this.prisma.event.create({
             data: {
                 name: input.name,
@@ -99,7 +110,7 @@ export class EventRepository implements IEventRepository {
         });
     }
 
-    async updateEvent(eventId: number, input: updateEventInput):Promise<EventDto> {
+    async updateEvent(eventId: number, input: updateEventInput): Promise<EventDto> {
         return this.prisma.event.update({
             where: {
                 id: eventId,
@@ -113,7 +124,6 @@ export class EventRepository implements IEventRepository {
             },
         });
     }
-
 
 
     async checkIfUserIsCreator(userId: number, eventId: number): Promise<EventDto> {
@@ -161,7 +171,7 @@ export class EventRepository implements IEventRepository {
                 confirmationStatus: answer,
             },
         });
-  }
+    }
 
     //Should only return with status pending (?)
     async getInvitesByUser(userId: number): Promise<GuestDto[]> {
@@ -172,10 +182,10 @@ export class EventRepository implements IEventRepository {
         });
     }
 
-    getGuest(userId: number, eventId:number): Promise<GuestDto> {
+    getGuest(userId: number, eventId: number): Promise<GuestDto> {
         return this.prisma.guest.findUnique({
             where: {
-                userId_eventId: { userId, eventId },
+                userId_eventId: {userId, eventId},
             },
         });
     }
@@ -186,7 +196,6 @@ export class EventRepository implements IEventRepository {
             },
         });
     }
-
     getElementsByEvent(eventId: number): Promise<ElementDto[]> {
         return this.prisma.element.findMany({
             where: {

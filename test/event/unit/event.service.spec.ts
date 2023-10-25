@@ -9,6 +9,7 @@ import {
 	updateEventInput
 } from '../../../src/domains/event/input';
 import {confirmationStatus, Event} from '@prisma/client';
+import {NotFoundException, UnauthorizedException} from "@nestjs/common";
 
 describe('EventService Unit Test', () => {
 	let eventService: IEventService;
@@ -286,4 +287,21 @@ describe('EventService Unit Test', () => {
 			}]);
 		})
 	})
+    describe ('Get Event By Event Id',()=>{
+        it('get event given an event id', async() => {
+            const event = await eventService.createEvent(userId, input);
+            await eventService.inviteGuest(inviteGuestInput, userId);
+            const result = await eventService.getEventByEventId(userId,event.id)
+            expect(result).toEqual(event)
+
+        });
+        it('user is not allowed to view event',async()=>{
+            const event = await eventService.createEvent(userId, input);
+            await expect(async () => {
+                await eventService.getEventByEventId(guestId,event.id)
+            }).rejects.toThrow(UnauthorizedException)
+
+        });
+    })
+
 });

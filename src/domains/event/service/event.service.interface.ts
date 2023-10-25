@@ -44,4 +44,5 @@ export abstract class IEventService {
   >;
 
 	abstract getElementsByEvent(eventId: number) : Promise<ElementDto[]>
+  abstract getEventByEventId(userId: number, eventId: number): Promise<EventDto>
 }

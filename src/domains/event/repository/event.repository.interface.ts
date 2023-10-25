@@ -49,6 +49,7 @@ export abstract class IEventRepository {
   
   abstract countGuestsByEventId(eventId: number) : Promise<number>;
   abstract checkIfUserIsCreator(userId: number, eventId: number): Promise<EventDto>;
+  abstract getEventByEventId(eventId: number):Promise<EventDto>
 
 	abstract getElementsByEvent(eventId: number) : Promise<ElementDto[]> ;
 }
