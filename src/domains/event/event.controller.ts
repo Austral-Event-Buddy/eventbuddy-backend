@@ -37,7 +37,6 @@ export class EventController {
         @Request() req: ExpressRequest,
         @Query() search: getEventsBySearchInput,
     ) {
-        console.log(search)
         return this.eventService.getEventsByNameOrDescriptionAndUserId(
             req.user['id'],
             search,

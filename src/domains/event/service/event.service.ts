@@ -114,7 +114,6 @@ export class EventService implements IEventService {
       try {
         return await this.repository.inviteGuest(eventId, invitedId, input.isHost);
       } catch (error) {
-        console.log(error)
         if (error instanceof PrismaClientKnownRequestError) {
           if (error.code === 'P2002') {
             throw new ForbiddenException(
