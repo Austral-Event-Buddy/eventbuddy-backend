@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {IEventRepository} from "../../../src/domains/event/repository";
 import {NewEventInput} from "../../../src/domains/event/input";
 import {Guest, Event, confirmationStatus, $Enums} from "@prisma/client";
-import {EventDto} from "src/domains/event/dto/event.dto";
+import { ElementDto } from "src/domains/element/dto/element.dto";
 
 @Injectable()
 export class EventRepositoryUtil implements IEventRepository {

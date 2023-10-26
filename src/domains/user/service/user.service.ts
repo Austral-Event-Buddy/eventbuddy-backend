@@ -4,6 +4,7 @@ import { IUserService } from './user.service.inteface';
 import { UpdateUserInput } from '../input/update.user.input';
 import {IMailService} from "../../mail/service/mail.service.interface";
 import {ConfigService} from "@nestjs/config";
+import {UserDto} from "../dto/user.dto";
 
 @Injectable()
 export class UserService implements IUserService{
@@ -35,6 +36,14 @@ export class UserService implements IUserService{
           throw new NotFoundException('User could not be found');
       }
       return user;
+  }
+
+    async getUserById(userId: number): Promise<UserDto> {
+        const user = await this.userRepository.findUserById(userId);
+        if(!user){
+            throw new NotFoundException('User could not be found');
+        }
+        return user;
     }
 
     async notifyInvitation(userId: number, eventName: string){

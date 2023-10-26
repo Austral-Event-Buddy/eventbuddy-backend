@@ -25,8 +25,7 @@ import {
 @UseGuards(JwtAuthGuard)
 @Controller('event')
 export class EventController {
-    constructor(private eventService: IEventService) {
-    }
+    constructor(private eventService: IEventService) {}
 
     @Get()
     getEvents(@Request() req: ExpressRequest) {
@@ -38,7 +37,6 @@ export class EventController {
         @Request() req: ExpressRequest,
         @Query() search: getEventsBySearchInput,
     ) {
-        console.log(search)
         return this.eventService.getEventsByNameOrDescriptionAndUserId(
             req.user['id'],
             search,
@@ -47,7 +45,6 @@ export class EventController {
 
     @Post()
     createEvent(@Request() req: ExpressRequest, @Body() input: NewEventInput) {
-
         const date = new Date(input.date);
         const confirmationDeadline = new Date(input.confirmationDeadline);
         const today = new Date();
@@ -79,6 +76,16 @@ export class EventController {
         return this.eventService.getGuestsByEvent(input.eventId);
     }
 
+    @Get('elements/:eventId')
+    getElementsByEvent(@Param('eventId') id: string) {
+        const eventId = parseInt(id);
+        if (Number.isNaN(eventId)) {
+            throw new ForbiddenException('Event id must be a number');
+        } else { 
+            return this.eventService.getElementsByEvent(eventId);
+        }
+    }
+
     @Get(':eventId')
     getEventByEventId(
         @Request() req,
@@ -91,7 +98,6 @@ export class EventController {
         else{
             return this.eventService.getEventByEventId(req.user['id'], eventIdInt)
         }
-
     }
 
     @Post(':eventId')
@@ -103,13 +109,12 @@ export class EventController {
         const eventIdInt = parseInt(eventId);
         if (Number.isNaN(eventIdInt)) {
             throw new TypeError('Event id must be a number');
-        } else {
-            if (
-                this.eventService.checkGuestStatusOnEvent(req.user['id'], eventIdInt)
-            ) {
-                return this.eventService.updateEvent(eventIdInt, input);
-            } else throw new UnauthorizedException('User is not hosting this event');
-        }
+        } 
+        if (
+            this.eventService.checkGuestStatusOnEvent(req.user['id'], eventIdInt)
+        ) {
+            return this.eventService.updateEvent(eventIdInt, input);
+        } else throw new UnauthorizedException('User is not hosting this event');
     }
 
     @Delete(':eventId')
@@ -120,8 +125,7 @@ export class EventController {
         const eventIdInt = parseInt(eventId);
         if (Number.isNaN(eventIdInt)) {
             throw new TypeError('Event id must be a number');
-        } else {
-            return this.eventService.deleteEvent(req.user['id'], eventIdInt);
         }
+        return this.eventService.deleteEvent(req.user['id'], eventIdInt);
     }
 }

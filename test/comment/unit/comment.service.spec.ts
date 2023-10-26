@@ -68,10 +68,7 @@ const eventServiceProvider = {
         const newText = "new text";
         it('Update comment',async()=>{
             const comment :Comment = await commentService.createComment(userId,newCommentInput);
-            console.log(comment.text)
             const result = await commentService.updateComment(userId,comment.id,newText);
-            console.log(result.text)
-            console.log(comment.text)
             expect(comment.text).not.toEqual(result.text);
             expect(result.text).toEqual(newText);
             expect(result.id).toEqual(comment.id);

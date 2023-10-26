@@ -17,10 +17,12 @@ export class UserRepository implements IUserRepository{
     return user;
   }
 
-    async findUserByUsername(username: string): Promise<UserDto> {
-        return this.prisma.user.findUnique({
+    async findUserByUsername(username: string): Promise<UserDto[]> {
+        return this.prisma.user.findMany({
             where: {
-                username: username,
+                username: {
+                    contains: username,
+                },
             },
         });
     }
