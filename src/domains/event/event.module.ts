@@ -3,6 +3,7 @@ import { EventController } from './event.controller';
 import {EventService, IEventService} from './service';
 import { EventRepository } from './repository/event.repository';
 import {IEventRepository} from "./repository";
+import { UserModule } from '../user/user.module';
 
 const eventServiceProvider = {
   provide: IEventService,
@@ -20,6 +21,7 @@ const eventRepositoryProvider = {
     eventServiceProvider,
     eventRepositoryProvider,
   ],
+  imports: [UserModule],
   exports: [EventService]
 })
 export class EventModule {}

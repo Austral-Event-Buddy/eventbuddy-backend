@@ -18,11 +18,13 @@ import {PrismaClientKnownRequestError} from '@prisma/client/runtime/library';
 import {EventInfoOutputDto} from '../dto/event.info.output.dto';
 import {EventDto} from "../dto/event.dto";
 import {ElementDto} from "../../element/dto/element.dto";
+import { UserService } from '../../user/service/user.service';
 
 @Injectable()
 export class EventService implements IEventService {
-  constructor(private repository: IEventRepository) {
-  }
+    constructor(private repository: IEventRepository,
+                private userService: UserService
+    ) {}
 
   async getEventsByUserId(userId: number) {
     const events = await this.checkEvents(await this.repository.getEventsByUserId(userId), userId);
@@ -112,7 +114,8 @@ export class EventService implements IEventService {
       if (!this.checkEventDate(event.date)) throw new ForbiddenException("The event date has passed")
       else if (!this.checkEventDate(event.confirmationDeadline)) throw new ForbiddenException("The confirmation deadline has passed")
       try {
-        return await this.repository.inviteGuest(eventId, invitedId, input.isHost);
+          await this.userService.notifyInvitation(invitedId, event.name)
+          return await this.repository.inviteGuest(eventId, invitedId, input.isHost);
       } catch (error) {
         if (error instanceof PrismaClientKnownRequestError) {
           if (error.code === 'P2002') {
