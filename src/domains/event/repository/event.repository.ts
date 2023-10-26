@@ -20,10 +20,12 @@ export class EventRepository implements IEventRepository {
         },
         include: {
             guests: {
-            include: {
-                user: true,
+                include: {
+                    user: true,
+                },
             },
-            },
+            elements: true,
+            comments: true,
         },
         orderBy: {
             date: 'asc',
@@ -89,10 +91,12 @@ export class EventRepository implements IEventRepository {
             },
             include: {
                 guests: {
-                include: {
-                    user: true,
+                    include: {
+                        user: true,
+                    },
                 },
-                },
+                elements: true,
+                comments: true,
             },
             orderBy: {
                 date: 'asc',
@@ -180,6 +184,8 @@ export class EventRepository implements IEventRepository {
                   user: true,
                 },
               },
+              comments: true,
+              elements: true,
             }
         });
     }
