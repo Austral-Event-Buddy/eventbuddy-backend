@@ -32,6 +32,15 @@ export class EventService implements IEventService {
     return this.toEventInfoOutput(events, userId);
   }
 
+  async getEventById(userId: number, eventId: number) {
+    const invited = await this.repository.checkIfUserIsInvited(userId, eventId);
+    if (!invited) {
+      throw new NotFoundException('No event found');
+    }
+    const event = await this.repository.getEvent(eventId);
+    return this.toEventInfoOutput([event], userId).then(res => res[0]);
+  }
+
   async getEventsByNameOrDescriptionAndUserId(
       userId: number,
       input: getEventsBySearchInput,
@@ -43,8 +52,8 @@ export class EventService implements IEventService {
     if (!events) {
       throw new NotFoundException('No events found');
     }
-    const finalEvents = await this.checkEvents(events, userId);
-    return this.toEventInfoOutput(finalEvents, userId);
+    // const finalEvents = await this.checkEvents(events, userId);
+    return this.toEventInfoOutput(events,  userId);
   }
 
   async getEventByEventId(userId: number, eventId: number) {
@@ -151,7 +160,7 @@ export class EventService implements IEventService {
   }
 
   private async toEventInfoOutput(
-      events: Event[],
+      events: any[],
       userId: number,
   ): Promise<EventInfoOutputDto[]> {
     let eventInfoOutput: EventInfoOutputDto[] = [];
@@ -160,7 +169,6 @@ export class EventService implements IEventService {
           userId,
           event.id,
       );
-      const guestCount = await this.repository.countGuestsByEventId(event.id);
       eventInfoOutput.push({
         id: event.id,
         name: event.name,
@@ -169,8 +177,15 @@ export class EventService implements IEventService {
         date: event.date,
         confirmationDeadline: event.confirmationDeadline,
         confirmationStatus: confirmationStatus,
-        guests: guestCount,
-      });
+        guests: event.guests.map(guest => {
+          return {
+            id: guest.userId,
+            username: guest.user.username,
+            name: guest.user.name,
+            confirmationStatus: guest.confirmationStatus,
+          }
+        }),
+      })
     }
     return eventInfoOutput;
   }

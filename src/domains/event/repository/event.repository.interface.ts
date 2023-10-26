@@ -46,10 +46,9 @@ export abstract class IEventRepository {
     GuestDto[]>;
 
   abstract findConfirmationStatus(userId: number, eventId: number): Promise<confirmationStatus>;
-  
   abstract countGuestsByEventId(eventId: number) : Promise<number>;
   abstract checkIfUserIsCreator(userId: number, eventId: number): Promise<EventDto>;
+  abstract checkIfUserIsInvited(userId: number, eventId: number): Promise<GuestDto>;
   abstract getEventByEventId(eventId: number):Promise<EventDto>
-
 	abstract getElementsByEvent(eventId: number) : Promise<ElementDto[]> ;
 }

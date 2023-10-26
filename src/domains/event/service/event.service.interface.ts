@@ -14,6 +14,7 @@ import {ElementDto} from "../../element/dto/element.dto";
 export abstract class IEventService {
   abstract createEvent(userId: number, input: NewEventInput): Promise<EventDto>;
   abstract getEventsByUserId(userId: number): Promise<EventInfoOutputDto[]>;
+  abstract getEventById(userId: number, eventId: number): Promise<EventInfoOutputDto>;
   abstract getEventsByNameOrDescriptionAndUserId(
     userId: number,
     input: getEventsBySearchInput,

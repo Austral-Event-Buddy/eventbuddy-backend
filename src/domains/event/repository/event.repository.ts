@@ -12,6 +12,25 @@ export class EventRepository implements IEventRepository {
     constructor(private prisma: PrismaService) {
     }
 
+    async getEventsByUserId(userId: number):Promise<EventDto[]> {
+        return this.prisma.event.findMany({
+        where: {
+            OR: [{creatorId: userId}, {guests: {some: {userId: userId}}}],
+            NOT: [{guests: {some: {userId: userId, confirmationStatus: 'NOT_ATTENDING'}}}]
+        },
+        include: {
+            guests: {
+            include: {
+                user: true,
+            },
+            },
+        },
+        orderBy: {
+            date: 'asc',
+        },
+        });
+    };
+
     async getEventByEventId(eventId: number): Promise<EventDto> {
         return this.prisma.event.findUnique({
                 where: {
@@ -20,15 +39,6 @@ export class EventRepository implements IEventRepository {
             }
         )
     }
-
-    async getEventsByUserId(userId: number): Promise<EventDto[]> {
-        return this.prisma.event.findMany({
-            where: {
-                OR: [{creatorId: userId}, {guests: {some: {userId: userId}}}],
-                NOT: [{guests: {some: {userId: userId, confirmationStatus: 'NOT_ATTENDING'}}}]
-            }
-        });
-    };
 
     async countGuestsByEventId(eventId: number) {
         return this.prisma.guest.count({
@@ -74,12 +84,21 @@ export class EventRepository implements IEventRepository {
                             {guests: {some: {userId: userId}}},
                         ],
                         NOT: [{guests: {some: {userId: userId, confirmationStatus: 'NOT_ATTENDING'}}}]
-
                     },
                 ],
             },
-        });
-    }
+            include: {
+                guests: {
+                include: {
+                    user: true,
+                },
+                },
+            },
+            orderBy: {
+                date: 'asc',
+            },
+            });
+        }
 
     async getHostGuest(userId: number, eventId: number): Promise<GuestDto> {
         return this.prisma.guest.findUnique({
@@ -125,12 +144,19 @@ export class EventRepository implements IEventRepository {
         });
     }
 
-
     async checkIfUserIsCreator(userId: number, eventId: number): Promise<EventDto> {
         return this.prisma.event.findUnique({
             where: {
                 id: eventId,
                 creatorId: userId
+            },
+        });
+    }
+
+    async checkIfUserIsInvited(userId: number, eventId: number): Promise<GuestDto> {
+        return this.prisma.guest.findUnique({
+            where: {
+                userId_eventId: { userId, eventId },
             },
         });
     }
@@ -146,8 +172,15 @@ export class EventRepository implements IEventRepository {
     getEvent(eventId: number): Promise<EventDto> {
         return this.prisma.event.findUnique({
             where: {
-                id: eventId,
+              id: eventId,
             },
+            include: {
+              guests: {
+                include: {
+                  user: true,
+                },
+              },
+            }
         });
     }
 
