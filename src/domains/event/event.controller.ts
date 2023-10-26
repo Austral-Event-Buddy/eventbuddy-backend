@@ -25,8 +25,7 @@ import {
 @UseGuards(JwtAuthGuard)
 @Controller('event')
 export class EventController {
-    constructor(private eventService: IEventService) {
-    }
+    constructor(private eventService: IEventService) {}
 
     @Get()
     getEvents(@Request() req: ExpressRequest) {
@@ -79,6 +78,12 @@ export class EventController {
         return this.eventService.getGuestsByEvent(input.eventId);
     }
 
+    @Get('elements/:eventId')
+    getElementsByEvent(@Param('eventId') id: string) {
+        const eventId = parseInt(id);
+        if (Number.isNaN(eventId)) {
+            throw new ForbiddenException('Event id must be a number');
+        } else { return this.eventService.getElementsByEvent(eventId); }
     @Get(':eventId')
     getEventByEventId(
         @Request() req,
@@ -91,7 +96,6 @@ export class EventController {
         else{
             return this.eventService.getEventByEventId(req.user['id'], eventIdInt)
         }
-
     }
 
     @Post(':eventId')

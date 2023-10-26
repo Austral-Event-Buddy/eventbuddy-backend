@@ -1,11 +1,11 @@
 import {PrismaService} from '../../../prisma/prisma.service';
 import {Injectable} from '@nestjs/common';
-import {NewEventInput} from '../input';
-import {updateEventInput} from '../input';
+import {NewEventInput, updateEventInput} from '../input';
 import {IEventRepository} from './event.repository.interface';
 import {confirmationStatus} from '@prisma/client';
 import {EventDto} from "../dto/event.dto";
 import {GuestDto} from "../dto/guest.dto";
+import {ElementDto} from "../../element/dto/element.dto";
 
 @Injectable()
 export class EventRepository implements IEventRepository {
@@ -189,7 +189,6 @@ export class EventRepository implements IEventRepository {
             },
         });
     }
-
     getGuestsByEvent(eventId: number): Promise<GuestDto[]> {
         return this.prisma.guest.findMany({
             where: {
@@ -197,5 +196,11 @@ export class EventRepository implements IEventRepository {
             },
         });
     }
-
+    getElementsByEvent(eventId: number): Promise<ElementDto[]> {
+        return this.prisma.element.findMany({
+            where: {
+                eventId: eventId,
+            }
+        })
+    }
 }

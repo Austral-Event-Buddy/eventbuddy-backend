@@ -4,6 +4,7 @@ import {
 } from '@prisma/client';
 import {EventDto} from "../dto/event.dto";
 import {GuestDto} from "../dto/guest.dto";
+import {ElementDto} from "../../element/dto/element.dto";
 
 export abstract class IEventRepository {
   abstract createEvent(userId: number, input: NewEventInput): Promise<EventDto>;
@@ -50,4 +51,5 @@ export abstract class IEventRepository {
   abstract checkIfUserIsCreator(userId: number, eventId: number): Promise<EventDto>;
   abstract getEventByEventId(eventId: number):Promise<EventDto>
 
+	abstract getElementsByEvent(eventId: number) : Promise<ElementDto[]> ;
 }
