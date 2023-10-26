@@ -9,6 +9,7 @@ import {
 	updateEventInput
 } from '../../../src/domains/event/input';
 import {confirmationStatus, Event} from '@prisma/client';
+import {NotFoundException, UnauthorizedException} from "@nestjs/common";
 
 describe('EventService Unit Test', () => {
 	let eventService: IEventService;
@@ -43,8 +44,16 @@ describe('EventService Unit Test', () => {
 	};
 	const inviteGuestInput : inviteGuestInput = {
 		eventId: 1,
-		userId: guestId
+		userId: guestId,
+        isHost: false
+
 	};
+
+    const hostInviteGuestInput: inviteGuestInput = {
+        eventId: 1,
+        userId: guestId,
+        isHost: true
+    }
 
 	it('Create event', async () => {
 		const event : Event = {
@@ -70,7 +79,7 @@ describe('EventService Unit Test', () => {
 				coordinates: input.coordinates,
 				date: input.date,
 				confirmationDeadline: input.confirmationDeadline,
-				confirmationStatus: 'HOST',
+				confirmationStatus: 'ATTENDING', //Changed from host to attending
                 id: 1,
 				guests: 1,
 			};
@@ -95,7 +104,7 @@ describe('EventService Unit Test', () => {
 				coordinates: input.coordinates,
 				date: input.date,
 				confirmationDeadline: input.confirmationDeadline,
-				confirmationStatus: 'HOST',
+				confirmationStatus: 'ATTENDING', //Changed from host to attending
                 id: 1,
 				guests: 1,
 			};
@@ -152,6 +161,7 @@ describe('EventService Unit Test', () => {
 				userId: guestId,
 				eventId: event.id,
 				confirmationStatus: 'PENDING',
+                isHost: false
 			});
 		})
 	})
@@ -171,22 +181,24 @@ describe('EventService Unit Test', () => {
 				userId: guestId,
 				eventId: event.id,
 				confirmationStatus: 'ATTENDING',
+                isHost: false
 			});
 		})
-		it('Guest answer HOST', async () => {
+		it('Guest was invited as host, answers ATTENDING', async () => {
 			const event = await eventService.createEvent(userId, input);
 			const answerInviteInput = {
 				eventId: event.id,
-				answer: confirmationStatus.HOST,
+				answer: confirmationStatus.ATTENDING,
 			}
-			await eventService.inviteGuest(inviteGuestInput, userId);
+			await eventService.inviteGuest(hostInviteGuestInput, userId);
 			const result = await eventService.answerInvite(answerInviteInput, guestId);
 
 			expect(result).toEqual({
 				id: guestId,
 				userId: guestId,
 				eventId: event.id,
-				confirmationStatus: 'HOST',
+				confirmationStatus: 'ATTENDING',
+                isHost: true
 			});
 		})
 		it('Guest answer PENDING', async () => {
@@ -203,6 +215,7 @@ describe('EventService Unit Test', () => {
 				userId: guestId,
 				eventId: event.id,
 				confirmationStatus: 'PENDING',
+                isHost: false
 			});
 		})
 		it('Guest answer NOT ATTENDING', async () => {
@@ -219,6 +232,7 @@ describe('EventService Unit Test', () => {
 				userId: guestId,
 				eventId: event.id,
 				confirmationStatus: 'NOT_ATTENDING',
+                isHost: false
 			});
 		})
 	})
@@ -226,19 +240,20 @@ describe('EventService Unit Test', () => {
 	describe('Get Invites By User', () => {
 		it("get host's invite", async () => {
 			const event = await eventService.createEvent(userId, input);
-			await eventService.inviteGuest(inviteGuestInput, userId);
+			await eventService.inviteGuest(hostInviteGuestInput, userId);
 			const result = await eventService.getInvitesByUser(userId);
 
 			expect(result).toEqual([{
 				id: userId,
 				userId: userId,
 				eventId: event.id,
-				confirmationStatus: 'HOST',
+				confirmationStatus: 'ATTENDING',
+                isHost: true
 			}]);
 		})
 		it("get host's invite", async () => {
 			const event = await eventService.createEvent(userId, input);
-			await eventService.inviteGuest(inviteGuestInput, userId);
+			await eventService.inviteGuest(hostInviteGuestInput, userId);
 			const result = await eventService.getInvitesByUser(guestId);
 
 			expect(result).toEqual([{
@@ -246,6 +261,7 @@ describe('EventService Unit Test', () => {
 				userId: guestId,
 				eventId: event.id,
 				confirmationStatus: 'PENDING',
+                isHost: true
 			}]);
 		})
 	})
@@ -253,20 +269,39 @@ describe('EventService Unit Test', () => {
 	describe('Get Guests By Event', () => {
 		it("get host's invite", async () => {
 			const event = await eventService.createEvent(userId, input);
-			await eventService.inviteGuest(inviteGuestInput, userId);
+			await eventService.inviteGuest(hostInviteGuestInput, userId);
 			const result = await eventService.getGuestsByEvent(event.id);
 
 			expect(result).toEqual([{
 				id: userId,
 				userId: userId,
 				eventId: event.id,
-				confirmationStatus: 'HOST',
+				confirmationStatus: 'ATTENDING',
+                isHost: true
 			}, {
 				id: guestId,
 				userId: guestId,
 				eventId: event.id,
 				confirmationStatus: 'PENDING',
+                isHost: true
 			}]);
 		})
 	})
+    describe ('Get Event By Event Id',()=>{
+        it('get event given an event id', async() => {
+            const event = await eventService.createEvent(userId, input);
+            await eventService.inviteGuest(inviteGuestInput, userId);
+            const result = await eventService.getEventByEventId(userId,event.id)
+            expect(result).toEqual(event)
+
+        });
+        it('user is not allowed to view event',async()=>{
+            const event = await eventService.createEvent(userId, input);
+            await expect(async () => {
+                await eventService.getEventByEventId(guestId,event.id)
+            }).rejects.toThrow(UnauthorizedException)
+
+        });
+    })
+
 });

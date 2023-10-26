@@ -10,17 +10,19 @@ import {
   inviteGuestInput,
   NewEventInput,
 } from '../input';
-import { IEventService } from './event.service.interface';
-import { updateEventInput } from '../input';
-import { Event } from '@prisma/client';
-import { IEventRepository } from "../repository";
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { EventInfoOutputDto } from '../dto/event.info.output.dto';
+import {IEventService} from './event.service.interface';
+import {updateEventInput} from '../input';
+import {Event} from '@prisma/client';
+import {IEventRepository} from "../repository";
+import {PrismaClientKnownRequestError} from '@prisma/client/runtime/library';
+import {EventInfoOutputDto} from '../dto/event.info.output.dto';
 import {EventDto} from "../dto/event.dto";
+import {ElementDto} from "../../element/dto/element.dto";
 
 @Injectable()
 export class EventService implements IEventService {
-  constructor(private repository: IEventRepository) {}
+  constructor(private repository: IEventRepository) {
+  }
 
   async getEventsByUserId(userId: number) {
     const events = await this.checkEvents(await this.repository.getEventsByUserId(userId), userId);
@@ -40,18 +42,27 @@ export class EventService implements IEventService {
   }
 
   async getEventsByNameOrDescriptionAndUserId(
-    userId: number,
-    input: getEventsBySearchInput,
+      userId: number,
+      input: getEventsBySearchInput,
   ) {
     const events = await this.repository.getEventsByNameOrDescriptionAndUserId(
-      userId,
-      input.search,
+        userId,
+        input.search,
     );
     if (!events) {
       throw new NotFoundException('No events found');
     }
     // const finalEvents = await this.checkEvents(events, userId);
     return this.toEventInfoOutput(events,  userId);
+  }
+
+  async getEventByEventId(userId: number, eventId: number) {
+    const guest = await this.repository.getGuest(userId, eventId)
+    if (guest !== undefined) {
+      if (guest.confirmationStatus !== "NOT_ATTENDING") {
+        return await this.repository.getEvent(eventId)
+      }
+    } else throw new UnauthorizedException("User is not allowed to check this event information")
   }
 
   async createEvent(userId: number, input: NewEventInput) {
@@ -71,15 +82,15 @@ export class EventService implements IEventService {
       throw new NotFoundException('Event not found');
     }
     return {
-        id: event.id,
-        name: event.name,
-        description: event.description,
-        creatorId: event.creatorId,
-        coordinates: event.coordinates,
-        confirmationDeadline: event.confirmationDeadline,
-        date: event.date,
-        updatedAt: event.updatedAt,
-        createdAt: event.createdAt
+      id: event.id,
+      name: event.name,
+      description: event.description,
+      creatorId: event.creatorId,
+      coordinates: event.coordinates,
+      confirmationDeadline: event.confirmationDeadline,
+      date: event.date,
+      updatedAt: event.updatedAt,
+      createdAt: event.createdAt
     }
   }
 
@@ -95,19 +106,19 @@ export class EventService implements IEventService {
   async inviteGuest(input: inviteGuestInput, userId: number) {
     const eventId = input.eventId;
     const invitedId = input.userId;
-    const hostGuest = await this.repository.getHostGuest(eventId, userId);
+    const hostGuest = await this.repository.getHostGuest(userId, eventId);
     const event = await this.repository.getEvent(eventId);
     if (hostGuest != null || event.creatorId === userId) {
       if (!this.checkEventDate(event.date)) throw new ForbiddenException("The event date has passed")
       else if (!this.checkEventDate(event.confirmationDeadline)) throw new ForbiddenException("The confirmation deadline has passed")
       try {
-        return await this.repository.inviteGuest(eventId, invitedId);
+        return await this.repository.inviteGuest(eventId, invitedId, input.isHost);
       } catch (error) {
         console.log(error)
         if (error instanceof PrismaClientKnownRequestError) {
           if (error.code === 'P2002') {
             throw new ForbiddenException(
-              'The user is already invited to this event',
+                'The user is already invited to this event',
             );
           }
         }
@@ -119,7 +130,7 @@ export class EventService implements IEventService {
 
   async answerInvite(input: answerInviteInput, userId: number) {
     const eventId = input.eventId;
-    const guest = await this.repository.getGuest(userId,eventId);
+    const guest = await this.repository.getGuest(userId, eventId);
     const event = await this.repository.getEvent(eventId);
     if (!this.checkEventDate(event.date))
       throw new ForbiddenException("The confirmation deadline has passed");
@@ -138,6 +149,15 @@ export class EventService implements IEventService {
 
   getGuestsByEvent(eventId: number) {
     return this.repository.getGuestsByEvent(eventId);
+  }
+
+  getElementsByEvent(eventId: number): Promise<ElementDto[]> {
+    return this.repository.getElementsByEvent(eventId);
+  }
+
+  async checkFutureEvent(eventId: number, date: Date) {
+    const event: EventDto = await this.repository.getEvent(eventId)
+    return new Date(event.date) >= new Date(date)
   }
 
   private async toEventInfoOutput(
@@ -172,7 +192,7 @@ export class EventService implements IEventService {
   }
 
   private async checkEvents(events: Event[], userId: number): Promise<Event[]> {
-    const result : Event[] = [];
+    const result: Event[] = [];
     for (const event of events)
       if (this.checkEventDate(event.date) && await this.checkConfirmationDeadline(event.confirmationDeadline, userId, event.id))
         result.push(event);

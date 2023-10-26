@@ -12,28 +12,32 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  username  String   @unique
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  username  String    @unique
   name      String?
   password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  events    Event[]  @relation("Events")
-  guests    Guest[]  @relation("Guests")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  events    Event[]   @relation("Events")
+  guests    Guest[]   @relation("Guests")
+  comments  Comment[] @relation("Comments")
+  elements  Element[] @relation()
 }
 
 model Event {
-  id                   Int      @id @default(autoincrement())
+  id                   Int       @id @default(autoincrement())
   name                 String
   description          String
   creatorId            Int
-  creator              User     @relation("Events", fields: [creatorId], references: [id])
+  creator              User      @relation("Events", fields: [creatorId], references: [id])
   coordinates          Float[]
   confirmationDeadline DateTime
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  guests               Guest[]  @relation
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  guests               Guest[]   @relation
+  comments             Comment[] @relation("Comments")
+  elements             Element[] @relation
   date                 DateTime
 }
 
@@ -41,16 +45,40 @@ model Guest {
   id                 Int                @id @default(autoincrement())
   userId             Int
   eventId            Int
-  user               User               @relation("Guests", fields: [userId], references: [id])
+  user               User               @relation("Guests", fields: [userId], references: [id], onDelete: Cascade)
   event              Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
   confirmationStatus confirmationStatus
+  isHost             Boolean
 
   @@unique([userId, eventId])
+}
+
+model Element {
+  id       Int    @id @default(autoincrement())
+  name     String
+  quantity Int
+  eventId  Int
+  maxUsers Int
+  event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  users    User[] @relation
+}
+
+model Comment {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  eventId   Int
+  parentId  Int?
+  text      String
+  author    User      @relation("Comments", fields: [userId], references: [id])
+  event     Event     @relation("Comments", fields: [eventId], references: [id])
+  parent    Comment?  @relation("Comments", fields: [parentId], references: [id], onDelete: Cascade)
+  Comment   Comment[] @relation("Comments")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 enum confirmationStatus {
   PENDING
   ATTENDING
   NOT_ATTENDING
-  HOST
 }
