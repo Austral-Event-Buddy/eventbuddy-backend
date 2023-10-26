@@ -4,6 +4,7 @@ import {NewEventInput} from "../../../src/domains/event/input";
 import {Guest, Event, confirmationStatus, $Enums} from "@prisma/client";
 import { ElementDto } from "src/domains/element/dto/element.dto";
 import { GuestDto } from "src/domains/event/dto/guest.dto";
+import Any = jasmine.Any;
 
 @Injectable()
 export class EventRepositoryUtil implements IEventRepository {
@@ -15,7 +16,14 @@ export class EventRepositoryUtil implements IEventRepository {
     }
 
     events: Event[] = [];
-    guests: Guest[] = [];
+    guests: {
+        id: number,
+        userId: number,
+        eventId: number,
+        confirmationStatus: confirmationStatus,
+        isHost: boolean,
+        user: {username: string}
+    }[] = [];
     id = 1;
     guestId = 1;
 
@@ -40,12 +48,13 @@ export class EventRepositoryUtil implements IEventRepository {
             updatedAt: undefined,
             date: input.date,
         };
-        const guest: Guest = {
+        const guest = {
             id: this.guestId++,
             userId: 1,
             eventId: this.id++,
-            confirmationStatus: 'ATTENDING',
-            isHost: true
+            confirmationStatus: confirmationStatus.ATTENDING,
+            isHost: true,
+            user: {username: ""}
         };
         this.events.push(event);
         this.guests.push(guest);
@@ -61,6 +70,15 @@ export class EventRepositoryUtil implements IEventRepository {
         for (let i = 0; i < eventsIds.length; i++) {
             for (let j = 0; j < this.events.length; j++) {
                 if (this.events[j].id === eventsIds[i]) result.push(this.events[j]);
+            }
+        }
+
+        for (let i = 0; i < result.length; i++){
+            result[i].guests = [];
+            for (let j = 0; j < this.guests.length; j++){
+                if (this.guests[j].eventId == result[i].id){
+                    result[i].guests.push(this.guests[j]);
+                }
             }
         }
         return Promise.resolve(result);
@@ -223,14 +241,16 @@ export class EventRepositoryUtil implements IEventRepository {
         confirmationStatus: $Enums.confirmationStatus
         isHost: boolean
     }> {
-        const guest: Guest = {
+        const guest = {
             id: this.guestId++,
             userId: invitedId,
             eventId: eventId,
-            confirmationStatus: 'PENDING',
-            isHost: isHost
+            confirmationStatus: confirmationStatus.PENDING,
+            isHost: isHost,
+            user: {username: ""}
         }
         this.guests.push(guest);
         return Promise.resolve(guest);
     }
 }
+
