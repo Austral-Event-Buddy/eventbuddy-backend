@@ -3,9 +3,16 @@ import {IEventRepository} from "../../../src/domains/event/repository";
 import {NewEventInput} from "../../../src/domains/event/input";
 import {Guest, Event, confirmationStatus, $Enums} from "@prisma/client";
 import { ElementDto } from "src/domains/element/dto/element.dto";
+import { GuestDto } from "src/domains/event/dto/guest.dto";
 
 @Injectable()
 export class EventRepositoryUtil implements IEventRepository {
+    checkIfUserIsInvited(userId: number, eventId: number): Promise<GuestDto> {
+        throw new Error("Method not implemented.");
+    }
+    getElementsByEvent(eventId: number): Promise<ElementDto[]> {
+        throw new Error("Method not implemented.");
+    }
 
     events: Event[] = [];
     guests: Guest[] = [];
@@ -226,5 +233,4 @@ export class EventRepositoryUtil implements IEventRepository {
         this.guests.push(guest);
         return Promise.resolve(guest);
     }
-
 }
