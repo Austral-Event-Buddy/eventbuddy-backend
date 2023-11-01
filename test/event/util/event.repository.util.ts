@@ -5,13 +5,14 @@ import {Guest, Event, confirmationStatus, $Enums} from "@prisma/client";
 import { ElementDto } from "src/domains/element/dto/element.dto";
 import { GuestDto } from "src/domains/event/dto/guest.dto";
 import Any = jasmine.Any;
+import {ElementExtendedDto} from "../../../src/domains/element/dto/element.extended.dto";
 
 @Injectable()
 export class EventRepositoryUtil implements IEventRepository {
     checkIfUserIsInvited(userId: number, eventId: number): Promise<GuestDto> {
         throw new Error("Method not implemented.");
     }
-    getElementsByEvent(eventId: number): Promise<ElementDto[]> {
+    getElementsByEvent(eventId: number): Promise<ElementExtendedDto[]> {
         throw new Error("Method not implemented.");
     }
 

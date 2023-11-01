@@ -77,12 +77,12 @@ export class EventController {
     }
 
     @Get('elements/:eventId')
-    getElementsByEvent(@Param('eventId') id: string) {
+    getElementsByEvent(@Param('eventId') id: string, @Request() req: ExpressRequest) {
         const eventId = parseInt(id);
         if (Number.isNaN(eventId)) {
             throw new ForbiddenException('Event id must be a number');
         } else { 
-            return this.eventService.getElementsByEvent(eventId);
+            return this.eventService.getElementsByEvent(eventId,req.user['id']);
         }
     }
 
