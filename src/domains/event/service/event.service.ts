@@ -63,7 +63,7 @@ export class EventService implements IEventService {
     const guest = await this.repository.getGuest(userId, eventId)
     if (guest !== undefined) {
       if (guest.confirmationStatus !== "NOT_ATTENDING") {
-        return await this.repository.getEvent(eventId)
+        return await this.repository.getCommentReplies( await this.repository.getEvent(eventId))
       }
     } else throw new UnauthorizedException("User is not allowed to check this event information")
   }
