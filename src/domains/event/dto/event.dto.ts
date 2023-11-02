@@ -17,6 +17,7 @@ export class EventDto {
     createdAt: Date;
 
     constructor(newEvent: EventDto) {
+        this.id=newEvent.id;
         this.name = newEvent.name;
         this.description = newEvent.description;
         this.creatorId = newEvent.creatorId;

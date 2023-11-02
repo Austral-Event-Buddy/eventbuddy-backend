@@ -9,6 +9,8 @@ import {
 	updateEventInput
 } from '../../../src/domains/event/input';
 import {confirmationStatus, Event} from '@prisma/client';
+import { UserService } from '../../../src/domains/user/service/user.service';
+import { UserServiceUtil } from '../../user/util/user.service.util';
 import {NotFoundException, UnauthorizedException} from "@nestjs/common";
 
 describe('EventService Unit Test', () => {
@@ -23,11 +25,17 @@ describe('EventService Unit Test', () => {
 			provide: IEventRepository,
 			useClass: EventRepositoryUtil,
 		}
+    const userService = {
+      provide: UserService,
+      useClass: UserServiceUtil
+    }
+
 		const app: TestingModule = await Test.createTestingModule({
 			imports: [],
 			providers: [
 				eventRepositoryProvider,
 				eventServiceProvider,
+        userService,
 			],
 		})
 			.compile();
@@ -81,10 +89,18 @@ describe('EventService Unit Test', () => {
 				confirmationDeadline: input.confirmationDeadline,
 				confirmationStatus: 'ATTENDING', //Changed from host to attending
                 id: 1,
-				guests: 1,
+				guests: [
+					{
+						id: 1,
+						confirmationStatus: 'ATTENDING',
+						name: undefined,
+						username: "",
+					}
+				],
 			};
 			await eventService.createEvent(userId, input);
 			const result = await eventService.getEventsByUserId(userId);
+			event
 			expect(result).toEqual([event]);
 		})
 		it('By user id. And the guest will not attend.', async () => {
@@ -106,7 +122,14 @@ describe('EventService Unit Test', () => {
 				confirmationDeadline: input.confirmationDeadline,
 				confirmationStatus: 'ATTENDING', //Changed from host to attending
                 id: 1,
-				guests: 1,
+				guests: [
+					{
+						id: 1,
+						confirmationStatus: 'ATTENDING',
+						name: undefined,
+						username: "",
+					}
+				],
 			};
 			await eventService.createEvent(userId, input);
 			const searchInput : getEventsBySearchInput = { search: 't', }
@@ -161,7 +184,10 @@ describe('EventService Unit Test', () => {
 				userId: guestId,
 				eventId: event.id,
 				confirmationStatus: 'PENDING',
-                isHost: false
+                isHost: false,
+				user: {
+					username: ""
+				}
 			});
 		})
 	})
@@ -248,7 +274,10 @@ describe('EventService Unit Test', () => {
 				userId: userId,
 				eventId: event.id,
 				confirmationStatus: 'ATTENDING',
-                isHost: true
+                isHost: true,
+				user: {
+					username: ""
+				}
 			}]);
 		})
 		it("get host's invite", async () => {
@@ -261,7 +290,10 @@ describe('EventService Unit Test', () => {
 				userId: guestId,
 				eventId: event.id,
 				confirmationStatus: 'PENDING',
-                isHost: true
+                isHost: true,
+				user: {
+					username: ""
+				}
 			}]);
 		})
 	})
@@ -277,13 +309,19 @@ describe('EventService Unit Test', () => {
 				userId: userId,
 				eventId: event.id,
 				confirmationStatus: 'ATTENDING',
-                isHost: true
+                isHost: true,
+				user: {
+					username: ""
+				}
 			}, {
 				id: guestId,
 				userId: guestId,
 				eventId: event.id,
 				confirmationStatus: 'PENDING',
-                isHost: true
+                isHost: true,
+				user: {
+					username: ""
+				}
 			}]);
 		})
 	})

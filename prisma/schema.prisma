@@ -22,6 +22,7 @@ model User {
   events    Event[]   @relation("Events")
   guests    Guest[]   @relation("Guests")
   comments  Comment[] @relation("Comments")
+  elements  Element[] @relation()
 }
 
 model Event {
@@ -36,6 +37,7 @@ model Event {
   updatedAt            DateTime  @updatedAt
   guests               Guest[]   @relation
   comments             Comment[] @relation("Comments")
+  elements             Element[] @relation
   date                 DateTime
 }
 
@@ -43,12 +45,22 @@ model Guest {
   id                 Int                @id @default(autoincrement())
   userId             Int
   eventId            Int
-  user               User               @relation("Guests", fields: [userId], references: [id])
+  user               User               @relation("Guests", fields: [userId], references: [id], onDelete: Cascade)
   event              Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
   confirmationStatus confirmationStatus
   isHost             Boolean
 
   @@unique([userId, eventId])
+}
+
+model Element {
+  id       Int    @id @default(autoincrement())
+  name     String
+  quantity Int
+  eventId  Int
+  maxUsers Int
+  event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  users    User[] @relation
 }
 
 model Comment {

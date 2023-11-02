@@ -16,9 +16,9 @@ export class UserRepository {
   }
 
     async findUserByUsername(username: string) {
-        return this.prisma.user.findUnique({
+        return this.prisma.user.findMany({
             where: {
-                username: username,
+              username: { contains: username },
             },
         });
     }

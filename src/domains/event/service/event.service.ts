@@ -17,11 +17,17 @@ import {IEventRepository} from "../repository";
 import {PrismaClientKnownRequestError} from '@prisma/client/runtime/library';
 import {EventInfoOutputDto} from '../dto/event.info.output.dto';
 import {EventDto} from "../dto/event.dto";
+import {ElementDto} from "../../element/dto/element.dto";
+import {UserService} from '../../user/service/user.service';
+import {ElementExtendedDto} from "../../element/dto/element.extended.dto";
 import {EventHostStatusDto} from "../dto/event.host.status.dto";
+import e from "express";
 
 @Injectable()
 export class EventService implements IEventService {
-    constructor(private repository: IEventRepository) {
+    constructor(private repository: IEventRepository,
+                private userService: UserService
+    ) {
     }
 
     async getEventsByUserId(userId: number) {
@@ -30,6 +36,15 @@ export class EventService implements IEventService {
             throw new NotFoundException('No events found');
         }
         return this.toEventInfoOutput(events, userId);
+    }
+
+    async getEventById(userId: number, eventId: number) {
+        const invited = await this.repository.checkIfUserIsInvited(userId, eventId);
+        if (!invited) {
+            throw new NotFoundException('No event found');
+        }
+        const event = await this.repository.getEvent(eventId);
+        return this.toEventInfoOutput([event], userId).then(res => res[0]);
     }
 
     async getEventsByNameOrDescriptionAndUserId(
@@ -43,23 +58,23 @@ export class EventService implements IEventService {
         if (!events) {
             throw new NotFoundException('No events found');
         }
-        const finalEvents = await this.checkEvents(events, userId);
-        return this.toEventInfoOutput(finalEvents, userId);
+        // const finalEvents = await this.checkEvents(events, userId);
+        return this.toEventInfoOutput(events, userId);
     }
 
-    async getEventByEventId(userId: number, eventId: number):Promise<EventHostStatusDto>{
+    async getEventByEventId(userId: number, eventId: number):Promise<EventHostStatusDto> {
         const guest = await this.repository.getGuest(userId, eventId)
         if (guest !== undefined) {
             if (guest.confirmationStatus !== "NOT_ATTENDING") {
-                const event =  await this.repository.getEvent(eventId);
-                return{
+                const event = await this.repository.getEvent(eventId)
+                return {
                     id: event.id,
-                    name:event.name,
+                    name: event.name,
                     description: event.description,
-                    creatorId: event.creatorId,
+                    creatorId : event.creatorId,
                     coordinates: event.coordinates,
-                    confirmationDeadline: event.confirmationDeadline,
                     date: event.date,
+                    confirmationDeadline: event.confirmationDeadline,
                     updatedAt: event.updatedAt,
                     createdAt: event.createdAt,
                     isHost: guest.isHost
@@ -115,6 +130,7 @@ export class EventService implements IEventService {
             if (!this.checkEventDate(event.date)) throw new ForbiddenException("The event date has passed")
             else if (!this.checkEventDate(event.confirmationDeadline)) throw new ForbiddenException("The confirmation deadline has passed")
             try {
+                await this.userService.notifyInvitation(invitedId, event.name)
                 return await this.repository.inviteGuest(eventId, invitedId, input.isHost);
             } catch (error) {
                 if (error instanceof PrismaClientKnownRequestError) {
@@ -153,8 +169,25 @@ export class EventService implements IEventService {
         return this.repository.getGuestsByEvent(eventId);
     }
 
+    async getElementsByEvent(eventId: number, userId: number): Promise<ElementExtendedDto[]> {
+        const result = await this.repository.getElementsByEvent(eventId);
+        result.map(element => {
+            element.isAssignedToUser = this.isUserInElement(userId, element);
+        })
+        return result;
+    }
+
+    private isUserInElement(userId: number, element: ElementExtendedDto): boolean {
+        return element.users.some(user => user.id === userId)
+    }
+
+    async checkFutureEvent(eventId: number, date: Date) {
+        const event: EventDto = await this.repository.getEvent(eventId)
+        return new Date(event.date) >= new Date(date)
+    }
+
     private async toEventInfoOutput(
-        events: Event[],
+        events: any[],
         userId: number,
     ): Promise<EventInfoOutputDto[]> {
         let eventInfoOutput: EventInfoOutputDto[] = [];
@@ -163,7 +196,6 @@ export class EventService implements IEventService {
                 userId,
                 event.id,
             );
-            const guestCount = await this.repository.countGuestsByEventId(event.id);
             eventInfoOutput.push({
                 id: event.id,
                 name: event.name,
@@ -172,8 +204,15 @@ export class EventService implements IEventService {
                 date: event.date,
                 confirmationDeadline: event.confirmationDeadline,
                 confirmationStatus: confirmationStatus,
-                guests: guestCount,
-            });
+                guests: event.guests.map(guest => {
+                    return {
+                        id: guest.userId,
+                        username: guest.user.username,
+                        name: guest.user.name,
+                        confirmationStatus: guest.confirmationStatus,
+                    }
+                }),
+            })
         }
         return eventInfoOutput;
     }
