@@ -164,7 +164,7 @@ export class EventRepository implements IEventRepository {
     }
 
     async deleteEventAndGuests(eventId: number) {
-        this.prisma.event.delete({
+        await this.prisma.event.delete({
             where: {
                 id: eventId,
             }

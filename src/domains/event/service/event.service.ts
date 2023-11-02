@@ -98,10 +98,10 @@ export class EventService implements IEventService {
   }
 
   async deleteEvent(userId: number, eventId: number) {
-    const event = await this.repository.checkIfUserIsCreator(userId, eventId);
-    if (event === null) {
-      throw new UnauthorizedException('User is not authorized to delete event');
-    }
+    //const event = await this.repository.checkIfUserIsHost(userId, eventId);
+    // if (event === null) {
+    //   throw new UnauthorizedException('User is not authorized to delete event');
+    // }
     await this.repository.deleteEventAndGuests(eventId);
     return true;
   }
