@@ -6,6 +6,7 @@ import {confirmationStatus} from '@prisma/client';
 import {EventDto} from "../dto/event.dto";
 import {GuestDto} from "../dto/guest.dto";
 import {ElementDto} from "../../element/dto/element.dto";
+import {ElementExtendedDto} from "../../element/dto/element.extended.dto";
 
 @Injectable()
 export class EventRepository implements IEventRepository {
@@ -235,10 +236,22 @@ export class EventRepository implements IEventRepository {
             },
         });
     }
-    getElementsByEvent(eventId: number): Promise<ElementDto[]> {
+    getElementsByEvent(eventId: number): Promise<ElementExtendedDto[]> {
         return this.prisma.element.findMany({
             where: {
                 eventId: eventId,
+            },
+            include: {
+                users: {
+                    select: {
+                        id: true,
+                        name: true,
+                        username: true,
+                        email: true,
+                        createdAt: true,
+                        updatedAt: true,
+                    }
+                }
             }
         })
     }

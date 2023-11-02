@@ -19,6 +19,7 @@ import {EventInfoOutputDto} from '../dto/event.info.output.dto';
 import {EventDto} from "../dto/event.dto";
 import {ElementDto} from "../../element/dto/element.dto";
 import { UserService } from '../../user/service/user.service';
+import {ElementExtendedDto} from "../../element/dto/element.extended.dto";
 
 @Injectable()
 export class EventService implements IEventService {
@@ -153,8 +154,16 @@ export class EventService implements IEventService {
     return this.repository.getGuestsByEvent(eventId);
   }
 
-  getElementsByEvent(eventId: number): Promise<ElementDto[]> {
-    return this.repository.getElementsByEvent(eventId);
+  async getElementsByEvent(eventId: number, userId: number): Promise<ElementExtendedDto[]> {
+    const result = await this.repository.getElementsByEvent(eventId);
+    result.map(element => {
+      element.isAssignedToUser = this.isUserInElement(userId, element);
+    })
+    return result;
+  }
+
+  private isUserInElement(userId: number, element: ElementExtendedDto): boolean{
+      return element.users.some(user => user.id === userId)
   }
 
   async checkFutureEvent(eventId: number, date: Date) {
