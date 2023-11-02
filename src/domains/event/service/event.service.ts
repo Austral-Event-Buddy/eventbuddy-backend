@@ -17,6 +17,7 @@ import {IEventRepository} from "../repository";
 import {PrismaClientKnownRequestError} from '@prisma/client/runtime/library';
 import {EventInfoOutputDto} from '../dto/event.info.output.dto';
 import {EventDto} from "../dto/event.dto";
+import {EventHostStatusDto} from "../dto/event.host.status.dto";
 
 @Injectable()
 export class EventService implements IEventService {
@@ -46,11 +47,23 @@ export class EventService implements IEventService {
         return this.toEventInfoOutput(finalEvents, userId);
     }
 
-    async getEventByEventId(userId: number, eventId: number) {
+    async getEventByEventId(userId: number, eventId: number):Promise<EventHostStatusDto>{
         const guest = await this.repository.getGuest(userId, eventId)
         if (guest !== undefined) {
             if (guest.confirmationStatus !== "NOT_ATTENDING") {
-                return await this.repository.getEvent(eventId)
+                const event =  await this.repository.getEvent(eventId);
+                return{
+                    id: event.id,
+                    name:event.name,
+                    description: event.description,
+                    creatorId: event.creatorId,
+                    coordinates: event.coordinates,
+                    confirmationDeadline: event.confirmationDeadline,
+                    date: event.date,
+                    updatedAt: event.updatedAt,
+                    createdAt: event.createdAt,
+                    isHost: guest.isHost
+                }
             }
         } else throw new UnauthorizedException("User is not allowed to check this event information")
     }
