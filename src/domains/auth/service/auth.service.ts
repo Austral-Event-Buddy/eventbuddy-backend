@@ -62,4 +62,8 @@ export class AuthService implements IAuthService {
       access_token: await this.jwt.signAsync({ sub: userId }, {}),
     };
   }
+
+  async encryptPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, 8);
+  }
 }
