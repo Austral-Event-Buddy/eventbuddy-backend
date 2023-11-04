@@ -4,6 +4,7 @@ import { LoginInput, RegisterInput } from "../../../src/domains/auth/input";
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { UtilAuthRepository } from "../util/auth.repository.util";
 import {User} from "@prisma/client";
+import {UserDto} from "../../../src/domains/user/dto/user.dto";
 
 describe('AuthService Unit Test', () => {
 	let authService: IAuthService;
@@ -84,12 +85,13 @@ describe('AuthService Unit Test', () => {
 	// TO-DO: should find user by id, but token undefined
 	describe('user by id', () => {
 		it('token', async () => {
-			const user: User = {
+			const user: UserDto = {
 				id: 1,
 				email: 'test@test.com',
 				username: 'test',
 				password: 'password',
 				name: 'test',
+				defaultPic: false,
 				createdAt: undefined,
 				updatedAt: undefined,
 			};
