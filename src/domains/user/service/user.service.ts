@@ -6,6 +6,7 @@ import {IMailService} from "../../mail/service/mail.service.interface";
 import {ConfigService} from "@nestjs/config";
 import {UserDto} from "../dto/user.dto";
 import {IAuthService} from "../../auth";
+import {IS3Service} from "../../s3/service/s3.service.interface";
 
 @Injectable()
 export class UserService implements IUserService{
@@ -14,6 +15,7 @@ export class UserService implements IUserService{
         @Inject('IMailService') private mailService: IMailService,
         private readonly config: ConfigService,
         private readonly authService: IAuthService,
+        private readonly s3Service: IS3Service
     ) {}
 
     async getUserByUsername(username: string){
@@ -56,5 +58,23 @@ export class UserService implements IUserService{
             this.config.get("SENDGRID_INVITATION_TEMPLATE_ID"),
             {"URL" : this.config.get("FRONTEND_URL") + this.config.get("FRONTED_INVITATIONS_PATH") || ""}
         )
+    }
+
+    async uploadProfilePicture(userId: number): Promise<string>{
+        await this.userRepository.updateUser(userId, {defaultPic: false})
+
+        return this.s3Service.uploadFile(`${userId}`)
+    }
+
+    async getProfilePicture(userId: number, defaultPic: boolean): Promise<string>{
+        if(defaultPic) return this.s3Service.getSignedUrl(this.config.get("DEFAULT_PROFILE_PICTURE"))
+
+        return this.s3Service.getSignedUrl(`${userId}`)
+    }
+
+    async deleteProfilePicture(userId: number): Promise<void>{
+        await this.userRepository.updateUser(userId, {defaultPic: true})
+
+        return this.s3Service.deleteFile(`${userId}`)
     }
 }

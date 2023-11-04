@@ -32,11 +32,7 @@ export class UserRepository implements IUserRepository{
             where: {
                 id: userId,
             },
-            data: {
-                name: input.name,
-                email: input.email,
-                password: input.password,
-            },
+            data: input,
         });
     }
 

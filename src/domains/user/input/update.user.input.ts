@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import {IsBoolean, IsOptional, IsString} from 'class-validator';
 
 export class UpdateUserInput{
   @IsString()
@@ -12,4 +12,8 @@ export class UpdateUserInput{
   @IsString()
   @IsOptional()
   password?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  defaultPic?: boolean;
 }
