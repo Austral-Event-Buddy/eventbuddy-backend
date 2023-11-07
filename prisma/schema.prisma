@@ -12,17 +12,18 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  username  String    @unique
+  id        Int                  @id @default(autoincrement())
+  email     String               @unique
+  username  String               @unique
   name      String?
   password  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  events    Event[]   @relation("Events")
-  guests    Guest[]   @relation("Guests")
-  comments  Comment[] @relation("Comments")
-  elements  Element[] @relation()
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  events    Event[]              @relation("Events")
+  guests    Guest[]              @relation("Guests")
+  comments  Comment[]            @relation("Comments")
+  elements  Element[]            @relation()
+  tokens    PasswordResetToken[] @relation()
 }
 
 model Event {
@@ -81,4 +82,12 @@ enum confirmationStatus {
   PENDING
   ATTENDING
   NOT_ATTENDING
+}
+
+model PasswordResetToken {
+  id             Int      @id @default(autoincrement())
+  token          String   @unique
+  userId         Int
+  expirationDate DateTime
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

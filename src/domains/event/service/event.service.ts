@@ -20,11 +20,12 @@ import {EventDto} from "../dto/event.dto";
 import {ElementDto} from "../../element/dto/element.dto";
 import { UserService } from '../../user/service/user.service';
 import {ElementExtendedDto} from "../../element/dto/element.extended.dto";
+import {IMailService} from "../../mail/service/mail.service.interface";
 
 @Injectable()
 export class EventService implements IEventService {
     constructor(private repository: IEventRepository,
-                private userService: UserService
+                private userService: UserService,
     ) {}
 
   async getEventsByUserId(userId: number) {
