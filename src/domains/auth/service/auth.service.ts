@@ -88,7 +88,7 @@ export class AuthService implements IAuthService {
   }
 
   async resetPassword(input: ResetPasswordInput){
-      const resetPasswordToken = this.repository.findPasswordResetTokenByToken(input.token);
+      const resetPasswordToken =await this.repository.findPasswordResetTokenByToken(input.token);
       const expirationDate = resetPasswordToken['expirationDate'];
       const userId = resetPasswordToken['userId'];
       if(!resetPasswordToken){
@@ -99,7 +99,7 @@ export class AuthService implements IAuthService {
       }
       const updateUserInput = new UpdateUserInput()
       updateUserInput.password = input.newPassword;
-      await this.userService.updateUser(userId, updateUserInput);
+      const user = await this.userService.updateUser(userId, updateUserInput);
       return 'Password changed correctly!'
   }
 }
