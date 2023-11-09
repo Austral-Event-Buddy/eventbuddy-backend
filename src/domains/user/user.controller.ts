@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, Put, Request, UseGuards, Param } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Put, Request, UseGuards, Param, ForbiddenException } from "@nestjs/common";
 import { JwtAuthGuard } from '../auth/auth.guard';
 import { Request as ExpressRequest } from 'express';
 import { GetUserDto } from './dto/get.user.dto';
 import {getUserByUsername} from "./input";
 import {UserService} from "./service/user.service";
 import { UpdateUserInput } from './input/update.user.input';
+import { UserDto } from "./dto/user.dto";
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
@@ -19,6 +20,16 @@ export class UserController {
   async getUserByUsername(@Param('username') username: string): Promise<GetUserDto[]> {
       const users = await this.userService.getUserByUsername(username)
       return users.map(user => new GetUserDto(user))
+  }
+
+  @Get('by_id/:id')
+  async getUserById(@Param('id') id: string): Promise<UserDto> {
+    const userId = parseInt(id);
+    if (Number.isNaN(userId)) {
+      throw new ForbiddenException('Event id must be a number');
+    } else {
+      return this.userService.getUserById(userId);
+    }
   }
 
   @UseGuards(JwtAuthGuard)

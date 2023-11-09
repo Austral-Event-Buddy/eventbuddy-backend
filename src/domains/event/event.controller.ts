@@ -71,9 +71,14 @@ export class EventController {
         return this.eventService.getInvitesByUser(req.user['id']);
     }
 
-    @Get('invites/by_event')
-    getGuestsByEvent(@Body() input: getGuestsByEventInput) {
-        return this.eventService.getGuestsByEvent(input.eventId);
+    @Get('invites/by_event/:eventId')
+    getGuestsByEvent(@Param('eventId') id: string) {
+        const eventId = parseInt(id);
+        if (Number.isNaN(eventId)) {
+            throw new ForbiddenException('Event id must be a number');
+        } else {
+            return this.eventService.getGuestsByEvent(eventId);
+        }
     }
 
     @Get('elements/:eventId')
