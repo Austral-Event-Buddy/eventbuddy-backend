@@ -31,6 +31,6 @@ const authRepositoryProvider = {
     JwtStrategy,
   ],
   controllers: [AuthController],
-  exports: [],
+  exports: [IAuthService],
 })
 export class AuthModule {}
