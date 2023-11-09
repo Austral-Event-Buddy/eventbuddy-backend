@@ -42,7 +42,7 @@ export class AuthService implements IAuthService {
       throw new ForbiddenException('Incomplete credentials');
     }
 
-    const match = bcrypt.compare(dto.password, user.password);
+    const match = await bcrypt.compare(dto.password, user.password);
     if (!match) {
       throw new ForbiddenException('Credentials incorrect');
     }
@@ -62,5 +62,9 @@ export class AuthService implements IAuthService {
     return {
       access_token: await this.jwt.signAsync({ sub: userId }, {}),
     };
+  }
+
+  async encryptPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, 8);
   }
 }
