@@ -79,21 +79,20 @@ export class AuthService implements IAuthService {
       }
       const userId = user['id']
       const token = require('crypto').randomBytes(48).toString('hex');
-      const encrypted_token = token; //Not encrypted for now.
       const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
-      const dto = new PasswordResetTokenInput(encrypted_token, userId, tomorrow);
+      const dto = new PasswordResetTokenInput(token, userId, tomorrow);
       await this.repository.createPasswordResetToken(dto);
-      this.mailService.sendEmail(email, this.config.get("SENDGRID_INVITATION_TEMPLATE_ID"),{url: "test/" + token} );
+      this.mailService.sendEmail(email, this.config.get("SENDGRID_RESET_PASSWORD_TEMPLATE_ID"),{"URL" : this.config.get("FRONTEND_URL") + this.config.get("FRONTED_RESET_PASSWORD_PATH") || ""} );
       return 'Reset password email sent!'
   }
 
   async resetPassword(input: ResetPasswordInput){
-      const resetPasswordToken =await this.repository.findPasswordResetTokenByToken(input.token);
-      const expirationDate = resetPasswordToken['expirationDate'];
-      const userId = resetPasswordToken['userId'];
+      const resetPasswordToken = await this.repository.findPasswordResetTokenByToken(input.token);
       if(!resetPasswordToken){
           throw new NotFoundException('Token not found')
       }
+      const expirationDate = resetPasswordToken['expirationDate'];
+      const userId = resetPasswordToken['userId'];
       if(new Date() > expirationDate) {
           throw new ForbiddenException('Token expired')
       }
