@@ -25,15 +25,13 @@ export class UserController {
 
   @Get('by_username/:username')
   async getUserByUsername(@Param('username') username: string): Promise<GetUserDto[]> {
-      const users = await this.userService.getUserByUsername(username)
-      return users.map(user => new GetUserDto(user))
+      return await this.userService.getUserByUsername(username)
   }
 
   @UseGuards(JwtAuthGuard)
   @Put('update')
   async updateUser(@Request() request: ExpressRequest, @Body() input: UpdateUserInput): Promise<GetUserDto> {
-      const user = await this.userService.updateUser(request.user['id'], input)
-      return new GetUserDto(user);
+      return await this.userService.updateUser(request.user['id'], input)
   }
 
   @UseGuards(JwtAuthGuard)

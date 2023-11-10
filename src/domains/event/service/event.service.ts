@@ -63,7 +63,8 @@ export class EventService implements IEventService {
     const guest = await this.repository.getGuest(userId, eventId)
     if (guest !== undefined) {
       if (guest.confirmationStatus !== "NOT_ATTENDING") {
-        return await this.repository.getEvent(eventId)
+        const event =  await this.repository.getEvent(eventId)
+        return this.addProfilePictureToSingleEvent(event)
       }
     } else throw new UnauthorizedException("User is not allowed to check this event information")
   }
@@ -93,7 +94,7 @@ export class EventService implements IEventService {
       confirmationDeadline: event.confirmationDeadline,
       date: event.date,
       updatedAt: event.updatedAt,
-      createdAt: event.createdAt
+      createdAt: event.createdAt,
     }
   }
 
@@ -199,7 +200,7 @@ export class EventService implements IEventService {
         }),
       })
     }
-    return eventInfoOutput;
+    return this.addProfilePicture(eventInfoOutput);
   }
 
   private async checkEvents(events: Event[], userId: number): Promise<Event[]> {
@@ -218,5 +219,21 @@ export class EventService implements IEventService {
     const confirmationStatus = await this.repository.findConfirmationStatus(userId, eventId);
     if (confirmationStatus === "PENDING") return dateEvent >= new Date();
     return true;
+  }
+
+  private async addProfilePicture(events: EventInfoOutputDto[]): Promise<EventInfoOutputDto[]> {
+    for (const event of events) {
+      for (const guest of event.guests) {
+        guest.profilePictureUrl = await this.userService.getProfilePictureById(guest.id);
+      }
+    }
+    return events;
+  }
+
+  private async addProfilePictureToSingleEvent(event: EventDto): Promise<EventDto> {
+    for (const guest of event.guests) {
+      guest.profilePictureUrl = await this.userService.getProfilePictureById(guest.id);
+    }
+    return event;
   }
 }

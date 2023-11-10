@@ -7,6 +7,8 @@ import {ConfigService} from "@nestjs/config";
 import {UserDto} from "../dto/user.dto";
 import {IAuthService} from "../../auth";
 import {IS3Service} from "../../s3/service/s3.service.interface";
+import {GetUserWithPicDto} from "../dto/get.user.with.pic.dto";
+import {GetUserDto} from "../dto/get.user.dto";
 
 @Injectable()
 export class UserService implements IUserService{
@@ -18,12 +20,12 @@ export class UserService implements IUserService{
         private readonly s3Service: IS3Service
     ) {}
 
-    async getUserByUsername(username: string){
+    async getUserByUsername(username: string): Promise<GetUserWithPicDto[]>{
       const user = await this.userRepository.findUserByUsername(username);
       if(!user){
           throw new NotFoundException('User could not be found');
       }
-      return user;
+      return this.addProfilePictureToUsers(user);
     }
 
     async updateUser(userId: number, input: UpdateUserInput){
@@ -32,7 +34,7 @@ export class UserService implements IUserService{
       if(!user){
           throw new NotFoundException('User could not be found');
       }
-      return user;
+      return this.addProfilePictureToUser(user);
     }
 
     async deleteUser(userId: number){
@@ -43,12 +45,12 @@ export class UserService implements IUserService{
       return user;
   }
 
-    async getUserById(userId: number): Promise<UserDto> {
+    async getUserById(userId: number): Promise<GetUserWithPicDto> {
         const user = await this.userRepository.findUserById(userId);
         if(!user){
             throw new NotFoundException('User could not be found');
         }
-        return user;
+        return this.addProfilePictureToUser(user);
     }
 
     async notifyInvitation(userId: number, eventName: string){
@@ -72,9 +74,35 @@ export class UserService implements IUserService{
         return this.s3Service.getSignedUrl(`${userId}`)
     }
 
+    async getProfilePictureById(userId: number): Promise<string>{
+        const user = await this.userRepository.findUserById(userId)
+        if(!user){
+            throw new NotFoundException('User could not be found');
+        }
+        return this.getProfilePicture(userId, user.defaultPic)
+    }
+
     async deleteProfilePicture(userId: number): Promise<void>{
         await this.userRepository.updateUser(userId, {defaultPic: true})
 
         return this.s3Service.deleteFile(`${userId}`)
+    }
+
+    private async addProfilePictureToUsers(users:UserDto[]): Promise<GetUserWithPicDto[]>{
+        const result = []
+        for (let i = 0; i < users.length; i++) {
+            result[i] = new GetUserWithPicDto(
+                users[i],
+                await this.getProfilePicture(users[i].id, users[i].defaultPic)
+            )
+        }
+        return result;
+    }
+
+    private async addProfilePictureToUser(user:UserDto): Promise<GetUserWithPicDto>{
+        return new GetUserWithPicDto(
+            user,
+            await this.getProfilePicture(user.id, user.defaultPic)
+        )
     }
 }

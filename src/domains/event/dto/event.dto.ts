@@ -15,6 +15,7 @@ export class EventDto {
     date: Date;
     updatedAt: Date;
     createdAt: Date;
+    guests?: any[];
 
     constructor(newEvent: EventDto) {
         this.name = newEvent.name;
