@@ -9,4 +9,5 @@ export abstract class IAuthService {
 	abstract signToken(userId: number): Promise<TokenDto>;
     abstract sendResetPasswordEmail(email: string): Promise<string>;
     abstract resetPassword(input: ResetPasswordInput): Promise<UserDto>;
+	abstract encryptPassword(password: String): Promise<string>;
 }
