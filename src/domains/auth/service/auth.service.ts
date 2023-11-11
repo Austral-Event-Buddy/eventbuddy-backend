@@ -1,4 +1,4 @@
-import {ForbiddenException, Inject, Injectable, NotFoundException} from '@nestjs/common';
+import {ForbiddenException, forwardRef, Inject, Injectable, NotFoundException} from '@nestjs/common';
 import {JwtService} from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
@@ -12,6 +12,7 @@ import {IMailService} from "../../mail/service/mail.service.interface";
 import {ConfigService} from '@nestjs/config';
 import {IUserService} from "../../user/service/user.service.inteface";
 import {UpdateUserInput} from "../../user/input/update.user.input";
+import {UserService} from "../../user/service/user.service";
 
 
 @Injectable()
@@ -21,7 +22,7 @@ export class AuthService implements IAuthService {
     private jwt: JwtService,
     @Inject('IMailService') private mailService: IMailService,
     private config: ConfigService,
-   @Inject('IUserService') private userService: IUserService
+    @Inject(forwardRef(() => 'IUserService')) @Inject('IUserService') private userService: IUserService
   ) {}
 
   async register(dto: RegisterInput) {
