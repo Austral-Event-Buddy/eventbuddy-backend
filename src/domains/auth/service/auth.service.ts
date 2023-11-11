@@ -1,16 +1,15 @@
 import {ForbiddenException, Inject, Injectable, NotFoundException} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import {JwtService} from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import {PrismaClientKnownRequestError} from '@prisma/client/runtime/library';
 
 import {LoginInput, PasswordResetTokenInput, RegisterInput, ResetPasswordInput} from '../input';
-import { IAuthService } from "./auth.service.interface";
-import { IAuthRepository } from "../repository/auth.repository.interface";
-import { UserDto } from '../../user/dto/user.dto';
+import {IAuthService} from "./auth.service.interface";
+import {IAuthRepository} from "../repository/auth.repository.interface";
+import {UserDto} from '../../user/dto/user.dto';
 import {IMailService} from "../../mail/service/mail.service.interface";
-import { ConfigService } from '@nestjs/config';
-import {SendgridMailService} from "../../mail/service/sendgrid.mail.service";
+import {ConfigService} from '@nestjs/config';
 import {IUserService} from "../../user/service/user.service.inteface";
 import {UpdateUserInput} from "../../user/input/update.user.input";
 
@@ -82,8 +81,8 @@ export class AuthService implements IAuthService {
       const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
       const dto = new PasswordResetTokenInput(token, userId, tomorrow);
       await this.repository.createPasswordResetToken(dto);
-      this.mailService.sendEmail(email, this.config.get("SENDGRID_RESET_PASSWORD_TEMPLATE_ID"),{"URL" : this.config.get("FRONTEND_URL") + this.config.get("FRONTED_RESET_PASSWORD_PATH") || ""} );
-      return 'Reset password email sent!'
+      this.mailService.sendEmail(email, this.config.get("SENDGRID_RESET_PASSWORD_TEMPLATE_ID"),{"URL" : this.config.get("FRONTEND_URL") + this.config.get("FRONTED_RESET_PASSWORD_PATH") + "?token=" + token || ""} );
+      return token
   }
 
   async resetPassword(input: ResetPasswordInput){
@@ -98,7 +97,6 @@ export class AuthService implements IAuthService {
       }
       const updateUserInput = new UpdateUserInput()
       updateUserInput.password = input.newPassword;
-      const user = await this.userService.updateUser(userId, updateUserInput);
-      return 'Password changed correctly!'
+      return await this.userService.updateUser(userId, updateUserInput);
   }
 }

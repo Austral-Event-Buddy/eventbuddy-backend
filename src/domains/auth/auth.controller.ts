@@ -1,4 +1,4 @@
-import {Body, Controller, Param, Post, Put} from '@nestjs/common';
+import {Body, Controller, Get, NotFoundException, Param, Post, Put} from '@nestjs/common';
 import {LoginInput, RegisterInput, ResetPasswordInput} from './input';
 import {IAuthService} from "./service/auth.service.interface";
 import { TokenDto } from './dto/register.dto';
@@ -20,12 +20,15 @@ export class AuthController {
   }
 
   @Post('send-reset-password-email/:email')
-  sendResetPasswordEmail(@Param() validator: EmailValidator) {
-      return this.service.sendResetPasswordEmail(validator.email);
+  async sendResetPasswordEmail(@Param() validator: EmailValidator) {
+      await this.service.sendResetPasswordEmail(validator.email); //This return is ignored on purpose.
+      return 'Reset password email sent!'
   }
 
   @Put('reset-password')
-  resetPassword(@Body() input: ResetPasswordInput){
-      return this.service.resetPassword(input);
+  async resetPassword(@Body() input: ResetPasswordInput) {
+      await this.service.resetPassword(input); //This return is ignored on purpose.
+      return "Password changed successfully"
+
   }
 }
