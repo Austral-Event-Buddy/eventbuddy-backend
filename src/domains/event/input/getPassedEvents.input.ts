@@ -1,7 +1,7 @@
-import {IsDate, IsNotEmpty} from "class-validator";
+import {IsDate, IsDateString, IsNotEmpty} from "class-validator";
 
 export class getPassedEventsInput {
   @IsNotEmpty()
-  @IsDate()
-  date: Date;
+  @IsDateString()
+  date: string;
 }

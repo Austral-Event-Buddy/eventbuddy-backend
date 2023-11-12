@@ -167,7 +167,7 @@ export class EventService implements IEventService {
         const events = await this.repository.getEventsByUserId(userId);
         const result: Event[] = [];
         for(const event of events){
-            if(event.date < input.date){
+            if(event.date < new Date(input.date)){
                 result.push(event);
             }
         }
