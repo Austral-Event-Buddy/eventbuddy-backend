@@ -95,6 +95,7 @@ describe('EventService Unit Test', () => {
 						confirmationStatus: 'ATTENDING',
 						name: undefined,
 						username: "",
+						profilePictureUrl: ""
 					}
 				],
 			};
@@ -128,6 +129,7 @@ describe('EventService Unit Test', () => {
 						confirmationStatus: 'ATTENDING',
 						name: undefined,
 						username: "",
+						profilePictureUrl: ""
 					}
 				],
 			};
@@ -328,6 +330,7 @@ describe('EventService Unit Test', () => {
     describe ('Get Event By Event Id',()=>{
         it('get event given an event id', async() => {
             const event = await eventService.createEvent(userId, input);
+			event.guests = []
             await eventService.inviteGuest(inviteGuestInput, userId);
             const result = await eventService.getEventByEventId(userId,event.id)
             expect(result).toEqual(event)
