@@ -20,6 +20,7 @@ import {EventDto} from "../dto/event.dto";
 import {ElementDto} from "../../element/dto/element.dto";
 import {UserService} from '../../user/service/user.service';
 import {ElementExtendedDto} from "../../element/dto/element.extended.dto";
+import {getPassedEventsInput} from "../input/getPassedEvents.input";
 
 @Injectable()
 export class EventService implements IEventService {
@@ -162,6 +163,27 @@ export class EventService implements IEventService {
         })
         return result;
     }
+    async getPassedEvents(userId:number, input: getPassedEventsInput):Promise<EventDto[]>{
+        const events = await this.repository.getEventsByUserId(userId);
+        const result: Event[] = [];
+        for(const event of events){
+            if(event.date < input.date){
+                result.push(event);
+            }
+        }
+        return result
+    }
+    async getOwnEvents(userId: number):Promise<EventDto[]> {
+        const events = await this.repository.getEventsByUserId(userId);
+        const result: Event[] = [];
+        for(const event of events){
+            if(event.creatorId === userId){
+                result.push(event);
+            }
+        }
+        return result;
+    }
+
 
     private isUserInElement(userId: number, element: ElementExtendedDto): boolean {
         return element.users.some(user => user.id === userId)

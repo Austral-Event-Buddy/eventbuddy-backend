@@ -21,6 +21,7 @@ import {
     NewEventInput,
     updateEventInput
 } from "./input";
+import {getPassedEventsInput} from "./input/getPassedEvents.input";
 
 @UseGuards(JwtAuthGuard)
 @Controller('event')
@@ -41,6 +42,15 @@ export class EventController {
             req.user['id'],
             search,
         );
+    }
+    @Get('past')
+    getPassedEventsByUserId(@Request() req: ExpressRequest, @Body() input: getPassedEventsInput) {
+        return this.eventService.getPassedEvents(req.user['id'], input);
+
+    }
+    @Get('ownEvents')
+    getUserOwnEvents(@Request() req: ExpressRequest) {
+        return this.eventService.getOwnEvents(req.user['id']);
     }
 
     @Post()
