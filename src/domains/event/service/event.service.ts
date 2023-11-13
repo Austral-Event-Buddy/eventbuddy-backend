@@ -63,7 +63,7 @@ export class EventService implements IEventService {
     const guest = await this.repository.getGuest(userId, eventId)
     if (guest !== undefined) {
       if (guest.confirmationStatus !== "NOT_ATTENDING") {
-        return await this.repository.getEvent(eventId)
+        return await this.repository.getCommentReplies( await this.repository.getEvent(eventId))
       }
     } else throw new UnauthorizedException("User is not allowed to check this event information")
   }
@@ -98,10 +98,10 @@ export class EventService implements IEventService {
   }
 
   async deleteEvent(userId: number, eventId: number) {
-    const event = await this.repository.checkIfUserIsCreator(userId, eventId);
-    if (event === null) {
-      throw new UnauthorizedException('User is not authorized to delete event');
-    }
+    //const event = await this.repository.checkIfUserIsHost(userId, eventId);
+    // if (event === null) {
+    //   throw new UnauthorizedException('User is not authorized to delete event');
+    // }
     await this.repository.deleteEventAndGuests(eventId);
     return true;
   }

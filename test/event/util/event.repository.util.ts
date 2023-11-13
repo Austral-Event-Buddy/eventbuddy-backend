@@ -6,6 +6,7 @@ import { ElementDto } from "src/domains/element/dto/element.dto";
 import { GuestDto } from "src/domains/event/dto/guest.dto";
 import Any = jasmine.Any;
 import {ElementExtendedDto} from "../../../src/domains/element/dto/element.extended.dto";
+import {EventDto} from "../../../src/domains/event/dto/event.dto";
 
 @Injectable()
 export class EventRepositoryUtil implements IEventRepository {
@@ -14,6 +15,10 @@ export class EventRepositoryUtil implements IEventRepository {
     }
     getElementsByEvent(eventId: number): Promise<ElementExtendedDto[]> {
         throw new Error("Method not implemented.");
+    }
+
+    async getCommentReplies(event: EventDto): Promise<EventDto> {
+        return event;
     }
 
     events: Event[] = [];
