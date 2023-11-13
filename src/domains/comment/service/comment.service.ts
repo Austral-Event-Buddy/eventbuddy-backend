@@ -3,6 +3,7 @@ import {ICommentRepository} from "../repository";
 import {NewCommentInput} from "../input";
 import {ForbiddenException, Injectable, UnauthorizedException} from "@nestjs/common";
 import {CommentDto} from "../dto/comment.dto";
+import {text} from "express";
 
 
 @Injectable()
@@ -46,6 +47,10 @@ export class CommentService implements ICommentService{
         const comment = await this.repository.checkIfUserIsAuthor(userId, commentId)
         return comment !== null;
 
+    }
+
+    getReplies(commentId: number): Promise<CommentDto[]> {
+        return this.repository.getCommentsByCommentId(commentId);
     }
 
 
