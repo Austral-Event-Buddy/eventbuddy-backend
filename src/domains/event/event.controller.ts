@@ -6,7 +6,6 @@ import {
     Param,
     Post,
     Request,
-    UnauthorizedException,
     UseGuards,
     Put, Query, ForbiddenException
 } from '@nestjs/common';
@@ -57,8 +56,8 @@ export class EventController {
     }
 
     @Post('invite/send')
-    inviteGuest(@Body() input: inviteGuestInput, @Request() req: ExpressRequest) {
-        return this.eventService.inviteGuest(input, req.user['id']);
+    async inviteGuest(@Body() input: inviteGuestInput, @Request() req: ExpressRequest) {
+        await this.eventService.inviteGuest(input, req.user['id']);
     }
 
     @Put('invite/answer')
@@ -119,7 +118,7 @@ export class EventController {
             this.eventService.checkGuestStatusOnEvent(req.user['id'], eventIdInt)
         ) {
             return this.eventService.updateEvent(eventIdInt, input);
-        } else throw new UnauthorizedException('User is not hosting this event');
+        } else throw new ForbiddenException('User is not hosting this event');
     }
 
     @Delete(':eventId')

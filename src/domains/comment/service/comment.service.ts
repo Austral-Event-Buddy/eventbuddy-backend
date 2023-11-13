@@ -1,7 +1,7 @@
 import {ICommentService} from "./comment.service.interface";
 import {ICommentRepository} from "../repository";
 import {NewCommentInput} from "../input";
-import {Injectable, UnauthorizedException} from "@nestjs/common";
+import {ForbiddenException, Injectable, UnauthorizedException} from "@nestjs/common";
 import {CommentDto} from "../dto/comment.dto";
 
 
@@ -17,7 +17,7 @@ export class CommentService implements ICommentService{
 
     async deleteComment(userId: number, commentId: number) {
         if (!await this.checkIfUserIsAuthor(userId, commentId)){
-            throw new UnauthorizedException('User is not authorized to delete this comment');
+            throw new ForbiddenException('User is not authorized to delete this comment');
         }
         await this.repository.deleteComment(commentId);
         return true;
@@ -25,7 +25,7 @@ export class CommentService implements ICommentService{
 
     async updateComment(userId: number, commentId: number, text: string): Promise<CommentDto> {
         if (!await this.checkIfUserIsAuthor(userId, commentId)) {
-            throw new UnauthorizedException('User is not authorized to update this comment');
+            throw new ForbiddenException('User is not authorized to update this comment');
         }
         const updatedComment = await this.repository.updateComment(commentId, text);
         return {

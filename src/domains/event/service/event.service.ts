@@ -1,8 +1,6 @@
 import {
   ForbiddenException,
   Injectable,
-  NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import {
   answerInviteInput,
@@ -30,7 +28,7 @@ export class EventService implements IEventService {
   async getEventsByUserId(userId: number) {
     const events = await this.checkEvents(await this.repository.getEventsByUserId(userId), userId);
     if (!events) {
-      throw new NotFoundException('No events found');
+      throw new ForbiddenException('No events found');
     }
     return this.toEventInfoOutput(events, userId);
   }
@@ -38,7 +36,7 @@ export class EventService implements IEventService {
   async getEventById(userId: number, eventId: number) {
     const invited = await this.repository.checkIfUserIsInvited(userId, eventId);
     if (!invited) {
-      throw new NotFoundException('No event found');
+      throw new ForbiddenException('No event found');
     }
     const event = await this.repository.getEvent(eventId);
     return this.toEventInfoOutput([event], userId).then(res => res[0]);
@@ -53,7 +51,7 @@ export class EventService implements IEventService {
         input.search,
     );
     if (!events) {
-      throw new NotFoundException('No events found');
+      throw new ForbiddenException('No events found');
     }
     // const finalEvents = await this.checkEvents(events, userId);
     return this.toEventInfoOutput(events,  userId);
@@ -65,11 +63,11 @@ export class EventService implements IEventService {
       if (guest.confirmationStatus !== "NOT_ATTENDING") {
         return await this.repository.getEvent(eventId)
       }
-    } else throw new UnauthorizedException("User is not allowed to check this event information")
+    } else throw new ForbiddenException("User is not allowed to check this event information")
   }
 
   async createEvent(userId: number, input: NewEventInput) {
-    return this.repository.createEvent(userId, input);
+    return await this.repository.createEvent(userId, input);
   }
 
   async checkGuestStatusOnEvent(userId: number, eventId: number) {
@@ -82,7 +80,7 @@ export class EventService implements IEventService {
   async updateEvent(eventId: number, input: updateEventInput): Promise<EventDto> {
     const event = await this.repository.updateEvent(eventId, input);
     if (event === null) {
-      throw new NotFoundException('Event not found');
+      throw new ForbiddenException('Event not found');
     }
     return {
       id: event.id,
@@ -100,7 +98,7 @@ export class EventService implements IEventService {
   async deleteEvent(userId: number, eventId: number) {
     const event = await this.repository.checkIfUserIsCreator(userId, eventId);
     if (event === null) {
-      throw new UnauthorizedException('User is not authorized to delete event');
+      throw new ForbiddenException('User is not authorized to delete event');
     }
     await this.repository.deleteEventAndGuests(eventId);
     return true;
@@ -111,12 +109,12 @@ export class EventService implements IEventService {
     const invitedId = input.userId;
     const hostGuest = await this.repository.getHostGuest(userId, eventId);
     const event = await this.repository.getEvent(eventId);
-    if (hostGuest != null || event.creatorId === userId) {
+    if (hostGuest !== null || event.creatorId === userId) {
       if (!this.checkEventDate(event.date)) throw new ForbiddenException("The event date has passed")
       else if (!this.checkEventDate(event.confirmationDeadline)) throw new ForbiddenException("The confirmation deadline has passed")
       try {
           await this.userService.notifyInvitation(invitedId, event.name)
-          return await this.repository.inviteGuest(eventId, invitedId, input.isHost);
+          return this.repository.inviteGuest(eventId, invitedId, input.isHost);
       } catch (error) {
         if (error instanceof PrismaClientKnownRequestError) {
           if (error.code === 'P2002') {
@@ -125,6 +123,7 @@ export class EventService implements IEventService {
             );
           }
         }
+        throw error
       }
     } else {
       throw new ForbiddenException('You are not a host of this event');
