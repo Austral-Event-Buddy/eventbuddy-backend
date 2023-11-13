@@ -24,6 +24,7 @@ model User {
   guests    Guest[]   @relation("Guests")
   comments  Comment[] @relation("Comments")
   elements  Element[] @relation()
+  reviews   Review[]  @relation()
 }
 
 model Event {
@@ -39,6 +40,7 @@ model Event {
   guests               Guest[]   @relation
   comments             Comment[] @relation("Comments")
   elements             Element[] @relation
+  reviews              Review[]  @relation()
   date                 DateTime
 }
 
@@ -76,6 +78,19 @@ model Comment {
   Comment   Comment[] @relation("Comments")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  eventId   Int
+  rating    Int
+  user      User     @relation(fields: [userId], references: [id])
+  event     Event    @relation(fields: [eventId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, eventId])
 }
 
 enum confirmationStatus {

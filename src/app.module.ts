@@ -6,6 +6,9 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './domains/user/user.module';
 import { EventModule } from './domains/event/event.module';
 import { ElementModule } from "./domains/element/element.module";
+import {ReviewModule} from "./domains/review/review.module";
+import {CommentRepository} from "./domains/comment/repository";
+import {CommentModule} from "./domains/comment/comment.module";
 
 @Module({
   imports: [
@@ -17,7 +20,9 @@ import { ElementModule } from "./domains/element/element.module";
     AuthModule,
     UserModule,
     EventModule,
-    ElementModule
+    ElementModule,
+      ReviewModule,
+      CommentModule
   ],
 })
 export class AppModule {}
