@@ -15,7 +15,6 @@ import {JwtAuthGuard} from '../auth/auth.guard';
 import {
     answerInviteInput,
     getEventsBySearchInput,
-    getGuestsByEventInput,
     inviteGuestInput,
     NewEventInput,
     updateEventInput
@@ -93,7 +92,7 @@ export class EventController {
 
     @Get(':eventId')
     getEventByEventId(
-        @Request() req,
+        @Request() req: ExpressRequest,
         @Param('eventId') eventId: string
     ) {
         const eventIdInt = parseInt(eventId)
