@@ -8,10 +8,9 @@ import {NewCommentInput} from "./input";
 @UseGuards(JwtAuthGuard)
 @Controller('comment')
 export class CommentController{
-    constructor(private commentService: ICommentService) {
+    constructor(private commentService: ICommentService) {}
 
-    }
-    @Get()
+    @Get('/:eventId')
     getCommentsByEventId(@Param('eventId') eventId:string){
         const eventIdInt = parseInt(eventId);
         if (Number.isNaN(eventIdInt)){
@@ -19,6 +18,7 @@ export class CommentController{
         }
         return this.commentService.getCommentsByEventId(eventIdInt);
     }
+
     @Post()
     postComment(@Request() req: ExpressRequest, @Body() input: NewCommentInput){
         return this.commentService.createComment(req.user['id'],input);

@@ -31,7 +31,7 @@ model Event {
   name                 String
   description          String
   creatorId            Int
-  creator              User      @relation("Events", fields: [creatorId], references: [id])
+  creator              User      @relation("Events", fields: [creatorId], references: [id], onDelete: Cascade)
   coordinates          Float[]
   confirmationDeadline DateTime
   createdAt            DateTime  @default(now())
@@ -70,8 +70,8 @@ model Comment {
   eventId   Int
   parentId  Int?
   text      String
-  author    User      @relation("Comments", fields: [userId], references: [id])
-  event     Event     @relation("Comments", fields: [eventId], references: [id])
+  author    User      @relation("Comments", fields: [userId], references: [id], onDelete: Cascade)
+  event     Event     @relation("Comments", fields: [eventId], references: [id], onDelete: Cascade)
   parent    Comment?  @relation("Comments", fields: [parentId], references: [id], onDelete: Cascade)
   Comment   Comment[] @relation("Comments")
   createdAt DateTime  @default(now())

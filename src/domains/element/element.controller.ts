@@ -21,8 +21,7 @@ export class ElementController {
 
 	@Post()
 	async createElement(@Request() req: ExpressRequest, @Body() input: NewElementInput): Promise<ElementDto>{
-		if(!await this.eventService.checkFutureEvent(input.eventId, input.date)) throw new ForbiddenException("The event has to be in the future");
-		else if(!await this.eventService.checkGuestStatusOnEvent(req.user['id'], input.eventId)) throw new ForbiddenException("Only hosts can add elements to event");
+		if(!await this.eventService.checkGuestStatusOnEvent(req.user['id'], input.eventId)) throw new ForbiddenException("Only hosts can add elements to event");
 		return this.service.createElement(input)
 	}
 
@@ -45,17 +44,17 @@ export class ElementController {
 
 	}
 
-	@Post('update')
+	@Put()
 	async updateElement(@Request() req: ExpressRequest, @Body() input: UpdateElementInput){
 		const eventId = await this.getEventId(new ElementInput(input.id));
 		if(await this.eventService.checkGuestStatusOnEvent(req.user['id'], eventId)) return this.service.updateElement(input);
 	}
 
-	@Delete()
-	async deleteElement(@Request() req: ExpressRequest, @Body() input: ElementInput){
-		const eventId = await this.getEventId(input);
+	@Delete('/:elementId')
+	async deleteElement(@Request() req: ExpressRequest, @Param('elementId') id: string){
+		const eventId = await this.getEventId({ id: parseInt(id) });
 		if(!await this.eventService.checkGuestStatusOnEvent(req.user['id'], eventId)) throw new ForbiddenException("User is not authorized to delete the element")
-		await this.service.deleteElement(input);
+		await this.service.deleteElement({ id: parseInt(id) });
 	}
 
 	@Get(':elementId')

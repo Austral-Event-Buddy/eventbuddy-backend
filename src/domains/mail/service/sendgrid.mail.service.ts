@@ -11,12 +11,16 @@ export class SendgridMailService implements IMailService{
   }
 
   async sendEmail(to: string, template_id: string, templateArgs: any): Promise<void> {
-    await SendGrid.send({
-      to: to,
-      from: this.config.get("SENDGRID_EMAIL"),
-      templateId: template_id,
-      dynamicTemplateData: templateArgs
-    })
+    try {
+      await SendGrid.send({
+        to: to,
+        from: this.config.get("SENDGRID_EMAIL"),
+        templateId: template_id,
+        dynamicTemplateData: templateArgs
+      })
+    } catch (e) {
+      console.error(JSON.stringify(e.response.body))
+    }
   }
 
 }

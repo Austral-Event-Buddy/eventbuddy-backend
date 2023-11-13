@@ -18,8 +18,4 @@ export class NewElementInput {
 	@IsInt()
 	@IsNotEmpty()
 	eventId: number;
-
-	@IsNotEmpty()
-	@IsDateString()
-	date: Date;
 }
