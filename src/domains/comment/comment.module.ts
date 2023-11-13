@@ -1,23 +1,19 @@
-import {Module} from "@nestjs/common";
-import {CommentController} from "./comment.controller";
 import {CommentService, ICommentService} from "./service";
 import {ICommentRepository} from "./repository";
-import {CommentRepository} from "./repository/comment.repository";
-const commentServiceProvider = {
-  provide: ICommentService,
-  useClass: CommentService,
-};
+import {CommentRepository} from "./repository";
+import {CommentController} from "./comment.controller";
+import {Module} from "@nestjs/common";
 
-const commentRepositoryProvider = {
-  provide: ICommentRepository,
-  useClass: CommentRepository,
+const commentServiceProvider={
+    provide: ICommentService,
+    useClass: CommentService
 };
-
+const commentRepositoryProvider={
+    provide: ICommentRepository,
+    useClass: CommentRepository
+}
 @Module({
-  controllers: [CommentController],
-  providers: [
-    commentServiceProvider,
-    commentRepositoryProvider,
-  ],
+    controllers:[CommentController],
+    providers:[commentRepositoryProvider,commentServiceProvider],
 })
-export class CommentModule {}
+export class CommentModule{}

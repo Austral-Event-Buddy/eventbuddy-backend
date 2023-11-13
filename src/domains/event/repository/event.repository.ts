@@ -230,6 +230,7 @@ export class EventRepository implements IEventRepository {
         });
     }
     getGuestsByEvent(eventId: number): Promise<GuestDto[]> {
+
         return this.prisma.guest.findMany({
             where: {
                 eventId: eventId,
