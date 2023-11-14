@@ -5,6 +5,7 @@ import {GetUserDto} from './dto/get.user.dto';
 import {getUserByUsername} from "./input";
 import {UserService} from "./service/user.service";
 import {UpdateUserInput} from './input/update.user.input';
+import {UserDto} from "./dto/user.dto";
 
 @Controller('user')
 export class UserController {

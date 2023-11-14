@@ -1,4 +1,14 @@
-import {Controller, Get, Param, Post, UseGuards, Request, Body} from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Post,
+    Request,
+    UseGuards,
+    Put, Query, ForbiddenException
+} from '@nestjs/common';
 import {JwtAuthGuard} from "../auth/auth.guard";
 import {ICommentService} from "./service";
 import {Request as ExpressRequest} from 'express';
@@ -7,18 +17,9 @@ import {NewCommentInput} from "./input";
 
 @UseGuards(JwtAuthGuard)
 @Controller('comment')
-export class CommentController{
+export class CommentController {
     constructor(private commentService: ICommentService) {}
 
-    }
-    @Get(':eventId')
-    getCommentsByEventId(@Param('eventId') eventId:string){
-        const eventIdInt = parseInt(eventId);
-        if (Number.isNaN(eventIdInt)){
-            throw new TypeError("Event id must be a number")
-        }
-        return this.commentService.getCommentsByEventId(eventIdInt);
-    }
     @Get('replies/:commentId')
     getRepliesByCommentId(@Param('commentId') id:string){
         const commentId = parseInt(id);
@@ -26,6 +27,14 @@ export class CommentController{
             throw new TypeError("Event id must be a number")
         }
         return this.commentService.getReplies(commentId);
+    }
+    @Get(':eventId')
+    getCommentsByEventId(@Param('eventId') eventId:string){
+    const eventIdInt = parseInt(eventId);
+    if (Number.isNaN(eventIdInt)){
+        throw new TypeError("Event id must be a number")
+    }
+    return this.commentService.getCommentsByEventId(eventIdInt);
     }
 
     @Post()
