@@ -6,6 +6,7 @@ import {
     Param,
     Post,
     Request,
+    UnauthorizedException,
     UseGuards,
     Put, Query, ForbiddenException
 } from '@nestjs/common';
@@ -41,7 +42,7 @@ export class EventController {
             search,
         );
     }
-    @Get('past')
+    @Post('past')
     getPassedEventsByUserId(@Request() req: ExpressRequest, @Body() input: getPassedEventsInput) {
         return this.eventService.getPassedEvents(req.user['id'], input);
 
