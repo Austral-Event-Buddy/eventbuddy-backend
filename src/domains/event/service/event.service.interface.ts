@@ -1,51 +1,59 @@
 import {
-  answerInviteInput,
-  getEventsBySearchInput,
-  inviteGuestInput,
-  NewEventInput,
+    answerInviteInput,
+    getEventsBySearchInput,
+    inviteGuestInput,
+    NewEventInput,
 } from '../input';
-import { updateEventInput } from '../input';
-import { EventInfoOutputDto } from '../dto/event.info.output.dto';
+import {updateEventInput} from '../input';
+import {EventInfoOutputDto} from '../dto/event.info.output.dto';
 import {EventDto} from "../dto/event.dto";
 import {GuestDto} from "../dto/guest.dto";
 import {ElementDto} from "../../element/dto/element.dto";
 import {ElementExtendedDto} from "../../element/dto/element.extended.dto";
 import {EventHostStatusDto} from "../dto/event.host.status.dto";
+import {getPassedEventsInput} from "../input/getPassedEvents.input";
 
 
 export abstract class IEventService {
-  abstract createEvent(userId: number, input: NewEventInput): Promise<EventDto>;
-  abstract getEventsByUserId(userId: number): Promise<EventInfoOutputDto[]>;
-  abstract getEventById(userId: number, eventId: number): Promise<EventInfoOutputDto>;
-  abstract getEventsByNameOrDescriptionAndUserId(
-    userId: number,
-    input: getEventsBySearchInput,
-  ): Promise<EventInfoOutputDto[]>;
+    abstract createEvent(userId: number, input: NewEventInput): Promise<EventDto>;
 
-  abstract checkGuestStatusOnEvent(userId: number, eventId: number): Promise<boolean>;
+    abstract getEventsByUserId(userId: number): Promise<EventInfoOutputDto[]>;
 
-  abstract updateEvent(eventId: number, input: updateEventInput): Promise<EventDto>;
+    abstract getEventById(userId: number, eventId: number): Promise<EventInfoOutputDto>;
 
-  abstract deleteEvent(userId: number, eventId: number): Promise<boolean>;
+    abstract getEventsByNameOrDescriptionAndUserId(
+        userId: number,
+        input: getEventsBySearchInput,
+    ): Promise<EventInfoOutputDto[]>;
 
-  abstract inviteGuest(
-    input: inviteGuestInput,
-    userId: number,
-  ): Promise<GuestDto>;
+    abstract checkGuestStatusOnEvent(userId: number, eventId: number): Promise<boolean>;
 
-  abstract answerInvite(
-    input: answerInviteInput,
-    userId: number,
-  ): Promise<GuestDto>;
+    abstract updateEvent(eventId: number, input: updateEventInput): Promise<EventDto>;
 
-  abstract getInvitesByUser(userId: number): Promise<
-    GuestDto[]
-  >;
+    abstract deleteEvent(userId: number, eventId: number): Promise<boolean>;
 
-  abstract getGuestsByEvent(eventId: number): Promise<
-    GuestDto[]
-  >;
-  abstract getEventByEventId(userId: number, eventId: number): Promise<EventHostStatusDto>
-    abstract getElementsByEvent(eventId: number, userId: number) : Promise<ElementExtendedDto[]>
+    abstract inviteGuest(
+        input: inviteGuestInput,
+        userId: number,
+    ): Promise<GuestDto>;
 
+    abstract answerInvite(
+        input: answerInviteInput,
+        userId: number,
+    ): Promise<GuestDto>;
+
+    abstract getInvitesByUser(userId: number): Promise<
+        GuestDto[]
+    >;
+
+    abstract getGuestsByEvent(eventId: number): Promise<
+        GuestDto[]
+    >;
+
+    abstract getElementsByEvent(eventId: number, userId: number): Promise<ElementExtendedDto[]>
+
+    abstract getEventByEventId(userId: number, eventId: number): Promise<EventHostStatusDto>
+
+    abstract getPassedEvents(userId: number, input: getPassedEventsInput): Promise<EventDto[]>
+    abstract getOwnEvents(userId:number):Promise<EventDto[]>
 }
