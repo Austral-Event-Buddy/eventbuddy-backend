@@ -1,15 +1,26 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService, IAuthRepository, IAuthService } from "../../../src/domains/auth";
-import { LoginInput, RegisterInput } from "../../../src/domains/auth/input";
+import {LoginInput, RegisterInput, ResetPasswordInput} from "../../../src/domains/auth/input";
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { UtilAuthRepository } from "../util/auth.repository.util";
 import {User} from "@prisma/client";
+import {SendgridMailService} from "../../../src/domains/mail/service/sendgrid.mail.service";
+import {MockMailService} from "../../mail/mockmail.service";
+import {ConfigService} from "@nestjs/config";
+import {UserService} from "../../../src/domains/user/service/user.service";
+import * as bcrypt from 'bcrypt';
+import {UserRepository} from "../../../src/domains/user/user.repository";
+import {IUserRepository} from "../../../src/domains/user/repository/user.repository.interface";
+import {UserServiceUtil} from "../../user/util/user.service.util";
+import {UserRepositoryUtil} from "../../user/util/user.repository.util";
+import {IUserService} from "../../../src/domains/user/service/user.service.inteface";
 import {UserDto} from "../../../src/domains/user/dto/user.dto";
 
 describe('AuthService Unit Test', () => {
 	let authService: IAuthService;
 	let authRepository: IAuthRepository;
 	let jwtService: JwtService;
+    let userService: IUserService;
 
 	beforeEach(async () => {
 		const authServiceProvider = {
@@ -22,6 +33,22 @@ describe('AuthService Unit Test', () => {
 			useClass: UtilAuthRepository,
 		};
 
+        const mailServiceProvider = {
+            provide: 'IMailService',
+            useClass: MockMailService
+        }
+
+        const userServiceProvider = {
+            provide: 'IUserService',
+            useClass: UserServiceUtil
+        }
+
+        const userRepositoryProvider = {
+            provide: 'IUserRepository',
+            useClass: UserRepositoryUtil
+        }
+
+
 		const app: TestingModule = await Test.createTestingModule({
 			imports: [
 				JwtModule.register({
@@ -31,6 +58,11 @@ describe('AuthService Unit Test', () => {
 			providers: [
 				authServiceProvider,
 				authRepositoryProvider,
+                mailServiceProvider,
+                ConfigService,
+                userServiceProvider,
+                userRepositoryProvider
+
 			],
 		})
 			.compile();
@@ -101,5 +133,28 @@ describe('AuthService Unit Test', () => {
 			expect(result).toEqual(user);
 		});
 	});
+
+    describe('reset password', () => {
+        it('with valid token', async () => {
+            const user: User = {
+                id: 1,
+                email: 'test@test.com',
+                username: 'test',
+                password: 'password',
+                name: 'test',
+                createdAt: undefined,
+                updatedAt: undefined,
+            }; //This user was also hardcoded in the user.repository.util.ts
+            let newPassword = "12345678"
+            let token = await authService.sendResetPasswordEmail(user.email);
+            let resetPasswordInput = new ResetPasswordInput
+            resetPasswordInput.token = token;
+            resetPasswordInput.newPassword = newPassword;
+            let endUser = await authService.resetPassword(resetPasswordInput);
+            expect(endUser).not.toBeUndefined()
+            expect(await bcrypt.compare(newPassword, endUser.password)).toBeTruthy()
+
+        })
+    })
 
 });

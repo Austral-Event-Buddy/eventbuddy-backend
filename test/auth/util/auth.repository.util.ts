@@ -1,11 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { IAuthRepository } from '../../../src/domains/auth';
-import { RegisterInput } from '../../../src/domains/auth/input';
-import { User } from '@prisma/client';
+import { PasswordResetTokenInput, RegisterInput} from '../../../src/domains/auth/input';
+import {PasswordResetToken, User} from '@prisma/client';
+import {UpdateUserInput} from "../../../src/domains/user/input/update.user.input";
+import {UserDto} from "../../../src/domains/user/dto/user.dto";
+import * as bcrypt from 'bcrypt';
+
 
 @Injectable()
 export class UtilAuthRepository implements IAuthRepository {
 	users: User[] = [];
+    passwordResetTokens: PasswordResetToken[] = []
 	id= 1;
 
 	async createUser(dto: RegisterInput) {
@@ -49,4 +54,21 @@ export class UtilAuthRepository implements IAuthRepository {
 		}
 		return undefined;
 	}
+    async createPasswordResetToken(dto: PasswordResetTokenInput): Promise<PasswordResetTokenInput> {
+        const passwordResetToken = {
+            token: dto.token,
+            userId: dto.userId,
+            expirationDate: dto.expirationDate
+        }
+        this.passwordResetTokens.push(<PasswordResetToken>passwordResetToken);
+        return Promise.resolve(passwordResetToken)
+    }
+    async findPasswordResetTokenByToken(token: string): Promise<PasswordResetTokenInput> {
+        for(let i=0; i<this.passwordResetTokens.length; i++){
+            if(this.passwordResetTokens[i].token === token){
+                return Promise.resolve(this.passwordResetTokens[i]);
+            }
+        }
+        return undefined;
+    }
 }

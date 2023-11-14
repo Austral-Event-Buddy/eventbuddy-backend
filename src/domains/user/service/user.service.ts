@@ -1,11 +1,11 @@
-import {Inject, Injectable, NotFoundException} from '@nestjs/common';
+import {forwardRef, Inject, Injectable, NotFoundException} from '@nestjs/common';
 import { UserRepository } from '../repository/user.repository';
 import { IUserService } from './user.service.inteface';
 import { UpdateUserInput } from '../input/update.user.input';
 import {IMailService} from "../../mail/service/mail.service.interface";
 import {ConfigService} from "@nestjs/config";
 import {UserDto} from "../dto/user.dto";
-import {IAuthService} from "../../auth";
+import {AuthService, IAuthService} from "../../auth";
 import {IS3Service} from "../../s3/service/s3.service.interface";
 import {GetUserWithPicDto} from "../dto/get.user.with.pic.dto";
 import {GetUserDto} from "../dto/get.user.dto";
@@ -16,7 +16,7 @@ export class UserService implements IUserService{
         private userRepository: UserRepository,
         @Inject('IMailService') private mailService: IMailService,
         private readonly config: ConfigService,
-        private readonly authService: IAuthService,
+        @Inject(forwardRef(() => IAuthService)) private readonly authService: IAuthService,
         private readonly s3Service: IS3Service
     ) {}
 

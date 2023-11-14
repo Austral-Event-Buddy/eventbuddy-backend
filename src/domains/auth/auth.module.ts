@@ -7,6 +7,9 @@ import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './auth.guard';
 import { IAuthService } from "./service/auth.service.interface";
 import { IAuthRepository } from "./repository/auth.repository.interface";
+import {SendgridMailService} from "../mail/service/sendgrid.mail.service";
+import {UserService} from "../user/service/user.service";
+import {UserRepository} from "../user/repository/user.repository";
 
 const authServiceProvider = {
   provide: IAuthService,
@@ -16,6 +19,19 @@ const authRepositoryProvider = {
   provide: IAuthRepository,
   useClass: AuthRepository,
 };
+const mailServiceProvider = {
+    provide: 'IMailService',
+    useClass: SendgridMailService
+}
+
+const userServiceProvider = {
+    provide: 'IUserService',
+    useClass: UserService
+}
+const userRepositoryProvider = {
+    provide: 'IUserRepository',
+    useClass: UserRepository
+}
 @Module({
   imports: [
     JwtModule.registerAsync({
@@ -24,11 +40,15 @@ const authRepositoryProvider = {
       }),
       inject: [ConfigService],
     }),
-  ],
+      ],
   providers: [
     authServiceProvider,
     authRepositoryProvider,
     JwtStrategy,
+      mailServiceProvider,
+      userServiceProvider,
+      userRepositoryProvider,
+      UserRepository
   ],
   controllers: [AuthController],
   exports: [IAuthService],

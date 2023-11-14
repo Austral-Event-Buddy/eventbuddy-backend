@@ -21,13 +21,13 @@ import {ElementDto} from "../../element/dto/element.dto";
 import {UserService} from '../../user/service/user.service';
 import {ElementExtendedDto} from "../../element/dto/element.extended.dto";
 import {getPassedEventsInput} from "../input/getPassedEvents.input";
+import {IMailService} from "../../mail/service/mail.service.interface";
 
 @Injectable()
 export class EventService implements IEventService {
     constructor(private repository: IEventRepository,
-                private userService: UserService
-    ) {
-    }
+                private userService: UserService,
+    ) {}
 
     async getEventsByUserId(userId: number) {
         const events = await this.checkEvents(await this.repository.getEventsByUserId(userId), userId);
@@ -65,7 +65,7 @@ export class EventService implements IEventService {
         const guest = await this.repository.getGuest(userId, eventId)
         if (guest !== undefined) {
             if (guest.confirmationStatus !== "NOT_ATTENDING") {
-                const event =  await this.repository.getEvent(eventId)
+                const event =  await this.repository.getCommentReplies( await this.repository.getEvent(eventId))
                 return this.addProfilePictureToSingleEvent(event)
             }
         } else throw new UnauthorizedException("User is not allowed to check this event information")
@@ -100,14 +100,14 @@ export class EventService implements IEventService {
         }
     }
 
-    async deleteEvent(userId: number, eventId: number) {
-        const event = await this.repository.checkIfUserIsCreator(userId, eventId);
-        if (event === null) {
-            throw new UnauthorizedException('User is not authorized to delete event');
-        }
-        await this.repository.deleteEventAndGuests(eventId);
-        return true;
-    }
+  async deleteEvent(userId: number, eventId: number) {
+    //const event = await this.repository.checkIfUserIsHost(userId, eventId);
+    // if (event === null) {
+    //   throw new UnauthorizedException('User is not authorized to delete event');
+    // }
+    await this.repository.deleteEventAndGuests(eventId);
+    return true;
+  }
 
     async inviteGuest(input: inviteGuestInput, userId: number) {
         const eventId = input.eventId;
