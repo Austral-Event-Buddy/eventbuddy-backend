@@ -10,8 +10,8 @@ import {EventDto} from "../dto/event.dto";
 import {GuestDto} from "../dto/guest.dto";
 import {ElementDto} from "../../element/dto/element.dto";
 import {ElementExtendedDto} from "../../element/dto/element.extended.dto";
-import {EventHostStatusDto} from "../dto/event.host.status.dto";
 import {getPassedEventsInput} from "../input/getPassedEvents.input";
+import {EventHostStatusDto} from "../dto/event.host.status.dto";
 
 
 export abstract class IEventService {

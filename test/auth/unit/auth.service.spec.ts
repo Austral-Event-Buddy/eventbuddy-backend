@@ -14,6 +14,7 @@ import {IUserRepository} from "../../../src/domains/user/repository/user.reposit
 import {UserServiceUtil} from "../../user/util/user.service.util";
 import {UserRepositoryUtil} from "../../user/util/user.repository.util";
 import {IUserService} from "../../../src/domains/user/service/user.service.inteface";
+import {UserDto} from "../../../src/domains/user/dto/user.dto";
 
 describe('AuthService Unit Test', () => {
 	let authService: IAuthService;
@@ -116,12 +117,13 @@ describe('AuthService Unit Test', () => {
 	// TO-DO: should find user by id, but token undefined
 	describe('user by id', () => {
 		it('token', async () => {
-			const user: User = {
+			const user: UserDto = {
 				id: 1,
 				email: 'test@test.com',
 				username: 'test',
 				password: 'password',
 				name: 'test',
+				defaultPic: false,
 				createdAt: undefined,
 				updatedAt: undefined,
 			};
@@ -140,6 +142,7 @@ describe('AuthService Unit Test', () => {
                 username: 'test',
                 password: 'password',
                 name: 'test',
+				defaultPic: false,
                 createdAt: undefined,
                 updatedAt: undefined,
             }; //This user was also hardcoded in the user.repository.util.ts

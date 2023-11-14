@@ -8,6 +8,7 @@ import {RegisterInput} from "../../../src/domains/auth/input";
 export class UserServiceUtil{
     userRepository = new UserRepositoryUtil()
   async notifyInvitation(userId: number, eventName: string){}
+  async getProfilePictureById(userId: number): Promise<string>{return ""}
 
     async updateUser(userId: number, input: UpdateUserInput): Promise<UserDto>{
         return this.userRepository.updateUser(userId, input);

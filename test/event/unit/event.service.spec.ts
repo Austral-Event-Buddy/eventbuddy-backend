@@ -95,6 +95,7 @@ describe('EventService Unit Test', () => {
 						confirmationStatus: 'ATTENDING',
 						name: undefined,
 						username: "",
+						profilePictureUrl: ""
 					}
 				],
 			};
@@ -128,6 +129,7 @@ describe('EventService Unit Test', () => {
 						confirmationStatus: 'ATTENDING',
 						name: undefined,
 						username: "",
+						profilePictureUrl: ""
 					}
 				],
 			};
@@ -328,6 +330,7 @@ describe('EventService Unit Test', () => {
     describe ('Get Event By Event Id',()=>{
         it('get event given an event id', async() => {
             const event = await eventService.createEvent(userId, input);
+			event.guests = []
             await eventService.inviteGuest(inviteGuestInput, userId);
             const result = await eventService.getEventByEventId(userId,event.id)
             const eventHostStatusDto = {...event, isHost: true}
@@ -339,6 +342,43 @@ describe('EventService Unit Test', () => {
             await expect(async () => {
                 await eventService.getEventByEventId(guestId,event.id)
             }).rejects.toThrow(ForbiddenException)
+
+        });
+    })
+    describe("Get passed events",()=>{
+        it('get an event after it has already passed', async() => {
+
+            const event = await eventService.createEvent(userId, input);
+            const passedEventsInput ={
+                date: new Date(2026, 8, 25).toDateString()
+            }
+            const result = await eventService.getPassedEvents(userId,passedEventsInput)
+            expect(result).toEqual([event])
+
+        });
+        it('event has not passed', async () => {
+            const event = await eventService.createEvent(userId, input);
+            const passedEventsInput ={
+                date: new Date(2023,11,12).toDateString()
+            }
+            const result = await eventService.getPassedEvents(userId,passedEventsInput)
+            expect(result).toEqual([])
+
+
+
+        });
+    })
+    describe("Get user's own events",()=>{
+        it('get events that the user is hosting', async() => {
+            const event = await eventService.createEvent(userId, input);
+            const result = await eventService.getOwnEvents(userId)
+            expect(result).toEqual([event])
+
+        });
+        it('should not get events since user is not hosting', async() => {
+            const event = await eventService.createEvent(userId, input);
+            const result = await eventService.getOwnEvents(guestId)
+            expect(result).toEqual([])
 
         });
     })

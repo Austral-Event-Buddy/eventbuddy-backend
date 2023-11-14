@@ -10,6 +10,7 @@ import { IAuthRepository } from "./repository/auth.repository.interface";
 import {SendgridMailService} from "../mail/service/sendgrid.mail.service";
 import {UserService} from "../user/service/user.service";
 import {UserRepository} from "../user/repository/user.repository";
+import {S3Module} from "../s3/s3.module";
 
 const authServiceProvider = {
   provide: IAuthService,
@@ -40,7 +41,8 @@ const userRepositoryProvider = {
       }),
       inject: [ConfigService],
     }),
-      ],
+      S3Module
+  ],
   providers: [
     authServiceProvider,
     authRepositoryProvider,

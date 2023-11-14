@@ -67,7 +67,8 @@ export class EventService implements IEventService {
         const guest = await this.repository.getGuest(userId, eventId)
         if (guest !== undefined) {
             if (guest.confirmationStatus !== "NOT_ATTENDING") {
-                const event = await this.repository.getEvent(eventId)
+                let event = await this.repository.getCommentReplies( await this.repository.getEvent(eventId))
+                event = await this.addProfilePictureToSingleEvent(event)
                 return {
                     id: event.id,
                     name: event.name,
@@ -78,7 +79,9 @@ export class EventService implements IEventService {
                     confirmationDeadline: event.confirmationDeadline,
                     updatedAt: event.updatedAt,
                     createdAt: event.createdAt,
-                    isHost: guest.isHost
+                    isHost: guest.isHost,
+                    comments: event.comments,
+                    guests: event.guests
                 }
             }
         } else throw new ForbiddenException("User is not allowed to check this event information")
@@ -239,7 +242,7 @@ export class EventService implements IEventService {
                 }),
             })
         }
-        return eventInfoOutput;
+        return this.addProfilePicture(eventInfoOutput);
     }
 
     private async checkEvents(events: Event[], userId: number): Promise<Event[]> {
@@ -259,4 +262,20 @@ export class EventService implements IEventService {
         if (confirmationStatus === "PENDING") return dateEvent >= new Date();
         return true;
     }
+
+  private async addProfilePicture(events: EventInfoOutputDto[]): Promise<EventInfoOutputDto[]> {
+    for (const event of events) {
+      for (const guest of event.guests) {
+        guest.profilePictureUrl = await this.userService.getProfilePictureById(guest.id);
+      }
+    }
+    return events;
+  }
+
+  private async addProfilePictureToSingleEvent(event: EventDto): Promise<EventDto> {
+    for (const guest of event.guests) {
+      guest.profilePictureUrl = await this.userService.getProfilePictureById(guest.id);
+    }
+    return event;
+  }
 }

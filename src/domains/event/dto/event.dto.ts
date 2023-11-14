@@ -10,6 +10,7 @@ export class EventDto {
     date: Date;
     updatedAt: Date;
     createdAt: Date;
+    guests?: any[];
     comments?: CommentDto[];
 
     constructor(newEvent: EventDto) {

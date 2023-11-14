@@ -1,9 +1,10 @@
 import { UserDto } from '../dto/user.dto';
 import { UpdateUserInput } from '../input/update.user.input';
+import {GetUserWithPicDto} from "../dto/get.user.with.pic.dto";
 
 export interface IUserService{
-  getUserByUsername(username: string): Promise<UserDto[]>
-  getUserById(userId: number): Promise<UserDto>
+  getUserByUsername(username: string): Promise<GetUserWithPicDto[]>
+  getUserById(userId: number): Promise<GetUserWithPicDto>
   updateUser(userId: number, input: UpdateUserInput): Promise<UserDto>
   deleteUser(userId: number): Promise<UserDto>
 }

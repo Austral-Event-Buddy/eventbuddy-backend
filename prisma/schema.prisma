@@ -17,14 +17,15 @@ model User {
   username  String               @unique
   name      String?
   password  String
+  defaultPic Boolean             @default(true)
   createdAt DateTime             @default(now())
   updatedAt DateTime             @updatedAt
   events    Event[]              @relation("Events")
   guests    Guest[]              @relation("Guests")
   comments  Comment[]            @relation("Comments")
   elements  Element[]            @relation()
+  reviews   Review[]             @relation()
   tokens    PasswordResetToken[] @relation()
-  reviews   Review[]  @relation()
 }
 
 model Event {

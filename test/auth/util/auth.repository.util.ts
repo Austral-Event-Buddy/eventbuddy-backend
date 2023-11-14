@@ -20,6 +20,7 @@ export class UtilAuthRepository implements IAuthRepository {
 			password: dto.password,
 			username: dto.username,
 			name: dto.name,
+			defaultPic: false,
 			createdAt: undefined,
 			updatedAt: undefined,
 		}

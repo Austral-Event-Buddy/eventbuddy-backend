@@ -14,5 +14,5 @@ export class EventInfoOutputDto {
     date: Date;
     confirmationDeadline: Date;
     confirmationStatus: confirmationStatus;
-    guests: number;
+    guests: any[];
 }
