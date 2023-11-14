@@ -1,5 +1,5 @@
 import { User } from '@prisma/client';
-import { RegisterInput } from '../input';
+import {PasswordResetTokenInput, RegisterInput} from '../input';
 import { UserDto } from '../../user/dto/user.dto';
 export abstract class IAuthRepository {
 
@@ -10,4 +10,8 @@ export abstract class IAuthRepository {
 	abstract findUserByUsername(username: string): Promise<UserDto>;
 
 	abstract createUser(dto: RegisterInput): Promise<UserDto>;
+
+    abstract createPasswordResetToken(dto: PasswordResetTokenInput): Promise<PasswordResetTokenInput>;
+
+    abstract findPasswordResetTokenByToken(token:string): Promise<PasswordResetTokenInput>;
 }

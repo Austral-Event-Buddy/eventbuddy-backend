@@ -21,13 +21,15 @@ import {ElementDto} from "../../element/dto/element.dto";
 import {UserService} from '../../user/service/user.service';
 import {ElementExtendedDto} from "../../element/dto/element.extended.dto";
 import {getPassedEventsInput} from "../input/getPassedEvents.input";
+import {EventHostStatusDto} from "../dto/event.host.status.dto";
+import e from "express";
+import {IMailService} from "../../mail/service/mail.service.interface";
 
 @Injectable()
 export class EventService implements IEventService {
     constructor(private repository: IEventRepository,
                 private userService: UserService
-    ) {
-    }
+    ) {}
 
     async getEventsByUserId(userId: number) {
         const events = await this.checkEvents(await this.repository.getEventsByUserId(userId), userId);
@@ -61,11 +63,23 @@ export class EventService implements IEventService {
         return this.toEventInfoOutput(events, userId);
     }
 
-    async getEventByEventId(userId: number, eventId: number) {
+    async getEventByEventId(userId: number, eventId: number):Promise<EventHostStatusDto> {
         const guest = await this.repository.getGuest(userId, eventId)
         if (guest !== undefined) {
             if (guest.confirmationStatus !== "NOT_ATTENDING") {
-                return await this.repository.getEvent(eventId)
+                const event = await this.repository.getEvent(eventId)
+                return {
+                    id: event.id,
+                    name: event.name,
+                    description: event.description,
+                    creatorId : event.creatorId,
+                    coordinates: event.coordinates,
+                    date: event.date,
+                    confirmationDeadline: event.confirmationDeadline,
+                    updatedAt: event.updatedAt,
+                    createdAt: event.createdAt,
+                    isHost: guest.isHost
+                }
             }
         } else throw new UnauthorizedException("User is not allowed to check this event information")
     }
@@ -183,7 +197,6 @@ export class EventService implements IEventService {
         }
         return result;
     }
-
 
     private isUserInElement(userId: number, element: ElementExtendedDto): boolean {
         return element.users.some(user => user.id === userId)
