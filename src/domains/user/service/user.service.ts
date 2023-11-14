@@ -1,17 +1,19 @@
-import {Inject, Injectable, NotFoundException} from '@nestjs/common';
+import {forwardRef, Inject, Injectable, NotFoundException} from '@nestjs/common';
 import { UserRepository } from '../repository/user.repository';
 import { IUserService } from './user.service.inteface';
 import { UpdateUserInput } from '../input/update.user.input';
 import {IMailService} from "../../mail/service/mail.service.interface";
 import {ConfigService} from "@nestjs/config";
 import {UserDto} from "../dto/user.dto";
+import {AuthService, IAuthService} from "../../auth";
 
 @Injectable()
 export class UserService implements IUserService{
     constructor(
         private userRepository: UserRepository,
         @Inject('IMailService') private mailService: IMailService,
-        private readonly config: ConfigService
+        private readonly config: ConfigService,
+        @Inject(forwardRef(() => IAuthService)) private readonly authService: IAuthService,
     ) {}
 
     async getUserByUsername(username: string){
@@ -23,6 +25,7 @@ export class UserService implements IUserService{
     }
 
     async updateUser(userId: number, input: UpdateUserInput){
+      input.password = await this.authService.encryptPassword(input.password);
       const user = await this.userRepository.updateUser(userId, input);
       if(!user){
           throw new NotFoundException('User could not be found');

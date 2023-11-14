@@ -22,13 +22,13 @@ import {UserService} from '../../user/service/user.service';
 import {ElementExtendedDto} from "../../element/dto/element.extended.dto";
 import {EventHostStatusDto} from "../dto/event.host.status.dto";
 import e from "express";
+import {IMailService} from "../../mail/service/mail.service.interface";
 
 @Injectable()
 export class EventService implements IEventService {
     constructor(private repository: IEventRepository,
                 private userService: UserService
-    ) {
-    }
+    ) {}
 
     async getEventsByUserId(userId: number) {
         const events = await this.checkEvents(await this.repository.getEventsByUserId(userId), userId);

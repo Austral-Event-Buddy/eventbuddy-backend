@@ -12,17 +12,18 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  username  String    @unique
+  id        Int                  @id @default(autoincrement())
+  email     String               @unique
+  username  String               @unique
   name      String?
   password  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  events    Event[]   @relation("Events")
-  guests    Guest[]   @relation("Guests")
-  comments  Comment[] @relation("Comments")
-  elements  Element[] @relation()
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  events    Event[]              @relation("Events")
+  guests    Guest[]              @relation("Guests")
+  comments  Comment[]            @relation("Comments")
+  elements  Element[]            @relation()
+  tokens    PasswordResetToken[] @relation()
 }
 
 model Event {
@@ -30,7 +31,7 @@ model Event {
   name                 String
   description          String
   creatorId            Int
-  creator              User      @relation("Events", fields: [creatorId], references: [id])
+  creator              User      @relation("Events", fields: [creatorId], references: [id], onDelete: Cascade)
   coordinates          Float[]
   confirmationDeadline DateTime
   createdAt            DateTime  @default(now())
@@ -69,8 +70,8 @@ model Comment {
   eventId   Int
   parentId  Int?
   text      String
-  author    User      @relation("Comments", fields: [userId], references: [id])
-  event     Event     @relation("Comments", fields: [eventId], references: [id])
+  author    User      @relation("Comments", fields: [userId], references: [id], onDelete: Cascade)
+  event     Event     @relation("Comments", fields: [eventId], references: [id], onDelete: Cascade)
   parent    Comment?  @relation("Comments", fields: [parentId], references: [id], onDelete: Cascade)
   Comment   Comment[] @relation("Comments")
   createdAt DateTime  @default(now())
@@ -81,4 +82,12 @@ enum confirmationStatus {
   PENDING
   ATTENDING
   NOT_ATTENDING
+}
+
+model PasswordResetToken {
+  id             Int      @id @default(autoincrement())
+  token          String   @unique
+  userId         Int
+  expirationDate DateTime
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
