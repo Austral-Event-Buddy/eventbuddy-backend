@@ -7,4 +7,6 @@ export abstract class ICommentService{
     abstract deleteComment(userId: number, commentId: number):Promise<boolean>;
     abstract getCommentsByEventId(eventId: number):Promise<CommentDto[]>
     abstract checkIfUserIsAuthor(userId: number, commentId: number):Promise<boolean>
+
+    abstract getReplies(commentId: number) : Promise<CommentDto[]>
 }

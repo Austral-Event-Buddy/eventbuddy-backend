@@ -1,10 +1,11 @@
-import {Body, Controller, Delete, Get, Put, Request, UseGuards, Param, BadRequestException} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Put, Request, UseGuards, Param, BadRequestException, ForbiddenException} from '@nestjs/common';
 import {JwtAuthGuard} from '../auth/auth.guard';
 import {Request as ExpressRequest} from 'express';
 import {GetUserDto} from './dto/get.user.dto';
 import {getUserByUsername} from "./input";
 import {UserService} from "./service/user.service";
 import {UpdateUserInput} from './input/update.user.input';
+import {UserDto} from "./dto/user.dto";
 
 @Controller('user')
 export class UserController {
@@ -24,13 +25,22 @@ export class UserController {
         return users.map(user => new GetUserDto(user))
     }
 
-    @Get(':id')
-    async getUserById(@Param('id') id: string): Promise<GetUserDto> {
-        const userId = parseInt(id)
-        if (isNaN(userId)) throw new BadRequestException('Id must be a number')
-        const user = await this.userService.getUserById(parseInt(id))
-        return new GetUserDto(user)
-    }
+	@Get('by_id/:id')
+	async getUserById(@Param('id') id: string): Promise<UserDto> {
+		const userId = parseInt(id);
+		if (Number.isNaN(userId)) {
+			throw new ForbiddenException('Event id must be a number');
+		} else {
+			return this.userService.getUserById(userId);
+		}
+	}
+	@Get(':id')
+	async getUserById1(@Param('id') id: string): Promise<GetUserDto> {
+		const userId = parseInt(id)
+		if (isNaN(userId)) throw new BadRequestException('Id must be a number')
+		const user = await this.userService.getUserById(parseInt(id))
+		return new GetUserDto(user)
+	}
 
     @UseGuards(JwtAuthGuard)
     @Put('update')

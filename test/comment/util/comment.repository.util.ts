@@ -65,4 +65,8 @@ export class CommentRepositoryUtil implements ICommentRepository{
         return Promise.resolve(updatedComment);
     }
 
+    getCommentsByCommentId(id: number): Promise<CommentDto[]> {
+        throw new Error("Method not implemented.");
+    }
+
 }

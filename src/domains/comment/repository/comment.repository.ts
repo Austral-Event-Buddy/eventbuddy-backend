@@ -52,7 +52,15 @@ export class CommentRepository implements ICommentRepository{
     async getCommentsByEventId(eventId: number):Promise<CommentDto[]> {
         return this.prisma.comment.findMany({
             where:{
-                eventId: eventId
+                eventId: eventId,
+                parentId: null
+            }
+        })
+    }
+    async getCommentsByCommentId(id: number):Promise<CommentDto[]> {
+        return this.prisma.comment.findMany({
+            where:{
+                parentId: id
             }
         })
     }

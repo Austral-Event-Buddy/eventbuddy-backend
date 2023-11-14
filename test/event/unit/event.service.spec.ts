@@ -11,7 +11,7 @@ import {
 import {confirmationStatus, Event} from '@prisma/client';
 import { UserService } from '../../../src/domains/user/service/user.service';
 import { UserServiceUtil } from '../../user/util/user.service.util';
-import {NotFoundException, UnauthorizedException} from "@nestjs/common";
+import {ForbiddenException, NotFoundException, UnauthorizedException} from "@nestjs/common";
 
 describe('EventService Unit Test', () => {
 	let eventService: IEventService;
@@ -338,7 +338,7 @@ describe('EventService Unit Test', () => {
             const event = await eventService.createEvent(userId, input);
             await expect(async () => {
                 await eventService.getEventByEventId(guestId,event.id)
-            }).rejects.toThrow(UnauthorizedException)
+            }).rejects.toThrow(ForbiddenException)
 
         });
     })

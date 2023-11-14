@@ -50,6 +50,8 @@ ENV NODE_ENV development
 
 WORKDIR /app
 
+COPY --from=deps /app/node_modules ./node_modules
+
 COPY package.json ./
 
 CMD ["sh", "-c", "npm run dev"]
