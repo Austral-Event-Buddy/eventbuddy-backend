@@ -14,7 +14,7 @@ export class EventRepositoryUtil implements IEventRepository {
     checkIfUserIsInvited(userId: number, eventId: number): Promise<GuestDto> {
         throw new Error("Method not implemented.");
     }
-    getElementsByEvent(eventId: number): Promise<ElementExtendedDto[]> {
+    getElementsByEvent(eventId: number) : Promise<ElementExtendedDto[]> {
         throw new Error("Method not implemented.");
     }
 
