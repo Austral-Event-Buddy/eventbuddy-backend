@@ -34,7 +34,7 @@ export class UserService implements IUserService{
       if(!user){
           throw new NotFoundException('User could not be found');
       }
-      return this.addProfilePictureToUser(user);
+      return user;
     }
 
     async deleteUser(userId: number){

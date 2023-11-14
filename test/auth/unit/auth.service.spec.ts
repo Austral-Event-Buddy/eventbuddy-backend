@@ -142,6 +142,7 @@ describe('AuthService Unit Test', () => {
                 username: 'test',
                 password: 'password',
                 name: 'test',
+				defaultPic: false,
                 createdAt: undefined,
                 updatedAt: undefined,
             }; //This user was also hardcoded in the user.repository.util.ts

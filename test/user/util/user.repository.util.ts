@@ -12,6 +12,7 @@ export class UserRepositoryUtil implements IUserRepository {
         username: 'test',
         password: 'password',
         name: 'test',
+         defaultPic: false,
         createdAt: undefined,
         updatedAt: undefined
     };
@@ -25,6 +26,7 @@ export class UserRepositoryUtil implements IUserRepository {
             password: dto.password,
             username: dto.username,
             name: dto.name,
+            defaultPic: false,
             createdAt: undefined,
             updatedAt: undefined,
         }

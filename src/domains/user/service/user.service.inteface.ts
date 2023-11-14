@@ -5,6 +5,6 @@ import {GetUserWithPicDto} from "../dto/get.user.with.pic.dto";
 export interface IUserService{
   getUserByUsername(username: string): Promise<GetUserWithPicDto[]>
   getUserById(userId: number): Promise<GetUserWithPicDto>
-  updateUser(userId: number, input: UpdateUserInput): Promise<GetUserWithPicDto>
+  updateUser(userId: number, input: UpdateUserInput): Promise<UserDto>
   deleteUser(userId: number): Promise<UserDto>
 }
