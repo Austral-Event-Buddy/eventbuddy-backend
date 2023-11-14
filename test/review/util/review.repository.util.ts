@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {IReviewRepository} from "../../../src/domains/review/repository";
-import {NewReviewInput, UpdateReviewInput} from "../../../src/domains/review/input";
+import {ReviewInput, UpdateReviewInput} from "../../../src/domains/review/input";
 import {ReviewDto} from "../../../src/domains/review/dto/review.dto";
 import {Review} from "@prisma/client";
 
@@ -9,7 +9,7 @@ import {Review} from "@prisma/client";
 export class ReviewRepositoryUtil implements IReviewRepository{
     reviews: ReviewDto[] = [];
     id = 1;
-    createReview(userId: number, input: NewReviewInput): Promise<ReviewDto> {
+    createReview(userId: number, input: ReviewInput): Promise<ReviewDto> {
         let review : Review={
             id: this.id,
             userId: userId,
@@ -66,6 +66,15 @@ export class ReviewRepositoryUtil implements IReviewRepository{
             updatedAt: originalReview.updatedAt
         }
         return Promise.resolve(updatedReview);
+    }
+
+    findReviewByUserAndEventId(userId: number, eventId: number): Promise<ReviewDto> {
+        for (const review of this.reviews){
+            if (review.userId === userId && review.eventId === eventId){
+                return Promise.resolve(review);
+            }
+        }
+        return Promise.resolve(null)
     }
 
 }

@@ -4,7 +4,7 @@ import {
 import {JwtAuthGuard} from "../auth/auth.guard";
 import {IReviewService} from "./service";
 import {Request as ExpressRequest} from 'express';
-import {NewReviewInput, UpdateReviewInput} from "./input";
+import {ReviewInput, UpdateReviewInput} from "./input";
 import {EventService, IEventService} from "../event/service";
 import {updateEventInput} from "../event/input";
 
@@ -17,13 +17,13 @@ export class ReviewController {
     }
 
     @Post()
-    async createReview(@Request() req: ExpressRequest, @Body() input: NewReviewInput) {
+    async createOrUpdateReview(@Request() req: ExpressRequest, @Body() input: ReviewInput) {
         if (await this.eventService.checkFutureEvent(input.eventId, input.date)) {
             throw new ForbiddenException("Event has not passed yet")
         } else if (!await this.eventService.isUserInvited(req.user['id'], input.eventId)) {
             throw new UnauthorizedException("User is not invited to this event")
         }
-        return this.reviewService.createReview(req.user['id'], input)
+        return this.reviewService.createOrUpdateReview(req.user['id'], input)
     }
     @Get(":eventId")
     async getEventReviews(@Request() req: ExpressRequest, @Param('eventId') eventId: string) {
@@ -35,18 +35,7 @@ export class ReviewController {
 
     }
 
-    @Post(":reviewId")
-    async updateReview(@Request() req: ExpressRequest, @Param('reviewId') reviewId: string,
-                       @Body() input: UpdateReviewInput) {
-        const reviewIdInt = parseInt(reviewId);
-        if (Number.isNaN(reviewIdInt)) {
-            throw new TypeError('Review id must be a number');
-        }
-        if (!await this.reviewService.checkIfUserIsReviewOwner(req.user['id'], reviewIdInt)) {
-            throw new UnauthorizedException("User is not authorized to update this review")
-        }
-        return await this.reviewService.updateReview(reviewIdInt, input)
-    }
+
     @Delete(":reviewId")
     async deleteReview(@Request() req: ExpressRequest, @Param('reviewId') reviewId: string) {
         const reviewIdInt = parseInt(reviewId);

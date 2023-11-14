@@ -346,7 +346,7 @@ describe('EventService Unit Test', () => {
 
             const event = await eventService.createEvent(userId, input);
             const passedEventsInput ={
-                date: new Date(2026, 8, 25)
+                date: new Date(2026, 8, 25).toDateString()
             }
             const result = await eventService.getPassedEvents(userId,passedEventsInput)
             expect(result).toEqual([event])
@@ -355,7 +355,7 @@ describe('EventService Unit Test', () => {
         it('event has not passed', async () => {
             const event = await eventService.createEvent(userId, input);
             const passedEventsInput ={
-                date: new Date(2023,11,12)
+                date: new Date(2023,11,12).toDateString()
             }
             const result = await eventService.getPassedEvents(userId,passedEventsInput)
             expect(result).toEqual([])

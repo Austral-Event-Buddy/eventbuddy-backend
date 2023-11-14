@@ -1,9 +1,8 @@
-import {Injectable, NotFoundException, UnauthorizedException} from "@nestjs/common";
+import {Injectable, UnauthorizedException} from "@nestjs/common";
 import {IReviewService} from "./review.service.interface";
-import {NewReviewInput, UpdateReviewInput} from "../input";
+import {ReviewInput} from "../input";
 import {ReviewDto} from "../dto/review.dto";
 import {IReviewRepository} from "../repository";
-import e from "express";
 
 @Injectable()
 export class ReviewService implements IReviewService {
@@ -15,8 +14,18 @@ export class ReviewService implements IReviewService {
         return review !== null;
     }
 
-    async createReview(userId: number, input: NewReviewInput): Promise<ReviewDto> {
-        return await this.repository.createReview(userId, input)
+    async createOrUpdateReview(userId: number, input: ReviewInput): Promise<ReviewDto> {
+        const review = await this.repository.findReviewByUserAndEventId(userId, input.eventId)
+        if (review === null) {
+            return await this.repository.createReview(userId, input)
+        }
+        else {
+            if (await this.checkIfUserIsReviewOwner(userId, review.id)){
+            return await this.repository.updateReview(review.id, input)}
+            else{
+                throw new UnauthorizedException("User is not this review's owner");
+            }
+        }
     }
 
     async deleteReview(reviewId: number): Promise<ReviewDto> {
@@ -28,20 +37,5 @@ export class ReviewService implements IReviewService {
         return await this.repository.getEventReviews(eventId)
     }
 
-    async updateReview(reviewId: number, input: UpdateReviewInput): Promise<ReviewDto> {
-        const review = await this.repository.updateReview(reviewId, input);
-        if (review) {
-            return {
-                id: review.id,
-                rating: review.rating,
-                userId: review.userId,
-                eventId: review.eventId,
-                createdAt: review.createdAt,
-                updatedAt: review.updatedAt
-            }
-        } else {
-            throw new NotFoundException("Review not found")
-        }
-    }
 
 }

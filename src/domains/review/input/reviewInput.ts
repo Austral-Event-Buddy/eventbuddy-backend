@@ -1,6 +1,6 @@
 import {IsDateString, IsInt, IsNotEmpty} from "class-validator";
 
-export class NewReviewInput {
+export class ReviewInput {
     @IsNotEmpty()
     @IsInt()
     eventId: number;
