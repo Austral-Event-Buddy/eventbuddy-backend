@@ -43,7 +43,7 @@ export class EventController {
             search,
         );
     }
-    @Get('past')
+    @Post('past')
     getPassedEventsByUserId(@Request() req: ExpressRequest, @Body() input: getPassedEventsInput) {
         return this.eventService.getPassedEvents(req.user['id'], input);
 
