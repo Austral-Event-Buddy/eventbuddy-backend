@@ -23,6 +23,7 @@ import {ElementExtendedDto} from "../../element/dto/element.extended.dto";
 import {EventHostStatusDto} from "../dto/event.host.status.dto";
 import e from "express";
 import { CommentDto } from 'src/domains/comment/dto/comment.dto';
+import {IMailService} from "../../mail/service/mail.service.interface";
 
 @Injectable()
 export class EventService implements IEventService {

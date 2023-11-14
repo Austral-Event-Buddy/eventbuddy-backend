@@ -26,8 +26,6 @@ export class EventRepository implements IEventRepository {
                     user: true,
                 },
             },
-            elements: true,
-            comments: true,
         },
         orderBy: {
             date: 'asc',
@@ -97,8 +95,6 @@ export class EventRepository implements IEventRepository {
                         user: true,
                     },
                 },
-                elements: true,
-                comments: true,
             },
             orderBy: {
                 date: 'asc',
@@ -168,7 +164,7 @@ export class EventRepository implements IEventRepository {
     }
 
     async deleteEventAndGuests(eventId: number) {
-        this.prisma.event.delete({
+        await this.prisma.event.delete({
             where: {
                 id: eventId,
             }
@@ -186,8 +182,17 @@ export class EventRepository implements IEventRepository {
                   user: true,
                 },
               },
-              comments: true,
-              elements: true,
+              comments: {
+                where: { parentId: null },
+                include: {
+                    author: true,
+                }
+              },
+              elements: {
+                include: {
+                    users: true,
+                }
+              },
             }
         });
     }
@@ -256,5 +261,32 @@ export class EventRepository implements IEventRepository {
                 }
             }
         })
+    }
+
+    async getCommentReplies(event: EventDto): Promise<EventDto> {
+        return {
+            ...event,
+            comments: await Promise.all(event.comments.map(async comment => {
+                return {
+                    ...comment,
+                    replies: await this.getReplies(comment.id)
+                }
+            }))
+        }
+    }
+
+    async getReplies(commentId: number): Promise<CommentDto[]> {
+        const replies = await this.prisma.comment.findMany({
+            where: {
+                parentId: commentId
+            }
+        })
+
+        return await Promise.all(replies.map(async reply => {
+            return {
+                ...reply,
+                replies: await this.getReplies(reply.id)
+            }
+        }))
     }
 }

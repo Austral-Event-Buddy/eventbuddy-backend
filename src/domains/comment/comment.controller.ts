@@ -8,7 +8,7 @@ import {NewCommentInput} from "./input";
 @UseGuards(JwtAuthGuard)
 @Controller('comment')
 export class CommentController{
-    constructor(private commentService: ICommentService) {
+    constructor(private commentService: ICommentService) {}
 
     }
     @Get(':eventId')
@@ -27,6 +27,7 @@ export class CommentController{
         }
         return this.commentService.getReplies(commentId);
     }
+
     @Post()
     postComment(@Request() req: ExpressRequest, @Body() input: NewCommentInput){
         return this.commentService.createComment(req.user['id'],input);

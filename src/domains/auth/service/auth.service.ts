@@ -1,19 +1,28 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import {ForbiddenException, forwardRef, Inject, Injectable, NotFoundException} from '@nestjs/common';
+import {JwtService} from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import {PrismaClientKnownRequestError} from '@prisma/client/runtime/library';
 
-import { LoginInput, RegisterInput } from '../input';
-import { IAuthService } from "./auth.service.interface";
-import { IAuthRepository } from "../repository/auth.repository.interface";
-import { UserDto } from '../../user/dto/user.dto';
+import {LoginInput, PasswordResetTokenInput, RegisterInput, ResetPasswordInput} from '../input';
+import {IAuthService} from "./auth.service.interface";
+import {IAuthRepository} from "../repository/auth.repository.interface";
+import {UserDto} from '../../user/dto/user.dto';
+import {IMailService} from "../../mail/service/mail.service.interface";
+import {ConfigService} from '@nestjs/config';
+import {IUserService} from "../../user/service/user.service.inteface";
+import {UpdateUserInput} from "../../user/input/update.user.input";
+import {UserService} from "../../user/service/user.service";
+
 
 @Injectable()
 export class AuthService implements IAuthService {
   constructor(
     private repository: IAuthRepository,
     private jwt: JwtService,
+    @Inject('IMailService') private mailService: IMailService,
+    private config: ConfigService,
+    @Inject(forwardRef(() => 'IUserService')) @Inject('IUserService') private userService: IUserService
   ) {}
 
   async register(dto: RegisterInput) {
@@ -22,6 +31,7 @@ export class AuthService implements IAuthService {
       const user = await this.repository.createUser(dto);
       return this.signToken(user.id);
     } catch (error) {
+      console.log(error)
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Credentials taken');
@@ -61,6 +71,35 @@ export class AuthService implements IAuthService {
     return {
       access_token: await this.jwt.signAsync({ sub: userId }, {}),
     };
+  }
+
+  async sendResetPasswordEmail(email: string):Promise<string>{
+      const user = await this.repository.findUserByEmail(email);
+      if(!user){
+          throw new NotFoundException('No account associated with email: ' + email)
+      }
+      const userId = user['id']
+      const token = require('crypto').randomBytes(48).toString('hex');
+      const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      const dto = new PasswordResetTokenInput(token, userId, tomorrow);
+      await this.repository.createPasswordResetToken(dto);
+      this.mailService.sendEmail(email, this.config.get("SENDGRID_RESET_PASSWORD_TEMPLATE_ID"),{"URL" : this.config.get("FRONTEND_URL") + this.config.get("FRONTED_RESET_PASSWORD_PATH") + "?token=" + token || ""} );
+      return token
+  }
+
+  async resetPassword(input: ResetPasswordInput){
+      const resetPasswordToken = await this.repository.findPasswordResetTokenByToken(input.token);
+      if(!resetPasswordToken){
+          throw new NotFoundException('Token not found')
+      }
+      const expirationDate = resetPasswordToken['expirationDate'];
+      const userId = resetPasswordToken['userId'];
+      if(new Date() > expirationDate) {
+          throw new ForbiddenException('Token expired')
+      }
+      const updateUserInput = new UpdateUserInput()
+      updateUserInput.password = input.newPassword;
+      return await this.userService.updateUser(userId, updateUserInput);
   }
 
   async encryptPassword(password: string): Promise<string> {

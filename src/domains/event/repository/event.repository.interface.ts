@@ -52,5 +52,6 @@ export abstract class IEventRepository {
   abstract checkIfUserIsInvited(userId: number, eventId: number): Promise<GuestDto>;
   abstract getElementsByEvent(eventId: number) : Promise<ElementExtendedDto[]> ;
   abstract getEventByEventId(eventId: number):Promise<EventDto>
-
+	abstract getElementsByEvent(eventId: number) : Promise<ElementExtendedDto[]> ;
+  abstract getCommentReplies(event: EventDto): Promise<EventDto>;
 }
