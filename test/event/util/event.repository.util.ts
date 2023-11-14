@@ -7,7 +7,6 @@ import { ElementDto } from "src/domains/element/dto/element.dto";
 import { GuestDto } from "src/domains/event/dto/guest.dto";
 import Any = jasmine.Any;
 import {ElementExtendedDto} from "../../../src/domains/element/dto/element.extended.dto";
-import {EventDto} from "../../../src/domains/event/dto/event.dto";
 
 @Injectable()
 export class EventRepositoryUtil implements IEventRepository {

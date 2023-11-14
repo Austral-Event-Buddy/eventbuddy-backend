@@ -6,7 +6,8 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './domains/user/user.module';
 import { EventModule } from './domains/event/event.module';
 import { ElementModule } from "./domains/element/element.module";
-import { CommentModule } from "./domains/comment/comment.module";
+import {ReviewModule} from "./domains/review/review.module";
+import {CommentModule} from "./domains/comment/comment.module";
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { CommentModule } from "./domains/comment/comment.module";
     UserModule,
     EventModule,
     ElementModule,
-    CommentModule,
+      ReviewModule,
+      CommentModule
   ],
 })
 export class AppModule {}
