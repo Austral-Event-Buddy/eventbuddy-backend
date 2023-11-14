@@ -1,2 +1,2 @@
-export * from './newReviewInput';
+export * from './review.input';
 export * from './updateReviewInput';

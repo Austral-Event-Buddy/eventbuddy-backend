@@ -20,4 +20,3 @@ const elementRepositoryProvider = {
   providers: [commentServiceProvider, elementRepositoryProvider],
 })
 export class CommentModule {}
-

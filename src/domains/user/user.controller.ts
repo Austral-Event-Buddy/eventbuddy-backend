@@ -1,13 +1,24 @@
-import {Body, Controller, Delete, Get, Put, Request, UseGuards, Param, Post} from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/auth.guard';
-import { Request as ExpressRequest } from 'express';
-import { GetUserDto } from './dto/get.user.dto';
-import {getUserByUsername} from "./input";
+import {
+    BadRequestException,
+    Body,
+    Controller,
+    Delete,
+    ForbiddenException,
+    Get,
+    Param,
+    Put,
+    Request,
+    UseGuards
+} from '@nestjs/common';
+import {JwtAuthGuard} from '../auth/auth.guard';
+import {Request as ExpressRequest} from 'express';
+import {GetUserDto} from './dto/get.user.dto';
 import {UserService} from "./service/user.service";
-import { UpdateUserInput } from './input/update.user.input';
+import {UpdateUserInput} from './input/update.user.input';
 import {ProfilePictureDto} from "./dto/profile.picture.dto";
 import {GetUserWithPicDto} from "./dto/get.user.with.pic.dto";
 import {UserDto} from "./dto/user.dto";
+
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
@@ -28,25 +39,42 @@ export class UserController {
       return await this.userService.getUserByUsername(username)
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Put('update')
-  async updateUser(@Request() request: ExpressRequest, @Body() input: UpdateUserInput): Promise<GetUserDto> {
-      return await this.userService.updateUser(request.user['id'], input)
-  }
+	@Get('by_id/:id')
+	async getUserById(@Param('id') id: string): Promise<GetUserWithPicDto> {
+		const userId = parseInt(id);
+		if (Number.isNaN(userId)) {
+			throw new ForbiddenException('Event id must be a number');
+		} else {
+			return this.userService.getUserById(userId);
+		}
+	}
+	@Get(':id')
+	async getUserById1(@Param('id') id: string): Promise<GetUserDto> {
+		const userId = parseInt(id)
+		if (isNaN(userId)) throw new BadRequestException('Id must be a number')
+        return await this.userService.getUserById(parseInt(id))
+	}
 
-  @UseGuards(JwtAuthGuard)
-  @Delete('delete')
-  async deleteUser(@Request() request: ExpressRequest): Promise<GetUserDto> {
-      const user = await this.userService.deleteUser(request.user['id'])
-      return new GetUserDto(user);
-  }
+    @UseGuards(JwtAuthGuard)
+    @Put('update')
+    async updateUser(@Request() request: ExpressRequest, @Body() input: UpdateUserInput): Promise<GetUserDto> {
+        const user = await this.userService.updateUser(request.user['id'], input)
+        return new GetUserDto(user);
+    }
 
-  @UseGuards(JwtAuthGuard)
-  @Put('picture')
-  async uploadProfilePicture(@Request() request: ExpressRequest): Promise<ProfilePictureDto> {
-      const signedUrl = await this.userService.uploadProfilePicture(request.user['id'])
-      return new ProfilePictureDto(signedUrl);
-  }
+    @UseGuards(JwtAuthGuard)
+    @Delete('delete')
+    async deleteUser(@Request() request: ExpressRequest): Promise<GetUserDto> {
+        const user = await this.userService.deleteUser(request.user['id'])
+        return new GetUserDto(user);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Put('picture')
+    async uploadProfilePicture(@Request() request: ExpressRequest): Promise<ProfilePictureDto> {
+        const signedUrl = await this.userService.uploadProfilePicture(request.user['id'])
+        return new ProfilePictureDto(signedUrl);
+    }
 
     @UseGuards(JwtAuthGuard)
     @Get('picture')

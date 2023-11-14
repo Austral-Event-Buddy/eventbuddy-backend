@@ -21,12 +21,14 @@ import {ElementDto} from "../../element/dto/element.dto";
 import {UserService} from '../../user/service/user.service';
 import {ElementExtendedDto} from "../../element/dto/element.extended.dto";
 import {getPassedEventsInput} from "../input/getPassedEvents.input";
+import {EventHostStatusDto} from "../dto/event.host.status.dto";
+import e from "express";
 import {IMailService} from "../../mail/service/mail.service.interface";
 
 @Injectable()
 export class EventService implements IEventService {
     constructor(private repository: IEventRepository,
-                private userService: UserService,
+                private userService: UserService
     ) {}
 
     async getEventsByUserId(userId: number) {
@@ -61,14 +63,28 @@ export class EventService implements IEventService {
         return this.toEventInfoOutput(events, userId);
     }
 
-    async getEventByEventId(userId: number, eventId: number) {
+    async getEventByEventId(userId: number, eventId: number):Promise<EventHostStatusDto> {
         const guest = await this.repository.getGuest(userId, eventId)
         if (guest !== undefined) {
             if (guest.confirmationStatus !== "NOT_ATTENDING") {
-                const event =  await this.repository.getCommentReplies( await this.repository.getEvent(eventId))
-                return this.addProfilePictureToSingleEvent(event)
+                let event = await this.repository.getCommentReplies( await this.repository.getEvent(eventId))
+                event = await this.addProfilePictureToSingleEvent(event)
+                return {
+                    id: event.id,
+                    name: event.name,
+                    description: event.description,
+                    creatorId : event.creatorId,
+                    coordinates: event.coordinates,
+                    date: event.date,
+                    confirmationDeadline: event.confirmationDeadline,
+                    updatedAt: event.updatedAt,
+                    createdAt: event.createdAt,
+                    isHost: guest.isHost,
+                    comments: event.comments,
+                    guests: event.guests
+                }
             }
-        } else throw new UnauthorizedException("User is not allowed to check this event information")
+        } else throw new ForbiddenException("User is not allowed to check this event information")
     }
 
     async createEvent(userId: number, input: NewEventInput) {
@@ -100,14 +116,14 @@ export class EventService implements IEventService {
         }
     }
 
-  async deleteEvent(userId: number, eventId: number) {
-    //const event = await this.repository.checkIfUserIsHost(userId, eventId);
-    // if (event === null) {
-    //   throw new UnauthorizedException('User is not authorized to delete event');
-    // }
-    await this.repository.deleteEventAndGuests(eventId);
-    return true;
-  }
+    async deleteEvent(userId: number, eventId: number) {
+        const event = await this.repository.checkIfUserIsCreator(userId, eventId);
+        if (event === null) {
+            throw new UnauthorizedException('User is not authorized to delete event');
+        }
+        await this.repository.deleteEventAndGuests(eventId);
+        return true;
+    }
 
     async inviteGuest(input: inviteGuestInput, userId: number) {
         const eventId = input.eventId;
@@ -184,7 +200,6 @@ export class EventService implements IEventService {
         }
         return result;
     }
-
 
     private isUserInElement(userId: number, element: ElementExtendedDto): boolean {
         return element.users.some(user => user.id === userId)

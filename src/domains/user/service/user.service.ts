@@ -55,11 +55,16 @@ export class UserService implements IUserService{
 
     async notifyInvitation(userId: number, eventName: string){
         const user = await this.userRepository.findUserById(userId)
-        this.mailService.sendEmail(
-            user.email,
-            this.config.get("SENDGRID_INVITATION_TEMPLATE_ID"),
-            {"URL" : this.config.get("FRONTEND_URL") + this.config.get("FRONTED_INVITATIONS_PATH") || ""}
-        )
+        try{
+            await this.mailService.sendEmail(
+                user.email,
+                this.config.get("SENDGRID_INVITATION_TEMPLATE_ID"),
+                {"URL" : this.config.get("FRONTEND_URL") + this.config.get("FRONTED_INVITATIONS_PATH") || ""}
+            )
+        }
+        catch (e) {
+            return;
+        }
     }
 
     async uploadProfilePicture(userId: number): Promise<string>{

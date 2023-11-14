@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {IReviewRepository} from "./review.repository.interface";
-import {NewReviewInput} from "../input";
+import {ReviewInput} from "../input";
 import {ReviewDto} from "../dto/review.dto";
 import {PrismaService} from "../../../prisma/prisma.service";
 import {UpdateReviewInput} from "../input";
@@ -9,7 +9,7 @@ import {UpdateReviewInput} from "../input";
 export class ReviewRepository implements IReviewRepository{
     constructor(private prisma: PrismaService) {
     }
-    async createReview(userId: number, input: NewReviewInput): Promise<ReviewDto> {
+    async createReview(userId: number, input: ReviewInput): Promise<ReviewDto> {
         return this.prisma.review.create({
             data:{
                 userId: userId,
@@ -56,6 +56,15 @@ export class ReviewRepository implements IReviewRepository{
         })
     }
 
+    findReviewByUserAndEventId(userId: number, eventId: number): Promise<ReviewDto> {
+        return this.prisma.review.findUnique({
+            where:{
+                userId_eventId:{
+                    userId: userId,
+                    eventId: eventId
+                }
+            }
 
-
+        })
+    }
 }

@@ -41,38 +41,40 @@ describe("Review Service unit test",()=>{
             createdAt: undefined,
             updatedAt: undefined
         }
-        const result = await reviewService.createReview(userId, newReviewInput);
+        const result = await reviewService.createOrUpdateReview(userId, newReviewInput);
         expect(result).toEqual(review);
     })
     const updateReviewInput={
-        rating: 4
+        eventId: 1,
+        rating: 3,
+        date: new Date(10,10)
     }
     it("Update a review", async ()=>{
-        const review = await reviewService.createReview(userId, newReviewInput);
-        const updatedReview = await reviewService.updateReview(review.id, updateReviewInput);
+        const review = await reviewService.createOrUpdateReview(userId, newReviewInput);
+        const updatedReview = await reviewService.createOrUpdateReview(review.id, updateReviewInput);
         expect(updatedReview.rating).not.toEqual(review.rating);
         expect(updatedReview.rating).toEqual(updateReviewInput.rating);
         expect(updatedReview.id).toEqual(review.id);
 
     })
     it("Delete a review", async ()=>{
-        const review = await reviewService.createReview(userId, newReviewInput);
+        const review = await reviewService.createOrUpdateReview(userId, newReviewInput);
         await reviewService.deleteReview(review.id);
         const result = await reviewService.getEventReviews(review.eventId);
         expect(result).toEqual([]);
     })
     it("Get event reviews", async ()=>{
-        const review = await reviewService.createReview(userId, newReviewInput);
+        const review = await reviewService.createOrUpdateReview(userId, newReviewInput);
         const result = await reviewService.getEventReviews(review.eventId);
         expect(result).toEqual([review]);
     })
     it("Check if user is review owner", async ()=>{
-        const review = await reviewService.createReview(userId, newReviewInput);
+        const review = await reviewService.createOrUpdateReview(userId, newReviewInput);
         const result = await reviewService.checkIfUserIsReviewOwner(userId, review.id);
         expect(result).toEqual(true);
     })
     it('Check if user is not review owner ', async () => {
-        const review = await reviewService.createReview(userId, newReviewInput);
+        const review = await reviewService.createOrUpdateReview(userId, newReviewInput);
         const result = await reviewService.checkIfUserIsReviewOwner(2, review.id);
         expect(result).toEqual(false);
 

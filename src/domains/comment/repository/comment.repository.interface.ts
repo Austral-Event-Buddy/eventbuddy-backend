@@ -7,4 +7,5 @@ export abstract class ICommentRepository{
     abstract deleteComment(commentId: number);
     abstract checkIfUserIsAuthor(userId: number, commentId: number):Promise<CommentDto>
     abstract getCommentsByEventId(eventId: number):Promise<CommentDto[]>
+    abstract getCommentsByCommentId(id: number):Promise<CommentDto[]>
 }

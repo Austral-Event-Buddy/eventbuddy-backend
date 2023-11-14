@@ -11,6 +11,7 @@ import {GuestDto} from "../dto/guest.dto";
 import {ElementDto} from "../../element/dto/element.dto";
 import {ElementExtendedDto} from "../../element/dto/element.extended.dto";
 import {getPassedEventsInput} from "../input/getPassedEvents.input";
+import {EventHostStatusDto} from "../dto/event.host.status.dto";
 
 
 export abstract class IEventService {
@@ -51,7 +52,7 @@ export abstract class IEventService {
 
     abstract getElementsByEvent(eventId: number, userId: number): Promise<ElementExtendedDto[]>
 
-    abstract getEventByEventId(userId: number, eventId: number): Promise<EventDto>
+    abstract getEventByEventId(userId: number, eventId: number): Promise<EventHostStatusDto>
 
     abstract getPassedEvents(userId: number, input: getPassedEventsInput): Promise<EventDto[]>
     abstract getOwnEvents(userId:number):Promise<EventDto[]>

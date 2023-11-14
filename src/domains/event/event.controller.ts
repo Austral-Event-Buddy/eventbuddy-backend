@@ -16,7 +16,6 @@ import {JwtAuthGuard} from '../auth/auth.guard';
 import {
     answerInviteInput,
     getEventsBySearchInput,
-    getGuestsByEventInput,
     inviteGuestInput,
     NewEventInput,
     updateEventInput
@@ -43,7 +42,7 @@ export class EventController {
             search,
         );
     }
-    @Get('past')
+    @Post('past')
     getPassedEventsByUserId(@Request() req: ExpressRequest, @Body() input: getPassedEventsInput) {
         return this.eventService.getPassedEvents(req.user['id'], input);
 
@@ -55,6 +54,7 @@ export class EventController {
 
     @Post()
     createEvent(@Request() req: ExpressRequest, @Body() input: NewEventInput) {
+
         const date = new Date(input.date);
         const confirmationDeadline = new Date(input.confirmationDeadline);
         const today = new Date();
@@ -67,8 +67,8 @@ export class EventController {
     }
 
     @Post('invite/send')
-    inviteGuest(@Body() input: inviteGuestInput, @Request() req: ExpressRequest) {
-        return this.eventService.inviteGuest(input, req.user['id']);
+    async inviteGuest(@Body() input: inviteGuestInput, @Request() req: ExpressRequest) {
+        await this.eventService.inviteGuest(input, req.user['id']);
     }
 
     @Put('invite/answer')
@@ -81,9 +81,14 @@ export class EventController {
         return this.eventService.getInvitesByUser(req.user['id']);
     }
 
-    @Get('invites/by_event')
-    getGuestsByEvent(@Body() input: getGuestsByEventInput) {
-        return this.eventService.getGuestsByEvent(input.eventId);
+    @Get('invites/by_event/:eventId')
+    getGuestsByEvent(@Param('eventId') id: string) {
+        const eventId = parseInt(id);
+        if (Number.isNaN(eventId)) {
+            throw new ForbiddenException('Event id must be a number');
+        } else {
+            return this.eventService.getGuestsByEvent(eventId);
+        }
     }
 
     @Get('elements/:eventId')
@@ -91,14 +96,14 @@ export class EventController {
         const eventId = parseInt(id);
         if (Number.isNaN(eventId)) {
             throw new ForbiddenException('Event id must be a number');
-        } else { 
+        } else {
             return this.eventService.getElementsByEvent(eventId,req.user['id']);
         }
     }
 
     @Get(':eventId')
     getEventByEventId(
-        @Request() req,
+        @Request() req: ExpressRequest,
         @Param('eventId') eventId: string
     ) {
         const eventIdInt = parseInt(eventId)
@@ -119,12 +124,12 @@ export class EventController {
         const eventIdInt = parseInt(eventId);
         if (Number.isNaN(eventIdInt)) {
             throw new TypeError('Event id must be a number');
-        } 
+        }
         if (
             this.eventService.checkGuestStatusOnEvent(req.user['id'], eventIdInt)
         ) {
             return this.eventService.updateEvent(eventIdInt, input);
-        } else throw new UnauthorizedException('User is not hosting this event');
+        } else throw new ForbiddenException('User is not hosting this event');
     }
 
     @Delete(':eventId')
