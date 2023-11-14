@@ -330,7 +330,8 @@ describe('EventService Unit Test', () => {
             const event = await eventService.createEvent(userId, input);
             await eventService.inviteGuest(inviteGuestInput, userId);
             const result = await eventService.getEventByEventId(userId,event.id)
-            expect(result).toEqual(event)
+            const eventHostStatusDto = {...event, isHost: true}
+            expect(result).toEqual(eventHostStatusDto)
 
         });
         it('user is not allowed to view event',async()=>{

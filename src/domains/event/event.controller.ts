@@ -45,6 +45,7 @@ export class EventController {
 
     @Post()
     createEvent(@Request() req: ExpressRequest, @Body() input: NewEventInput) {
+
         const date = new Date(input.date);
         const confirmationDeadline = new Date(input.confirmationDeadline);
         const today = new Date();
@@ -81,7 +82,7 @@ export class EventController {
         const eventId = parseInt(id);
         if (Number.isNaN(eventId)) {
             throw new ForbiddenException('Event id must be a number');
-        } else { 
+        } else {
             return this.eventService.getElementsByEvent(eventId,req.user['id']);
         }
     }
@@ -109,7 +110,7 @@ export class EventController {
         const eventIdInt = parseInt(eventId);
         if (Number.isNaN(eventIdInt)) {
             throw new TypeError('Event id must be a number');
-        } 
+        }
         if (
             this.eventService.checkGuestStatusOnEvent(req.user['id'], eventIdInt)
         ) {
