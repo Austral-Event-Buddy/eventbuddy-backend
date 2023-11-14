@@ -81,7 +81,7 @@ export class EventService implements IEventService {
                     isHost: guest.isHost
                 }
             }
-        } else throw new UnauthorizedException("User is not allowed to check this event information")
+        } else throw new ForbiddenException("User is not allowed to check this event information")
     }
 
     async createEvent(userId: number, input: NewEventInput) {

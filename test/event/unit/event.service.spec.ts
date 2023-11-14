@@ -11,7 +11,7 @@ import {
 import {confirmationStatus, Event} from '@prisma/client';
 import { UserService } from '../../../src/domains/user/service/user.service';
 import { UserServiceUtil } from '../../user/util/user.service.util';
-import {NotFoundException, UnauthorizedException} from "@nestjs/common";
+import {ForbiddenException, NotFoundException, UnauthorizedException} from "@nestjs/common";
 
 describe('EventService Unit Test', () => {
 	let eventService: IEventService;
@@ -338,7 +338,44 @@ describe('EventService Unit Test', () => {
             const event = await eventService.createEvent(userId, input);
             await expect(async () => {
                 await eventService.getEventByEventId(guestId,event.id)
-            }).rejects.toThrow(UnauthorizedException)
+            }).rejects.toThrow(ForbiddenException)
+
+        });
+    })
+    describe("Get passed events",()=>{
+        it('get an event after it has already passed', async() => {
+
+            const event = await eventService.createEvent(userId, input);
+            const passedEventsInput ={
+                date: new Date(2026, 8, 25).toDateString()
+            }
+            const result = await eventService.getPassedEvents(userId,passedEventsInput)
+            expect(result).toEqual([event])
+
+        });
+        it('event has not passed', async () => {
+            const event = await eventService.createEvent(userId, input);
+            const passedEventsInput ={
+                date: new Date(2023,11,12).toDateString()
+            }
+            const result = await eventService.getPassedEvents(userId,passedEventsInput)
+            expect(result).toEqual([])
+
+
+
+        });
+    })
+    describe("Get user's own events",()=>{
+        it('get events that the user is hosting', async() => {
+            const event = await eventService.createEvent(userId, input);
+            const result = await eventService.getOwnEvents(userId)
+            expect(result).toEqual([event])
+
+        });
+        it('should not get events since user is not hosting', async() => {
+            const event = await eventService.createEvent(userId, input);
+            const result = await eventService.getOwnEvents(guestId)
+            expect(result).toEqual([])
 
         });
     })

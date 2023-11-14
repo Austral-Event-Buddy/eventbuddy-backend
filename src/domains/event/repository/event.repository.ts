@@ -7,7 +7,7 @@ import {EventDto} from "../dto/event.dto";
 import {GuestDto} from "../dto/guest.dto";
 import {ElementDto} from "../../element/dto/element.dto";
 import {ElementExtendedDto} from "../../element/dto/element.extended.dto";
-import { CommentDto } from 'src/domains/comment/dto/comment.dto';
+import {CommentDto} from "../../comment/dto/comment.dto";
 
 @Injectable()
 export class EventRepository implements IEventRepository {
