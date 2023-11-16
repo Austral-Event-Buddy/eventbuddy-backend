@@ -12,6 +12,11 @@ export class S3Service implements IS3Service {
     constructor(private config: ConfigService) {
         this.s3Client = new S3Client({
             maxAttempts: 15,
+            region: this.config.get("AWS_REGION"),
+            credentials: {
+                accessKeyId: this.config.get("AWS_ACCESS_KEY_ID"),
+                secretAccessKey: this.config.get("AWS_SECRET_ACCESS_KEY")
+            }
         });
     }
     async uploadFile(path: string): Promise<string> {

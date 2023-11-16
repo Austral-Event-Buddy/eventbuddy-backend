@@ -3,7 +3,6 @@ import {ElementDto} from "./element.dto";
 import {GetUserDto} from "../../user/dto/get.user.dto";
 
 export class ElementExtendedDto extends ElementDto{
-    users: GetUserDto[]
     isAssignedToUser?: boolean
 
     constructor(elementsExtendedDto: ElementExtendedDto) {

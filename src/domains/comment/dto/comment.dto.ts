@@ -1,3 +1,5 @@
+import { UserDto } from "src/domains/user/dto/user.dto";
+
 export class CommentDto{
     id: number;
     userId: number;
@@ -6,6 +8,7 @@ export class CommentDto{
     text: string;
     createdAt: Date;
     updatedAt: Date;
+    author?: UserDto;
 
     constructor(newComment: CommentDto) {
         this.id = newComment.id;

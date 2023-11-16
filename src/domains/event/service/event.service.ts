@@ -81,7 +81,8 @@ export class EventService implements IEventService {
                     createdAt: event.createdAt,
                     isHost: guest.isHost,
                     comments: event.comments,
-                    guests: event.guests
+                    guests: event.guests,
+                    elements: event.elements,
                 }
             }
         } else throw new ForbiddenException("User is not allowed to check this event information")
@@ -125,14 +126,14 @@ export class EventService implements IEventService {
         return true;
     }
 
-    async inviteGuest(input: inviteGuestInput, userId: number) {
+    async inviteGuest(input: inviteGuestInput, userId: number, skipDateCheck = false) {
         const eventId = input.eventId;
         const invitedId = input.userId;
         const hostGuest = await this.repository.getHostGuest(userId, eventId);
         const event = await this.repository.getEvent(eventId);
         if (hostGuest != null || event.creatorId === userId) {
-            if (!this.checkEventDate(event.date)) throw new ForbiddenException("The event date has passed")
-            else if (!this.checkEventDate(event.confirmationDeadline)) throw new ForbiddenException("The confirmation deadline has passed")
+            if (!this.checkEventDate(event.date) && !skipDateCheck) throw new ForbiddenException("The event date has passed")
+            else if (!this.checkEventDate(event.confirmationDeadline) && !skipDateCheck) throw new ForbiddenException("The confirmation deadline has passed")
             try {
                 await this.userService.notifyInvitation(invitedId, event.name)
                 return await this.repository.inviteGuest(eventId, invitedId, input.isHost);
@@ -150,13 +151,13 @@ export class EventService implements IEventService {
         }
     }
 
-    async answerInvite(input: answerInviteInput, userId: number) {
+    async answerInvite(input: answerInviteInput, userId: number, skipDateCheck = false) {
         const eventId = input.eventId;
         const guest = await this.repository.getGuest(userId, eventId);
         const event = await this.repository.getEvent(eventId);
-        if (!this.checkEventDate(event.date))
+        if (!this.checkEventDate(event.date) && !skipDateCheck)
             throw new ForbiddenException("The confirmation deadline has passed");
-        else if (!await this.checkConfirmationDeadline(event.confirmationDeadline, guest.userId, event.id))
+        else if (!await this.checkConfirmationDeadline(event.confirmationDeadline, guest.userId, event.id) && !skipDateCheck)
             throw new ForbiddenException("The confirmation deadline has passed");
         if (guest['userId'] == userId) {
             return await this.repository.answerInvite(guest.id, input.answer);
@@ -184,7 +185,7 @@ export class EventService implements IEventService {
         const events = await this.repository.getEventsByUserId(userId);
         const result: Event[] = [];
         for(const event of events){
-            if(event.date < new Date(input.date)){
+            if(event.date < new Date(input.date) && !event.reviews.map(r => r.userId).includes(userId)){
                 result.push(event);
             }
         }
@@ -274,7 +275,12 @@ export class EventService implements IEventService {
 
   private async addProfilePictureToSingleEvent(event: EventDto): Promise<EventDto> {
     for (const guest of event.guests) {
-      guest.profilePictureUrl = await this.userService.getProfilePictureById(guest.id);
+      guest.profilePictureUrl = await this.userService.getProfilePictureById(guest.user.id);
+    }
+    for (const element of event.elements) {
+        for (const user of element.users) {
+            user.profilePictureUrl = await this.userService.getProfilePictureById(user.id);
+        }
     }
     return event;
   }

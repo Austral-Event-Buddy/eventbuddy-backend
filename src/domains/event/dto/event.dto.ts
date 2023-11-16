@@ -1,4 +1,5 @@
 import { CommentDto } from 'src/domains/comment/dto/comment.dto';
+import { ElementDto } from 'src/domains/element/dto/element.dto';
 
 export class EventDto {
     id: number;
@@ -12,6 +13,9 @@ export class EventDto {
     createdAt: Date;
     guests?: any[];
     comments?: CommentDto[];
+    elements?: ElementDto[];
+    rating?: number;
+    reviews?: any[];
 
     constructor(newEvent: EventDto) {
         this.id=newEvent.id;
@@ -24,5 +28,7 @@ export class EventDto {
         this.updatedAt = newEvent.updatedAt;
         this.createdAt = newEvent.createdAt;
         this.comments = newEvent.comments;
+        this.elements = newEvent.elements;
+        this.rating = newEvent.rating;
     }
 }

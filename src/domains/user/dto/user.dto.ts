@@ -4,9 +4,10 @@ export class UserDto{
   username:  string
   password: string
   name?:      string
-  defaultPic: boolean
+  defaultPic?: boolean
   createdAt: Date
   updatedAt: Date
+  profilePictureUrl?: string
 
   constructor(userDto: UserDto) {
     this.id = userDto.id;

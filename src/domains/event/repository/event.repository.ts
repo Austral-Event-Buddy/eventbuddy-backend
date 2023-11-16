@@ -1,36 +1,54 @@
 import {PrismaService} from '../../../prisma/prisma.service';
-import {Injectable} from '@nestjs/common';
+import {Inject, Injectable} from '@nestjs/common';
 import {NewEventInput, updateEventInput} from '../input';
 import {IEventRepository} from './event.repository.interface';
-import {confirmationStatus} from '@prisma/client';
+import {User, confirmationStatus} from '@prisma/client';
 import {EventDto} from "../dto/event.dto";
 import {GuestDto} from "../dto/guest.dto";
 import {ElementDto} from "../../element/dto/element.dto";
 import {ElementExtendedDto} from "../../element/dto/element.extended.dto";
 import {CommentDto} from "../../comment/dto/comment.dto";
+import { IS3Service } from '../../s3/service/s3.service.interface';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class EventRepository implements IEventRepository {
-    constructor(private prisma: PrismaService) {
+    constructor(
+        private prisma: PrismaService,
+        private s3Service: IS3Service,  
+        private config: ConfigService,
+    ) {
     }
 
     async getEventsByUserId(userId: number):Promise<EventDto[]> {
-        return this.prisma.event.findMany({
-        where: {
-            OR: [{creatorId: userId}, {guests: {some: {userId: userId}}}],
-            NOT: [{guests: {some: {userId: userId, confirmationStatus: 'NOT_ATTENDING'}}}]
-        },
-        include: {
-            guests: {
-                include: {
-                    user: true,
-                },
+        const e = await this.prisma.event.findMany({
+            where: {
+                OR: [{creatorId: userId}, {guests: {some: {userId: userId}}}],
+                NOT: [{guests: {some: {userId: userId, confirmationStatus: 'NOT_ATTENDING'}}}]
             },
-        },
-        orderBy: {
-            date: 'asc',
-        },
+            include: {
+                guests: {
+                    include: {
+                        user: true,
+                    },
+                },
+                reviews: true,
+            },
+            orderBy: {
+                date: 'asc',
+            },
         });
+
+        return await Promise.all(
+            e.map(async event => {
+                return {
+                    ...event,
+                    rating: await this.prisma.review.aggregate({
+                        where: { eventId: event.id }, _avg: { rating: true }
+                    }).then(res => res._avg.rating)
+                }
+            })
+        )
     };
 
     async getEventByEventId(eventId: number): Promise<EventDto> {
@@ -249,16 +267,7 @@ export class EventRepository implements IEventRepository {
                 eventId: eventId,
             },
             include: {
-                users: {
-                    select: {
-                        id: true,
-                        name: true,
-                        username: true,
-                        email: true,
-                        createdAt: true,
-                        updatedAt: true,
-                    }
-                }
+                users: true,
             }
         })
     }
@@ -269,9 +278,13 @@ export class EventRepository implements IEventRepository {
             comments: await Promise.all(event.comments.map(async comment => {
                 return {
                     ...comment,
+                    author: {
+                        ...comment.author,
+                        profilePictureUrl: await this.getUserProfilePicture(comment.author as User)
+                    },
                     replies: await this.getReplies(comment.id)
                 }
-            }))
+            })),
         }
     }
 
@@ -279,14 +292,26 @@ export class EventRepository implements IEventRepository {
         const replies = await this.prisma.comment.findMany({
             where: {
                 parentId: commentId
+            },
+            include: {
+                author: true,
             }
         })
 
         return await Promise.all(replies.map(async reply => {
             return {
                 ...reply,
+                author: {
+                    ...reply.author,
+                    profilePictureUrl: await this.getUserProfilePicture(reply.author)
+                },
                 replies: await this.getReplies(reply.id)
             }
         }))
+    }
+
+    async getUserProfilePicture(user: User): Promise<string> {
+        if (user.defaultPic) return this.s3Service.getSignedUrl(this.config.get("DEFAULT_PROFILE_PICTURE"))
+        return this.s3Service.getSignedUrl(`${user.id}`)
     }
 }

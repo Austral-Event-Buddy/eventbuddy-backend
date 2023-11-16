@@ -29,7 +29,9 @@ export class UserService implements IUserService{
     }
 
     async updateUser(userId: number, input: UpdateUserInput){
-      input.password = await this.authService.encryptPassword(input.password);
+      if (input.password) {
+        input.password = await this.authService.encryptPassword(input.password);
+      }
       const user = await this.userRepository.updateUser(userId, input);
       if(!user){
           throw new NotFoundException('User could not be found');
@@ -74,7 +76,7 @@ export class UserService implements IUserService{
     }
 
     async getProfilePicture(userId: number, defaultPic: boolean): Promise<string>{
-        if(defaultPic) return this.s3Service.getSignedUrl(this.config.get("DEFAULT_PROFILE_PICTURE"))
+        if (defaultPic) return this.s3Service.getSignedUrl(this.config.get("DEFAULT_PROFILE_PICTURE"))
 
         return this.s3Service.getSignedUrl(`${userId}`)
     }

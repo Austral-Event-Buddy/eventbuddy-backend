@@ -44,13 +44,7 @@ export class ElementRepository implements IElementRepository {
 		return this.prisma.element.findUnique({
 			where: {id: elementId},
 			include: {
-				users: {
-					select: {
-						email: true,
-						username: true,
-						name: true,
-					},
-				}
+				users: true
 			},
 		})
 	}

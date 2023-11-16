@@ -4,6 +4,7 @@ import {EventService, IEventService} from './service';
 import { EventRepository } from './repository/event.repository';
 import {IEventRepository} from "./repository";
 import { UserModule } from '../user/user.module';
+import { S3Module } from '../s3/s3.module';
 
 const eventServiceProvider = {
   provide: IEventService,
@@ -21,7 +22,7 @@ const eventRepositoryProvider = {
     eventServiceProvider,
     eventRepositoryProvider,
   ],
-  imports: [UserModule],
+  imports: [UserModule, S3Module],
   exports: [EventService]
 })
 export class EventModule {}

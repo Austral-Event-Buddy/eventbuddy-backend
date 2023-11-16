@@ -48,12 +48,6 @@ export class UserController {
 			return this.userService.getUserById(userId);
 		}
 	}
-	@Get(':id')
-	async getUserById1(@Param('id') id: string): Promise<GetUserDto> {
-		const userId = parseInt(id)
-		if (isNaN(userId)) throw new BadRequestException('Id must be a number')
-        return await this.userService.getUserById(parseInt(id))
-	}
 
     @UseGuards(JwtAuthGuard)
     @Put('update')
@@ -90,5 +84,12 @@ export class UserController {
     @Delete('picture')
     async deleteProfilePicture(@Request() request: ExpressRequest): Promise<void> {
         await this.userService.deleteProfilePicture(request.user['id'])
+    }
+
+    @Get(':id')
+    async getUserById1(@Param('id') id: string): Promise<GetUserDto> {
+      const userId = parseInt(id)
+      if (isNaN(userId)) throw new BadRequestException('Id must be a number')
+          return await this.userService.getUserById(parseInt(id))
     }
 }

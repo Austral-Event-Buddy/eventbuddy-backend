@@ -7,6 +7,7 @@ export class ElementDto {
 	quantity: number
 	eventId: number
 	maxUsers: number
+	users?: UserDto[]
 
 	constructor(elementDto: ElementDto) {
 		this.id = elementDto.id;

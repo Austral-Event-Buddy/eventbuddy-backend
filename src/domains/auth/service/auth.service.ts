@@ -10,9 +10,8 @@ import {IAuthRepository} from "../repository/auth.repository.interface";
 import {UserDto} from '../../user/dto/user.dto';
 import {IMailService} from "../../mail/service/mail.service.interface";
 import {ConfigService} from '@nestjs/config';
-import {IUserService} from "../../user/service/user.service.inteface";
 import {UpdateUserInput} from "../../user/input/update.user.input";
-import {UserService} from "../../user/service/user.service";
+import { IUserRepository } from '../../user/repository/user.repository.interface';
 
 
 @Injectable()
@@ -22,7 +21,7 @@ export class AuthService implements IAuthService {
     private jwt: JwtService,
     @Inject('IMailService') private mailService: IMailService,
     private config: ConfigService,
-    @Inject(forwardRef(() => 'IUserService')) @Inject('IUserService') private userService: IUserService
+    @Inject('IUserRepository') private userRepository: IUserRepository
   ) {}
 
   async register(dto: RegisterInput) {
@@ -98,8 +97,12 @@ export class AuthService implements IAuthService {
           throw new ForbiddenException('Token expired')
       }
       const updateUserInput = new UpdateUserInput()
-      updateUserInput.password = input.newPassword;
-      return await this.userService.updateUser(userId, updateUserInput);
+      updateUserInput.password = await this.encryptPassword(input.newPassword);
+      const user = await this.userRepository.updateUser(userId, updateUserInput as UpdateUserInput);
+      if(!user){
+          throw new NotFoundException('User could not be found');
+      }
+      return user;
   }
 
   async encryptPassword(password: string): Promise<string> {
